@@ -43,8 +43,9 @@
 
 <script>
 	import zyworkProductList from '@/components/zywork-product-list/zywork-product-list.vue'
-	import uniLoadMore from '@/components/uni-load-more/uni-load-more.vue';
-	export default {
+	import uniLoadMore from '@/components/uni-load-more/uni-load-more.vue'
+	
+ 	export default {
 		components: {
 			uniLoadMore,
 			zyworkProductList

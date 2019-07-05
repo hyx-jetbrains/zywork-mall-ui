@@ -10,6 +10,7 @@ export const USER_ID = 'userId'
 export const USER_ROLES = 'userRoles'
 export const USER_PHONE = 'userPhone'
 
+
 export const DEFAULT_HEADICON = '/static/headicon.png'
 /**
  * 判断是否为空

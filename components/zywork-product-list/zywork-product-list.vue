@@ -18,7 +18,10 @@
 </template>
 
 <script>
-	import empty from "@/components/empty";
+	import empty from "@/components/empty"
+	import {
+		setBrowseHistory
+	} from '@/common/storage.js'
 	export default {
 		components: {
 			empty
@@ -37,6 +40,8 @@
 		methods: {
 			//详情
 			navToDetailPage(item) {
+				// 保存浏览历史
+				setBrowseHistory(item.id, item.image);
 				//测试数据没有写id，用title代替
 				let id = item.title;
 				uni.navigateTo({
