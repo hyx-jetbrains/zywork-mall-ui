@@ -377,3 +377,71 @@ export const redTo = (url, isLogin) => {
 		url: url
 	})
 }
+
+/**
+ * post请求，application/json
+ * @param {*} url 请求url
+ * @param {*} data json对象
+ * @param {*} headers 如headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                          'Authorization': 'Bearer ' + getLocalStorageToken()
+                        }
+                      如果不需要传递headers，则直接使用{}
+ * @param {*} token 如传true：需要token，传false：不需要token
+ */
+export const doPostJson = (url, data, headers, token) => {
+	if (token) {
+		headers['Authorization'] = 'Bearer ' + getUserToken()
+	}
+	return uni.request({
+		url: url,
+		method: 'POST',
+		data: data,
+		headers: headers
+	})
+}
+
+/**
+ * post请求，application/x-www-form-urlencoded
+ * @param {*} url 请求url
+ * @param {*} data json对象
+ * @param {*} headers 如headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                          'Authorization': 'Bearer ' + getLocalStorageToken()
+                        }
+                      如果不需要传递headers，则直接使用{}
+ * @param {*} token 如传true：需要token，传false：不需要token
+ */
+export const doPostForm = (url, data, headers, token) => {
+	headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
+	if (token) {
+		headers['Authorization'] = 'Bearer ' + getUserToken()
+	}
+	return uni.request({
+		url: url,
+		method: 'POST',
+		data: data,
+		headers: headers
+	})
+}
+
+/**
+ * get请求
+ * @param {*} url 请求url，包含请求参数
+ * @param {*} headers 如headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                          'Authorization': 'Bearer ' + getLocalStorageToken()
+                        }
+                      如果不需要传递headers，则直接使用{}
+ * @param {*} token 如传true：需要token，传false：不需要token
+ */
+export const doGet = (url, headers) => {
+	if (token) {
+		headers['Authorization'] = 'Bearer ' + getUserToken()
+	}
+	return uni.request({
+		url: url,
+		method: 'GET',
+		headers: headers
+	})
+}
