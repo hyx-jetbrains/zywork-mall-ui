@@ -13,69 +13,19 @@ export const USER_PHONE = 'userPhone'
 
 export const DEFAULT_HEADICON = '/static/headicon.png'
 /**
- * 判断是否为空
+ * 判断是否为空（null, '', undefined）
  */
 export const isEmpty = (data) => {
 	return !data
 }
+
 /**
- * 验证用户token是否存在
+ * 判断是否不为空（null, '', undefined）
  */
-export const isUserTokenExist = () => {
-	const userToken = uni.getStorageSync(USER_TOKEN_KEY)
-	return !isEmpty(userToken)
+export const isNotEmpty = (data) => {
+	return !isEmpty(data)
 }
-/**
- * 验证用户id是否存在
- */
-export const isUserIdExist = () => {
-	const userId = uni.getStorageSync(USER_ID)
-	return !isEmpty(userId)
-}
-/**
- * 设置用户token
- */
-export const saveUserToken = (userToken) => {
-	uni.setStorageSync(USER_TOKEN_KEY, userToken)
-}
-/**
- * 获取用户token
- */
-export const getUserToken = () => {
-	const userToken = uni.getStorageSync(USER_TOKEN_KEY)
-	if (!isEmpty(userToken)) {
-		return userToken
-	}
-	return null
-}
-/**
- * 移除用户token
- */
-export const removeUserToken = () => {
-	uni.removeStorageSync(USER_TOKEN_KEY)
-}
-/**
- * 保存openid
- */
-export const saveOpenid = (openid) => {
-	uni.setStorageSync(USER_OPENID, openid)
-}
-/**
- * 获取openid
- */
-export const getOpenid = () => {
-	const openid = uni.getStorageSync(USER_OPENID)
-	if (!isEmpty(openid)) {
-		return openid
-	}
-	return null
-}
-/**
- * 移除openid
- */
-export const removeOpenid = () => {
-	uni.removeStorageSync(USER_OPENID)
-}
+
 /**
  * 清除表单
  */
@@ -104,7 +54,7 @@ export const showInfoToast = (title) => {
 	uni.showToast({
 		title: title,
 		icon: 'none',
-		duration: 2000
+		duration: 3000
 	})
 }
 /**
@@ -113,7 +63,7 @@ export const showInfoToast = (title) => {
 export const showSuccessToast = (title) => {
 	uni.showToast({
 		title: title,
-		duration: 2000
+		duration: 3000
 	})
 }
 /**
@@ -223,37 +173,6 @@ export const nullToStr = (data) => {
 	return data;
 }
 
-/**
- * 保存分享码
- * @param shareCode 分享码  
- */
-export const setShareCode = (shareCode) => {
-	uni.setStorage({
-		key: MY_SHARE_CODE,
-		data: shareCode
-	});
-}
-/**
- * 取分享码
- */
-export const getShareCode = () => {
-	const shareCode = uni.getStorageSync(MY_SHARE_CODE)
-	if (!isEmpty(shareCode)) {
-		return shareCode
-	}
-	return null
-}
-
-/**
- * 获取当前用户的手机号，如果有则获取，没有获取到的是空字符串
- */
-export const getUserPhone = () => {
-	const userPhone = uni.getStorageSync(USER_PHONE)
-	if (userPhone) {
-		return userPhone;
-	}
-	return "";
-}
 /**
  * 取指定的日期
  * @param {type} 7：上周开始时间 1：上周结束时间 0：本周开始时间 -6：本周结束时间 -7：下周开始时间 -13：下周结束时间  
