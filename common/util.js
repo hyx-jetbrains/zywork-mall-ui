@@ -316,7 +316,7 @@ export const doPostJson = (url, data, headers, token) => {
 		url: url,
 		method: 'POST',
 		data: data,
-		headers: headers
+		header: headers
 	})
 }
 
@@ -340,7 +340,7 @@ export const doPostForm = (url, data, headers, token) => {
 		url: url,
 		method: 'POST',
 		data: data,
-		headers: headers
+		header: headers
 	})
 }
 
@@ -361,6 +361,6 @@ export const doGet = (url, headers) => {
 	return uni.request({
 		url: url,
 		method: 'GET',
-		headers: headers
+		header: headers
 	})
 }

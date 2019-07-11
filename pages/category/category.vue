@@ -2,16 +2,16 @@
 	<view class="content">
 		<scroll-view scroll-y class="left-aside">
 			<view v-for="item in flist" :key="item.id" class="f-item b-b" :class="{active: item.id === currentId}" @click="tabtap(item)">
-				{{item.name}}
+				{{item.title}}
 			</view>
 		</scroll-view>
-		<scroll-view scroll-with-animation scroll-y class="right-aside" @scroll="asideScroll" :scroll-top="tabScrollTop">
+		<scroll-view scroll-with-animation scroll-y class="right-aside">
 			<view v-for="item in slist" :key="item.id" class="s-list" :id="'main-'+item.id">
-				<text class="s-item">{{item.name}}</text>
+				<text class="s-item">{{item.title}}</text>
 				<view class="t-list">
-					<view @click="navToList(item.id, titem.id)" v-if="titem.pid === item.id" class="t-item" v-for="titem in tlist" :key="titem.id">
-						<image :src="titem.picture"></image>
-						<text>{{titem.name}}</text>
+					<view @click="navToList(item.id, titem.id)" v-if="titem.parentId === item.id" class="t-item" v-for="titem in tlist" :key="titem.id">
+						<image :src="titem.picUrl"></image>
+						<text>{{titem.title}}</text>
 					</view>
 				</view>
 			</view>
@@ -20,68 +20,73 @@
 </template>
 
 <script>
+	import {BASE_URL, doPostJson, doPostForm, showInfoToast} from '@/common/util.js'
+	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
 		data() {
 			return {
 				sizeCalcState: false,
 				tabScrollTop: 0,
-				currentId: 1,
+				currentId: 0,
 				flist: [],
 				slist: [],
 				tlist: [],
 			}
 		},
 		onLoad(){
-			this.loadData();
+			this.loadCategory();
 		},
 		methods: {
-			async loadData(){
-				let list = await this.$api.json('cateList');
-				list.forEach(item=>{
-					if(!item.pid){
-						this.flist.push(item);  //pid为父级id, 没有pid或者pid=0是一级分类
-					}else if(!item.picture){
-						this.slist.push(item); //没有图的是2级分类
-					}else{
-						this.tlist.push(item); //3级分类
+			loadCategory(){
+				doPostJson(BASE_URL + '/goods-category/any/all-cond', {
+					sortColumn: 'id',
+					sortOrder: 'asc',
+					parentId: 0
+				}, {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						if (res.data.data.rows.length > 0) {
+							this.currentId = res.data.data.rows[0].id
+							this.flist = res.data.data.rows
+							this.loadCategoryByFirstLevel()
+						} else {
+							showInfoToast('暂无商品分类')
+						}
+					} else {
+						showInfoToast('暂时无法获取商品分类，请稍候再试')
 					}
-				}) 
+				}).catch(error => {
+					console.log(error)
+				})
+			},
+			loadCategoryByFirstLevel() {
+				doPostForm(BASE_URL + '/goods-category/any/by-first-level-category', {
+					categoryId: this.currentId
+				}, {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						if (res.data.data.rows.length > 0) {
+							this.slist = []
+							this.tlist = []
+							res.data.data.rows.forEach((item, index) => {
+								if(!item.picUrl){
+									this.slist.push(item); //没有图的是2级分类
+								}else{
+									this.tlist.push(item); //3级分类
+								}
+							})
+						}
+					} else {
+						showInfoToast('暂时无法获取商品分类，请稍候再试')
+					}
+				}).catch(error => {
+					console.log(error)
+				})
 			},
 			//一级分类点击
 			tabtap(item){
-				if(!this.sizeCalcState){
-					this.calcSize();
-				}
-				
-				this.currentId = item.id;
-				let index = this.slist.findIndex(sitem=>sitem.pid === item.id);
-				this.tabScrollTop = this.slist[index].top;
-			},
-			//右侧栏滚动
-			asideScroll(e){
-				if(!this.sizeCalcState){
-					this.calcSize();
-				}
-				let scrollTop = e.detail.scrollTop;
-				let tabs = this.slist.filter(item=>item.top <= scrollTop).reverse();
-				if(tabs.length > 0){
-					this.currentId = tabs[0].pid;
-				}
-			},
-			//计算右侧栏每个tab的高度等信息
-			calcSize(){
-				let h = 0;
-				this.slist.forEach(item=>{
-					let view = uni.createSelectorQuery().select("#main-" + item.id);
-					view.fields({
-						size: true
-					}, data => {
-						item.top = h;
-						h += data.height;
-						item.bottom = h;
-					}).exec();
-				})
-				this.sizeCalcState = true;
+				this.currentId = item.id
+				this.loadCategoryByFirstLevel()
 			},
 			navToList(sid, tid){
 				uni.navigateTo({
