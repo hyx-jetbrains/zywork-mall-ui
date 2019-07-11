@@ -38,6 +38,9 @@
 		},
 		methods: {
 			loadCategory(){
+				uni.showLoading({
+					title: '加载中...'
+				})
 				doPostJson(BASE_URL + '/goods-category/any/all-cond', {
 					sortColumn: 'id',
 					sortOrder: 'asc',
@@ -48,8 +51,9 @@
 						if (res.data.data.rows.length > 0) {
 							this.currentId = res.data.data.rows[0].id
 							this.flist = res.data.data.rows
-							this.loadCategoryByFirstLevel()
+							this.loadCategoryByFirstLevel(false)
 						} else {
+							uni.hideLoading()
 							showInfoToast('暂无商品分类')
 						}
 					} else {
@@ -59,10 +63,16 @@
 					console.log(error)
 				})
 			},
-			loadCategoryByFirstLevel() {
+			loadCategoryByFirstLevel(showLoading) {
+				if (showLoading) {
+					uni.showLoading({
+						title: '加载中...'
+					})
+				}
 				doPostForm(BASE_URL + '/goods-category/any/by-first-level-category', {
 					categoryId: this.currentId
 				}, {}).then(response => {
+					uni.hideLoading()
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
 						if (res.data.data.rows.length > 0) {
@@ -86,7 +96,7 @@
 			//一级分类点击
 			tabtap(item){
 				this.currentId = item.id
-				this.loadCategoryByFirstLevel()
+				this.loadCategoryByFirstLevel(true)
 			},
 			navToList(sid, tid){
 				uni.navigateTo({

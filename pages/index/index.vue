@@ -2,8 +2,9 @@
 	<view class="container">
 		<!-- 小程序头部兼容 -->
 		<!-- #ifdef MP -->
-		<view class="mp-search-box">
-			<input class="ser-input" type="text" value="输入关键字搜索" disabled />
+		<view class="mp-search-box zy-disable-flex">
+			<input class="ser-input" type="text" value="输入关键字搜索" disabled @click="navToSearchPage"/>
+			<zywork-icon type="icongood" size="27" color="#ffffff" reddot="true" @click.native="navToNoticePage"></zywork-icon>
 		</view>
 		<!-- #endif -->
 		
@@ -14,8 +15,8 @@
 			<!-- 背景色区域 -->
 			<view class="titleNview-background" :style="{backgroundColor:titleNViewBackground}"></view>
 			<swiper class="carousel" circular @change="swiperChange">
-				<swiper-item v-for="(item, index) in carouselList" :key="index" class="carousel-item" @click="navToDetailPage({title: '轮播广告'})">
-					<image :src="item.src" />
+				<swiper-item v-for="(item, index) in carouselList" :key="index" class="carousel-item" @click="navToCarouselDetail(item)">
+					<image :src="item.advertisementPicUrl" />
 				</swiper-item>
 			</swiper>
 			<!-- 自定义swiper指示器 -->
@@ -187,12 +188,16 @@
 
 <script>
 	import zyworkProductList from '@/components/zywork-product-list/zywork-product-list.vue'
+	import zyworkIcon from '@/components/zywork-icon/zywork-icon.vue'
+	import {BASE_URL, doPostJson} from '@/common/util.js'
+	import * as ResponseStatus from '@/common/response-status.js'
 	import {
 		SEARCH_PAGE
 	} from '@/common/page-url.js'
 	export default {
 		components: {
-			zyworkProductList
+			zyworkProductList,
+			zyworkIcon
 		},
 		data() {
 			return {
@@ -213,19 +218,54 @@
 			 * 分次请求未作整合
 			 */
 			async loadData() {
-				let carouselList = await this.$api.json('carouselList');
-				this.titleNViewBackground = carouselList[0].background;
-				this.swiperLength = carouselList.length;
-				this.carouselList = carouselList;
+				this.loadCarouselList()
 				
 				let goodsList = await this.$api.json('goodsList');
 				this.goodsList = goodsList || [];
+			},
+			navToSearchPage() {
+				uni.navigateTo({
+					url: SEARCH_PAGE
+				})
+			},
+			navToNoticePage() {
+				uni.navigateTo({
+					url: '/pages/notice/notice'
+				})
+			},
+			loadCarouselList() {
+				doPostJson(BASE_URL + '/adtype-ads/any/pager-cond', {
+					pageNo: 1,
+					pageSize: 5,
+					advertisementTypeCode: 'index_slider',
+					sortColumn: 'advertisementAdOrder',
+					sortOrder: 'asc',
+					isActive: 0
+				}, {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						this.carouselList = res.data.data.rows
+						this.titleNViewBackground = this.carouselList[0].advertisementBackgroundColor;
+						this.swiperLength = this.carouselList.length;
+					} else {
+						
+					}
+				}).catch(error => {
+					console.log(error)
+				})
 			},
 			//轮播图切换修改背景色
 			swiperChange(e) {
 				const index = e.detail.current;
 				this.swiperCurrent = index;
-				this.titleNViewBackground = this.carouselList[index].background;
+				this.titleNViewBackground = this.carouselList[index].advertisementBackgroundColor;
+			},
+			navToCarouselDetail(item) {
+				let linkPageUrl = item.advertisementLinkPageUrl
+				let linkId = item.advertisementLinkId
+				uni.navigateTo({
+					url: `${linkPageUrl}?id=${linkId}`
+				})
 			},
 			//详情页
 			navToDetailPage(item) {
@@ -234,7 +274,7 @@
 				uni.navigateTo({
 					url: `/pages/product/product?id=${id}`
 				})
-			},
+			}
 		},
 		// #ifndef MP
 		// 标题栏input搜索框点击
@@ -274,7 +314,7 @@
 		top: 30upx;
 		z-index: 9999;
 		width: 100%;
-		padding: 0 80upx;
+		padding: 0 10upx;
 		.ser-input{
 			flex:1;
 			height: 56upx;
@@ -284,6 +324,7 @@
 			color:$font-color-base;
 			border-radius: 20px;
 			background: rgba(255,255,255,.6);
+			margin-right: 10upx;
 		}
 	}
 	page{
