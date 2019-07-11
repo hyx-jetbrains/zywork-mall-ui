@@ -147,9 +147,9 @@
 			}
 		}
 	    ,{
-            "path" : "pages/notice/notice",
+            "path" : "pages/message/message",
             "style" : {
-				"navigationBarTitleText": "通知"
+				"navigationBarTitleText": "消息"
 			}
         }
         ,{

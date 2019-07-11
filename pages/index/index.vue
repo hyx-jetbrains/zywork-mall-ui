@@ -4,7 +4,7 @@
 		<!-- #ifdef MP -->
 		<view class="mp-search-box zy-disable-flex">
 			<input class="ser-input" type="text" value="输入关键字搜索" disabled @click="navToSearchPage"/>
-			<zywork-icon type="icongood" size="27" color="#ffffff" reddot="true" @click.native="navToNoticePage"></zywork-icon>
+			<zywork-icon type="icongood" size="27" color="#ffffff" reddot="true" @click.native="navToMessagePage"></zywork-icon>
 		</view>
 		<!-- #endif -->
 		
@@ -28,30 +28,14 @@
 		</view>
 		<!-- 分类 -->
 		<view class="cate-section">
-			<view class="cate-item">
-				<image src="/static/temp/c3.png"></image>
-				<text>环球美食</text>
-			</view>
-			<view class="cate-item">
-				<image src="/static/temp/c5.png"></image>
-				<text>个护美妆</text>
-			</view>
-			<view class="cate-item">
-				<image src="/static/temp/c6.png"></image>
-				<text>营养保健</text>
-			</view>
-			<view class="cate-item">
-				<image src="/static/temp/c7.png"></image>
-				<text>家居厨卫</text>
-			</view>
-			<view class="cate-item">
-				<image src="/static/temp/c8.png"></image>
-				<text>速食生鲜</text>
+			<view class="cate-item" v-for="(item, index) in hotCategoryList" :key="index" @click="navToProductList">
+				<image :src="item.picUrl"></image>
+				<text>{{item.title}}</text>
 			</view>
 		</view>
 		
 		<view class="ad-1">
-			<image src="/static/temp/ad1.jpg" mode="scaleToFill"></image>
+			<image :src="activityAdvertisement.advertisementPicUrl" mode="scaleToFill" @click="navToAdDetail(activityAdvertisement)"></image>
 		</view>
 		
 		<!-- 秒杀楼层 -->
@@ -144,9 +128,9 @@
 			<image src="/static/temp/h2.png"></image>
 			<view class="tit-box">
 				<text class="tit">服装精选</text>
-				<text class="tit2">各种男装、女装、童装</text>
+				<text class="tit2">为您精选的服装</text>
 			</view>
-			<text class="yticon icon-you"></text>
+			<text class="yticon icon-you" @click="navToProductList"></text>
 		</view>
 		<view class="hot-floor">
 			<scroll-view class="floor-list" scroll-x>
@@ -160,7 +144,7 @@
 						<text class="title clamp">{{item.title}}</text>
 						<text class="price">￥{{item.price}}</text>
 					</view>
-					<view class="more">
+					<view class="more" @click="navToProductList">
 						<text>查看全部</text>
 						<text>More+</text>
 					</view>
@@ -169,6 +153,7 @@
 		</view>
 
 		<!-- 猜你喜欢 -->
+		<!--
 		<view class="f-header m-t">
 			<image src="/static/temp/h3.png"></image>
 			<view class="tit-box">
@@ -181,7 +166,21 @@
 		<view class="guess-section">
 			<zywork-product-list :list="goodsList"></zywork-product-list>
 		</view>
+		-->
+
+		<!-- 热门商品 -->
+		<view class="f-header m-t">
+			<image src="/static/temp/h3.png"></image>
+			<view class="tit-box">
+				<text class="tit">热门商品</text>
+				<text class="tit2">最多人喜欢的商品</text>
+			</view>
+			<text class="yticon icon-you"></text>
+		</view>
 		
+		<view class="guess-section">
+			<zywork-product-list :list="goodsList"></zywork-product-list>
+		</view>
 
 	</view>
 </template>
@@ -191,6 +190,7 @@
 	import zyworkIcon from '@/components/zywork-icon/zywork-icon.vue'
 	import {BASE_URL, doPostJson} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
+	import {advertisement} from '@/common/advertisement.js'
 	import {
 		SEARCH_PAGE
 	} from '@/common/page-url.js'
@@ -205,6 +205,8 @@
 				swiperCurrent: 0,
 				swiperLength: 0,
 				carouselList: [],
+				hotCategoryList:[],
+				activityAdvertisement: {},
 				goodsList: []
 			};
 		},
@@ -219,7 +221,8 @@
 			 */
 			async loadData() {
 				this.loadCarouselList()
-				
+				this.loadHotCategoryList()
+				this.loadIndexActivityAd()
 				let goodsList = await this.$api.json('goodsList');
 				this.goodsList = goodsList || [];
 			},
@@ -228,27 +231,18 @@
 					url: SEARCH_PAGE
 				})
 			},
-			navToNoticePage() {
+			navToMessagePage() {
 				uni.navigateTo({
-					url: '/pages/notice/notice'
+					url: '/pages/message/message'
 				})
 			},
 			loadCarouselList() {
-				doPostJson(BASE_URL + '/adtype-ads/any/pager-cond', {
-					pageNo: 1,
-					pageSize: 5,
-					advertisementTypeCode: 'index_slider',
-					sortColumn: 'advertisementAdOrder',
-					sortOrder: 'asc',
-					isActive: 0
-				}, {}).then(response => {
+				advertisement(1, 5, 'index_slider').then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
 						this.carouselList = res.data.data.rows
 						this.titleNViewBackground = this.carouselList[0].advertisementBackgroundColor;
 						this.swiperLength = this.carouselList.length;
-					} else {
-						
 					}
 				}).catch(error => {
 					console.log(error)
@@ -260,11 +254,44 @@
 				this.swiperCurrent = index;
 				this.titleNViewBackground = this.carouselList[index].advertisementBackgroundColor;
 			},
-			navToCarouselDetail(item) {
+			navToAdDetail(item) {
 				let linkPageUrl = item.advertisementLinkPageUrl
 				let linkId = item.advertisementLinkId
 				uni.navigateTo({
 					url: `${linkPageUrl}?id=${linkId}`
+				})
+			},
+			loadHotCategoryList() {
+				doPostJson(BASE_URL + '/goods-category/any/pager-cond', {
+					pageNo: 1,
+					pageSize: 5,
+					parentId: 0,
+					isHot: 1,
+					isActive: 0
+				}, {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						this.hotCategoryList = res.data.data.rows
+					}
+				}).catch(error => {
+					console.log(error)
+				})
+			},
+			navToProductList() {
+				uni.navigateTo({
+					url: `/pages/product/list`
+				})
+			},
+			loadIndexActivityAd() {
+				advertisement(1, 1, 'index_activity').then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						if (res.data.data.total > 0) {
+							this.activityAdvertisement = response.data.data.rows[0]
+						}
+					}
+				}).catch(error => {
+					console.log(error)
 				})
 			},
 			//详情页
@@ -297,7 +324,7 @@
 				});
 				// #endif
 				uni.navigateTo({
-					url: '/pages/notice/notice'
+					url: '/pages/message/message'
 				})
 			}
 		}
@@ -441,6 +468,10 @@
 			align-items: center;
 			font-size: $font-sm + 2upx;
 			color: $font-color-dark;
+			margin-right: 20upx;
+		}
+		.cate-item:last-child {
+			margin-right: 0;
 		}
 		/* 原图标颜色太深,不想改图了,所以加了透明度 */
 		image {
