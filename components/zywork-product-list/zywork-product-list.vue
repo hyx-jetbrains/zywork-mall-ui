@@ -5,12 +5,12 @@
 		<view v-else class="goods-list">
 			<view v-for="(item, index) in list" :key="index" class="goods-item" @click="navToDetailPage(item)">
 				<view class="image-wrapper">
-					<image :src="item.image" mode="aspectFill"></image>
+					<image :src="item.goodsPicPicUrl" mode="aspectFill"></image>
 				</view>
-				<text class="title clamp">{{item.title}}</text>
+				<text class="title clamp">{{item.goodsInfoTitle}}</text>
 				<view class="price-box">
-					<text class="price">{{item.price}}</text>
-					<text>已售 {{item.sales}}</text>
+					<text class="price">{{item.goodsAttributeValueAttrValue}}</text>
+					<text>已售 {{item.saleQuantity}}</text>
 				</view>
 			</view>
 		</view>
@@ -41,9 +41,9 @@
 			//详情
 			navToDetailPage(item) {
 				// 保存浏览历史
-				setBrowseHistory(item.id, item.image);
+				setBrowseHistory(item.id, item.goodsPicPicUrl);
 				//测试数据没有写id，用title代替
-				let id = item.title;
+				let id = item.goodsInfoId;
 				uni.navigateTo({
 					url: `/pages/product/product?id=${id}`
 				})
@@ -55,6 +55,7 @@
 <style lang="scss">
 	/* 商品列表 */
 	.goods-list {
+		width: 100%;
 		display: flex;
 		flex-wrap: wrap;
 		padding: 0 30upx;

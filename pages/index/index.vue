@@ -179,11 +179,11 @@
 				<text class="tit">热门商品</text>
 				<text class="tit2">最多人喜欢的商品</text>
 			</view>
-			<text class="yticon icon-you"></text>
+			<text class="yticon icon-you" @click="navToProductList"></text>
 		</view>
 		
-		<view class="guess-section">
-			<zywork-product-list :list="goodsList"></zywork-product-list>
+		<view>
+			<zywork-product-list :list="hotGoodsList"></zywork-product-list>
 		</view>
 
 	</view>
@@ -212,7 +212,7 @@
 				hotCategoryList:[],
 				activityAdvertisement: {},
 				hotCategoryGoodsList: [],
-				goodsList: []
+				hotGoodsList: []
 			}
 		},
 
@@ -228,8 +228,7 @@
 				this.loadCarouselList()
 				this.loadHotCategoryList()
 				this.loadIndexActivityAd()
-				let goodsList = await this.$api.json('goodsList');
-				this.goodsList = goodsList || [];
+				this.loadHotGoods()
 			},
 			navToSearchPage() {
 				uni.navigateTo({
@@ -303,11 +302,10 @@
 			loadHotCategoryGoods() {
 				this.hotCategoryList.forEach((item, index) => {
 					doPostJson(BASE_URL + '/goods-sku-attr-val/any/goods-sku-attr/' + item.id, {
-					  "pageNo": 1,
-					  "pageSize": 6,
-					  "goodsAttributeAttrCode": "salePrice",
-					  "sortColumn": "saleQuantity",
-					  "sortOrder": "desc"
+						pageNo: 1,
+						pageSize: 6,
+						goodsInfoIsActive: 0,
+						goodsAttributeAttrCode: "salePrice"
 					}, {}).then(response => {
 						let [error, res] = response
 						if (res.data.code === ResponseStatus.OK) {
@@ -320,6 +318,22 @@
 					}).catch(error => {
 						console.log(error)
 					})
+				})
+			},
+			loadHotGoods() {
+				doPostJson(BASE_URL + '/goods-sku-attr-val/any/hot-goods-sku-attr', {
+					pageNo: 1,
+					pageSize: 10,
+					goodsInfoIsActive: 0,
+					goodsInfoIsHot: 1,
+					goodsAttributeAttrCode: "salePrice"
+				}, {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						this.hotGoodsList = res.data.data.rows
+					}
+				}).catch(error => {
+					console.log(error)
 				})
 			},
 			//详情页
@@ -748,44 +762,7 @@
 			}
 		}
 	}
-	/* 猜你喜欢 */
-	.guess-section{
-		display:flex;
-		flex-wrap:wrap;
-		padding: 0 30upx;
-		background: #fff;
-		.guess-item{
-			display:flex;
-			flex-direction: column;
-			width: 48%;
-			padding-bottom: 40upx;
-			&:nth-child(2n+1){
-				margin-right: 4%;
-			}
-		}
-		.image-wrapper{
-			width: 100%;
-			height: 330upx;
-			border-radius: 3px;
-			overflow: hidden;
-			image{
-				width: 100%;
-				height: 100%;
-				opacity: 1;
-			}
-		}
-		.title{
-			font-size: $font-lg;
-			color: $font-color-dark;
-			line-height: 80upx;
-		}
-		.price{
-			font-size: $font-lg;
-			color: $uni-color-primary;
-			line-height: 1;
-		}
-	}
-	
+		
 	.zy-type-title {
 		width: 50%;
 		height: 45%;

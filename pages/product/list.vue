@@ -14,24 +14,26 @@
 					<text :class="{active: priceOrder === 2 && filterIndex === 2}" class="yticon icon-shang xia"></text>
 				</view>
 			</view>
-			<text class="cate-item yticon icon-fenlei1" @click="toggleCateMask('show')"></text>
+			<text class="search-item yticon icon-fenlei1" @click="toggleCateMask('show')"></text>
 		</view>
 		<!-- 商品列表 -->
 		<zywork-product-list :list="goodsList"></zywork-product-list>
 		
 		<uni-load-more :status="loadingType"></uni-load-more>
 		
-		<view class="cate-mask" :class="cateMaskState===0 ? 'none' : cateMaskState===1 ? 'show' : ''" @click="toggleCateMask">
-			<view class="cate-content" @click.stop.prevent="stopPrevent" @touchmove.stop.prevent="stopPrevent">
-				<scroll-view scroll-y class="cate-list">
+		<view class="search-mask" :class="cateMaskState===0 ? 'none' : cateMaskState===1 ? 'show' : ''" @click="toggleCateMask">
+			<view class="search-content" @click.stop.prevent="stopPrevent" @touchmove.stop.prevent="stopPrevent">
+				<scroll-view scroll-y class="search-list">
 					<view v-for="item in cateList" :key="item.id">
 						<view class="cate-item b-b two">{{item.name}}</view>
-						<view 
-							v-for="tItem in item.child" :key="tItem.id" 
-							class="cate-item b-b" 
-							:class="{active: tItem.id==cateId}"
-							@click="changeCate(tItem)">
-							{{tItem.name}}
+						<view class="b-b three">
+							<view 
+								v-for="tItem in item.child" :key="tItem.id" 
+								class="cate-item" 
+								:class="{active: tItem.id==cateId}"
+								@click="changeCate(tItem)">
+								{{tItem.name}}
+							</view>
 						</view>
 					</view>
 				</scroll-view>
@@ -175,7 +177,8 @@
 			},
 			//分类点击
 			changeCate(item){
-				this.cateId = item.id;
+				this.cateId = item.id
+				/**
 				this.toggleCateMask();
 				uni.pageScrollTo({
 					duration: 300,
@@ -185,6 +188,7 @@
 				uni.showLoading({
 					title: '正在加载'
 				})
+				*/
 			},
 			
 			stopPrevent(){}
@@ -254,7 +258,7 @@
 				transform: scaleY(-1);
 			}
 		}
-		.cate-item{
+		.search-item{
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -275,8 +279,8 @@
 		}
 	}
 
-	/* 分类 */
-	.cate-mask{
+	/* 筛选 */
+	.search-mask{
 		position: fixed;
 		left: 0;
 		top: var(--window-top);
@@ -286,8 +290,8 @@
 		z-index: 95;
 		transition: .3s;
 		
-		.cate-content{
-			width: 630upx;
+		.search-content{
+			width: 75%;
 			height: 100%;
 			background: #fff;
 			float:right;
@@ -300,29 +304,35 @@
 		&.show{
 			background: rgba(0,0,0,.4);
 			
-			.cate-content{
+			.search-content{
 				transform: translateX(0);
 			}
 		}
 	}
-	.cate-list{
+	.search-list{
 		display: flex;
 		flex-direction: column;
 		height: 100%;
+		.two {
+			height: 64upx;
+			color: #303133;
+			font-size: 30upx;
+			background: #f8f8f8;
+		}
+		.three {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			margin-right: 20upx;
+		}
 		.cate-item{
 			display: flex;
 			align-items: center;
 			height: 90upx;
 			padding-left: 30upx;
- 			font-size: 28upx;
+			font-size: 28upx;
 			color: #555;
 			position: relative;
-		}
-		.two{
-			height: 64upx;
-			color: #303133;
-			font-size: 30upx;
-			background: #f8f8f8;
 		}
 		.active{
 			color: $base-color;
