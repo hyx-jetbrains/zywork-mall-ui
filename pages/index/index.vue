@@ -4,7 +4,7 @@
 		<!-- #ifdef MP -->
 		<view class="mp-search-box zy-disable-flex">
 			<input class="ser-input" type="text" value="输入关键字搜索" disabled @click="navToSearchPage"/>
-			<zywork-icon type="icongood" size="27" color="#ffffff" reddot="true" @click.native="navToMessagePage"></zywork-icon>
+			<zywork-icon type="iconxiaoxi" size="27" color="#ffffff" reddot="true" @click.native="navToMessagePage"></zywork-icon>
 		</view>
 		<!-- #endif -->
 		
@@ -127,7 +127,7 @@
 		<view v-for="(item, index) in hotCategoryGoodsList" :key="index">
 			<view v-if="item.goodsList.length > 0">
 				<view class="f-header m-t">
-					<image src="/static/temp/h2.png"></image>
+					<zywork-icon type="iconweibiaoti2fuzhi13" color="#fa436a" size="30"></zywork-icon>
 					<view class="tit-box">
 						<text class="tit">{{item.categoryTitle}}精选</text>
 						<text class="tit2">为您精选的{{item.categoryTitle}}</text>
@@ -174,7 +174,7 @@
 
 		<!-- 热门商品 -->
 		<view class="f-header m-t">
-			<image src="/static/temp/h3.png"></image>
+			<zywork-icon type="iconremen" color="#fa436a" size="30"></zywork-icon>
 			<view class="tit-box">
 				<text class="tit">热门商品</text>
 				<text class="tit2">最多人喜欢的商品</text>
