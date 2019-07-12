@@ -124,32 +124,36 @@
 		
 		
 		<!-- 分类推荐楼层 -->
-		<view class="f-header m-t">
-			<image src="/static/temp/h2.png"></image>
-			<view class="tit-box">
-				<text class="tit">服装精选</text>
-				<text class="tit2">为您精选的服装</text>
-			</view>
-			<text class="yticon icon-you" @click="navToProductList"></text>
-		</view>
-		<view class="hot-floor">
-			<scroll-view class="floor-list" scroll-x>
-				<view class="scoll-wrapper">
-					<view 
-						v-for="(item, index) in goodsList" :key="index"
-						class="floor-item"
-						@click="navToDetailPage(item)"
-					>
-						<image :src="item.image" mode="aspectFill"></image>
-						<text class="title clamp">{{item.title}}</text>
-						<text class="price">￥{{item.price}}</text>
+		<view v-for="(item, index) in hotCategoryGoodsList" :key="index">
+			<view v-if="item.goodsList.length > 0">
+				<view class="f-header m-t">
+					<image src="/static/temp/h2.png"></image>
+					<view class="tit-box">
+						<text class="tit">{{item.categoryTitle}}精选</text>
+						<text class="tit2">为您精选的{{item.categoryTitle}}</text>
 					</view>
-					<view class="more" @click="navToProductList">
-						<text>查看全部</text>
-						<text>More+</text>
-					</view>
+					<text class="yticon icon-you" @click="navToProductList"></text>
 				</view>
-			</scroll-view>
+				<view class="hot-floor">
+					<scroll-view class="floor-list" scroll-x>
+						<view class="scoll-wrapper">
+							<view 
+								v-for="(goods, idx) in item.goodsList" :key="idx"
+								class="floor-item"
+								@click="navToDetailPage(goods.goodsInfoId)"
+							>
+								<image :src="goods.goodsPicPicUrl" mode="aspectFill"></image>
+								<text class="title clamp">{{goods.goodsInfoTitle}}</text>
+								<text class="price">￥{{goods.goodsAttributeValueAttrValue}}</text>
+							</view>
+							<view class="more" @click="navToProductList">
+								<text>查看全部</text>
+								<text>More+</text>
+							</view>
+						</view>
+					</scroll-view>
+				</view>
+			</view>
 		</view>
 
 		<!-- 猜你喜欢 -->
@@ -207,8 +211,9 @@
 				carouselList: [],
 				hotCategoryList:[],
 				activityAdvertisement: {},
+				hotCategoryGoodsList: [],
 				goodsList: []
-			};
+			}
 		},
 
 		onLoad() {
@@ -272,6 +277,7 @@
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
 						this.hotCategoryList = res.data.data.rows
+						this.loadHotCategoryGoods()
 					}
 				}).catch(error => {
 					console.log(error)
@@ -287,19 +293,39 @@
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
 						if (res.data.data.total > 0) {
-							this.activityAdvertisement = response.data.data.rows[0]
+							this.activityAdvertisement = res.data.data.rows[0]
 						}
 					}
 				}).catch(error => {
 					console.log(error)
 				})
 			},
+			loadHotCategoryGoods() {
+				this.hotCategoryList.forEach((item, index) => {
+					doPostJson(BASE_URL + '/goods-sku-attr-val/any/goods-sku-attr/' + item.id, {
+					  "pageNo": 1,
+					  "pageSize": 6,
+					  "goodsAttributeAttrCode": "salePrice",
+					  "sortColumn": "saleQuantity",
+					  "sortOrder": "desc"
+					}, {}).then(response => {
+						let [error, res] = response
+						if (res.data.code === ResponseStatus.OK) {
+							let hotCategoryGoods = {}
+							hotCategoryGoods.categoryId = item.id
+							hotCategoryGoods.categoryTitle = item.title
+							hotCategoryGoods.goodsList = res.data.data.rows
+							this.hotCategoryGoodsList.push(hotCategoryGoods)
+						}
+					}).catch(error => {
+						console.log(error)
+					})
+				})
+			},
 			//详情页
-			navToDetailPage(item) {
-				//测试数据没有写id，用title代替
-				let id = item.title;
+			navToDetailPage(goodsInfoId) {
 				uni.navigateTo({
-					url: `/pages/product/product?id=${id}`
+					url: `/pages/product/product?id=${goodsInfoId}`
 				})
 			}
 		},
