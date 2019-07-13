@@ -28,7 +28,7 @@
 		</view>
 		<!-- 分类 -->
 		<view class="cate-section">
-			<view class="cate-item" v-for="(item, index) in hotCategoryList" :key="index" @click="navToProductList">
+			<view class="cate-item" v-for="(item, index) in hotCategoryList" :key="index" @click="navToProductList(item.id)">
 				<image :src="item.picUrl"></image>
 				<text>{{item.title}}</text>
 			</view>
@@ -132,7 +132,7 @@
 						<text class="tit">{{item.categoryTitle}}精选</text>
 						<text class="tit2">为您精选的{{item.categoryTitle}}</text>
 					</view>
-					<text class="yticon icon-you" @click="navToProductList"></text>
+					<text class="yticon icon-you" @click="navToProductList(item.categoryId)"></text>
 				</view>
 				<view class="hot-floor">
 					<scroll-view class="floor-list" scroll-x>
@@ -146,7 +146,7 @@
 								<text class="title clamp">{{goods.goodsInfoTitle}}</text>
 								<text class="price">￥{{goods.goodsAttributeValueAttrValue}}</text>
 							</view>
-							<view class="more" @click="navToProductList">
+							<view class="more" @click="navToProductList(item.categoryId)">
 								<text>查看全部</text>
 								<text>More+</text>
 							</view>
@@ -179,7 +179,7 @@
 				<text class="tit">热门商品</text>
 				<text class="tit2">最多人喜欢的商品</text>
 			</view>
-			<text class="yticon icon-you" @click="navToProductList"></text>
+			<text class="yticon icon-you" @click="navToHotProductList"></text>
 		</view>
 		
 		<view>
@@ -220,10 +220,6 @@
 			this.loadData();
 		},
 		methods: {
-			/**
-			 * 请求静态数据只是为了代码不那么乱
-			 * 分次请求未作整合
-			 */
 			async loadData() {
 				this.loadCarouselList()
 				this.loadHotCategoryList()
@@ -282,11 +278,6 @@
 					console.log(error)
 				})
 			},
-			navToProductList() {
-				uni.navigateTo({
-					url: `/pages/product/list`
-				})
-			},
 			loadIndexActivityAd() {
 				advertisement(1, 1, 'index_activity').then(response => {
 					let [error, res] = response
@@ -334,6 +325,16 @@
 					}
 				}).catch(error => {
 					console.log(error)
+				})
+			},
+			navToProductList(fid) {
+				uni.navigateTo({
+					url: `/pages/product/list?fid=${fid}`
+				})
+			},
+			navToHotProductList() {
+				uni.navigateTo({
+					url: `/pages/product/list?isHot=1`
 				})
 			},
 			//详情页

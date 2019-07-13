@@ -9,7 +9,7 @@
 			<view v-for="item in slist" :key="item.id" class="s-list" :id="'main-'+item.id">
 				<text class="s-item">{{item.title}}</text>
 				<view class="t-list">
-					<view @click="navToList(item.id, titem.id)" v-if="titem.parentId === item.id" class="t-item" v-for="titem in tlist" :key="titem.id">
+					<view @click="navToProductList(item.id, titem.id)" v-if="titem.parentId === item.id" class="t-item" v-for="titem in tlist" :key="titem.id">
 						<image :src="titem.picUrl"></image>
 						<text>{{titem.title}}</text>
 					</view>
@@ -98,7 +98,7 @@
 				this.currentId = item.id
 				this.loadCategoryByFirstLevel(true)
 			},
-			navToList(sid, tid){
+			navToProductList(sid, tid){
 				uni.navigateTo({
 					url: `/pages/product/list?fid=${this.currentId}&sid=${sid}&tid=${tid}`
 				})

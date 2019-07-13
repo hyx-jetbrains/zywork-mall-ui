@@ -12,7 +12,7 @@
 						"searchInput": {
 							"backgroundColor": "rgba(231, 231, 231,.7)",
 							"borderRadius": "16px",
-							"placeholder": "请输入商品名称 如：白酒",
+							"placeholder": "输入关键字搜索",
 							"disabled": true,
 							"placeholderColor": "#606266"
 						},
