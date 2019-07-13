@@ -9,9 +9,8 @@ export const MY_SHARE_CODE = 'myShareCode'
 export const USER_ID = 'userId'
 export const USER_ROLES = 'userRoles'
 export const USER_PHONE = 'userPhone'
-
-
-export const DEFAULT_HEADICON = '/static/headicon.png'
+export const LOGIN_FLAG = 'loginFlag'
+export const DEFAULT_HEADICON = '/static/missing-face.png'
 /**
  * 判断是否为空（null, '', undefined）
  */
@@ -356,7 +355,7 @@ export const doPostForm = (url, data, headers, token) => {
                       如果不需要传递headers，则直接使用{}
  * @param {*} token 如传true：需要token，传false：不需要token
  */
-export const doGet = (url, headers) => {
+export const doGet = (url, headers, token) => {
 	if (token) {
 		const userToken = uni.getStorageSync(USER_TOKEN_KEY)
 		headers['Authorization'] = 'Bearer ' + userToken
@@ -364,6 +363,31 @@ export const doGet = (url, headers) => {
 	return uni.request({
 		url: BASE_URL + url,
 		method: 'GET',
+		header: headers
+	})
+}
+
+/**
+ * 带参数的get请求
+ * @param {*} url 请求url，可以包含请求参数
+ * @param {*} data 请求的参数
+ * @param {*} headers 如headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                          'Authorization': 'Bearer ' + getLocalStorageToken()
+                        }
+                      如果不需要传递headers，则直接使用{}
+ * @param {*} token 如传true：需要token，传false：不需要token
+ */
+export const doGetForm = (url, data, headers, token) => {
+	headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
+	if (token) {
+		const userToken = uni.getStorageSync(USER_TOKEN_KEY)
+		headers['Authorization'] = 'Bearer ' + userToken
+	}
+	return uni.request({
+		url: BASE_URL + url,
+		method: 'GET',
+		data: data,
 		header: headers
 	})
 }
