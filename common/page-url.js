@@ -48,7 +48,7 @@ export const ADDRESS_PAGE = '/pages/address/address'
 /**
  * 通知页面
  */
-export const NOTICE_PAGE = '/pages/notice/notice'
+export const NOTICE_PAGE = '/pages/message/message'
 /**
  * 订单页面
  */
@@ -61,6 +61,11 @@ export const ACCOUNT_SET_PAGE = '/pages/account-set/account-set'
  * 关于商城的url
  */
 export const ABOUT_PAGE = '/pages/about/about'
+/**
+ * 修改手机号的url
+ */
+export const UPDATE_PHONE_PAGE = '/pages/update-phone/update-phone'
+
 
 
 

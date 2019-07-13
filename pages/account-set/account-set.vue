@@ -4,12 +4,12 @@
 			<text class="cell-tit">昵称</text>
 			<text class="cell-tip">危锦辉</text>
 		</view>
-		<view class="list-cell">
+		<view class="list-cell" @click="toUpdatePhonePage">
 			<text class="cell-tit">修改手机号</text>
 			<text class="cell-tip">18279700225</text>
 			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
-		<view class="list-cell">
+		<view class="list-cell" @click="toForgetPage">
 			<text class="cell-tit">修改登录密码</text>
 			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
@@ -19,6 +19,8 @@
 <script>
 	import zyworkIcon from '@/components/zywork-icon/zywork-icon.vue'
 	import {
+		UPDATE_PHONE_PAGE,
+		FORGET_PAGE
 	} from '@/common/page-url.js'
 	import * as utils from '@/common/util.js'
 	import {  
@@ -34,41 +36,18 @@
 			};
 		},
 		methods:{
-			...mapMutations(['logout']),
-
-			navTo(url){
-				this.$api.msg(`跳转到${url}`);
-			},
-			//退出登录
-			toLogout(){
-				uni.showModal({
-				    content: '确定要退出登录么',
-				    success: (e)=>{
-				    	if(e.confirm){
-				    		this.logout();
-				    		setTimeout(()=>{
-				    			uni.navigateBack();
-				    		}, 200)
-				    	}
-				    }
-				});
-			},
-			//switch
-			switchChange(e){
-				let statusTip = e.detail.value ? '打开': '关闭';
-				this.$api.msg(`${statusTip}消息推送`);
+			
+			/**
+			 * 前往修改手机号的页面
+			 */
+			toUpdatePhonePage() {
+				utils.navTo(UPDATE_PHONE_PAGE, true);
 			},
 			/**
-			 * 前往修改个人资料页面
+			 * 前往修改密码页面
 			 */
-			toUserDataPage() {
-				utils.navTo(USER_DATA_PAGE, true);
-			},
-			/**
-			 * 前往收货地址设置页面
-			 */
-			toAddressPage() {
-				utils.navTo(ADDRESS_PAGE, true);
+			toForgetPage() {
+				utils.navTo(FORGET_PAGE, true);
 			}
 		}
 	}
