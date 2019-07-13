@@ -123,7 +123,7 @@
 		.input{
 			flex: 1;
 			font-size: 30upx;
-			color: $font-color-dark;
+			color: $font-color-light;
 		}
 		.icon-shouhuodizhi{
 			font-size: 36upx;
