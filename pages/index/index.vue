@@ -192,7 +192,7 @@
 <script>
 	import zyworkProductList from '@/components/zywork-product-list/zywork-product-list.vue'
 	import zyworkIcon from '@/components/zywork-icon/zywork-icon.vue'
-	import {BASE_URL, doPostJson} from '@/common/util.js'
+	import {doPostJson} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {advertisement} from '@/common/advertisement.js'
 	import {
@@ -262,7 +262,7 @@
 				})
 			},
 			loadHotCategoryList() {
-				doPostJson(BASE_URL + '/goods-category/any/pager-cond', {
+				doPostJson('/goods-category/any/pager-cond', {
 					pageNo: 1,
 					pageSize: 5,
 					parentId: 0,
@@ -292,7 +292,7 @@
 			},
 			loadHotCategoryGoods() {
 				this.hotCategoryList.forEach((item, index) => {
-					doPostJson(BASE_URL + '/goods-sku-attr-val/any/goods-sku-attr/' + item.id, {
+					doPostJson('/goods-sku-attr-val/any/goods-sku-attr/' + item.id, {
 						pageNo: 1,
 						pageSize: 6,
 						goodsInfoIsActive: 0,
@@ -312,7 +312,7 @@
 				})
 			},
 			loadHotGoods() {
-				doPostJson(BASE_URL + '/goods-sku-attr-val/any/hot-goods-sku-attr', {
+				doPostJson('/goods-sku-attr-val/any/hot-goods-sku-attr', {
 					pageNo: 1,
 					pageSize: 10,
 					goodsInfoIsActive: 0,

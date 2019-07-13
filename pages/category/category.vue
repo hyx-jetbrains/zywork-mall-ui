@@ -20,7 +20,7 @@
 </template>
 
 <script>
-	import {BASE_URL, doPostJson, doPostForm, showInfoToast} from '@/common/util.js'
+	import {doPostJson, doPostForm, showInfoToast} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
 		data() {
@@ -41,7 +41,7 @@
 				uni.showLoading({
 					title: '加载中...'
 				})
-				doPostJson(BASE_URL + '/goods-category/any/all-cond', {
+				doPostJson('/goods-category/any/all-cond', {
 					sortColumn: 'id',
 					sortOrder: 'asc',
 					parentId: 0
@@ -69,7 +69,7 @@
 						title: '加载中...'
 					})
 				}
-				doPostForm(BASE_URL + '/goods-category/any/by-first-level-category', {
+				doPostForm('/goods-category/any/by-first-level-category', {
 					categoryId: this.currentId
 				}, {}).then(response => {
 					uni.hideLoading()

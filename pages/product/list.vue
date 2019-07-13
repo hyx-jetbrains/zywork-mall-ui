@@ -10,8 +10,8 @@
 			<view class="nav-item" :class="{current: filterIndex === 2}" @click="tabClick(2)">
 				<text>价格</text>
 				<view class="p-box">
-					<text :class="{active: priceOrder === 1 && filterIndex === 2}" class="yticon icon-shang"></text>
-					<text :class="{active: priceOrder === 2 && filterIndex === 2}" class="yticon icon-shang xia"></text>
+					<text :class="{active: priceOrder === 'asc' && filterIndex === 2}" class="yticon icon-shang"></text>
+					<text :class="{active: priceOrder === 'desc' && filterIndex === 2}" class="yticon icon-shang xia"></text>
 				</view>
 			</view>
 			<text class="search-item yticon icon-fenlei1" @click="toggleSearchMask('show')"></text>
@@ -39,9 +39,9 @@
 					<view>
 						<text class="cate-item b-b two">价格区间（元）</text>
 						<view class="price-input">
-							<input class="price" type="text" placeholder="最低价" placeholder-class="placeholder" />
+							<input class="price" v-model="salePriceMin" type="number" placeholder="最低价" placeholder-class="placeholder" />
 							<text style="color: #ccc;">—</text>
-							<input class="price" type="text" placeholder="最高价" placeholder-class="placeholder" />
+							<input class="price" v-model="salePriceMax" type="number" placeholder="最高价" placeholder-class="placeholder" />
 						</view>
 					</view>
 					<view class="action-btn-group">
@@ -52,7 +52,6 @@
 				
 			</view>
 		</view>
-		
 	</view>
 </template>
 
@@ -60,7 +59,7 @@
 	import zyworkProductList from '@/components/zywork-product-list/zywork-product-list.vue'
 	import uniLoadMore from '@/components/uni-load-more/uni-load-more.vue'
 	
-	import {BASE_URL, doPostForm} from '@/common/util.js'
+	import {doPostForm, doPostJson, showInfoToast} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	
  	export default {
@@ -71,16 +70,25 @@
 		data() {
 			return {
 				searchMaskState: 0, //分类面板展开状态
-				onPullDownRefresh: true,
+				canPullDownRefresh: true,
+				onPullDownRefresh: false,
+				showLoading: false,
 				headerPosition:"fixed",
 				headerTop:"0px",
 				loadingType: 'more', //加载更多状态
-				filterIndex: 0, 
+				filterIndex: 0, // 0 综合排序，1 按销量排序 2 按价格排序
+				firstLevelCateId: 0, //一级分类id
 				cateId: 0, //已选三级分类id
-				priceOrder: 0, //1 价格从低到高 2价格从高到低
+				priceOrder: 'normal',
 				cateList: [],
 				goodsList: [],
-				isHot: 0
+				isHot: 0,
+				pager: {
+					pageNo: 0,
+					pageSize: 10
+				},
+				salePriceMin: null,
+				salePriceMax: null
 			};
 		},
 		
@@ -97,8 +105,11 @@
 			if (options.isHot) {
 				this.isHot = options.isHot
 			}
-			this.loadCateList(options.fid)
-			this.loadData()
+			if (options.fid) {
+				this.firstLevelCateId = options.fid
+			}
+			this.loadCateList()
+			this.loadGoods()
 		},
 		onPageScroll(e){
 			//兼容iOS端下拉时顶部漂移
@@ -110,25 +121,26 @@
 		},
 		//下拉刷新
 		onPullDownRefresh(){
-			if (this.onPullDownRefresh) {
-				this.loadData('refresh')
+			if (this.canPullDownRefresh) {
+				this.onPullDownRefresh = true
+				this.loadGoods('refresh')
 			}
 		},
 		//加载更多
 		onReachBottom(){
-			this.loadData();
+			this.loadGoods();
 		},
 		methods: {
 			//加载分类，前提条件是有一级分类
-			async loadCateList(fid){
-				if (fid) {
-					doPostForm(BASE_URL + '/goods-category/any/by-first-level-category', {
-						categoryId: fid
+			async loadCateList(){
+				if (this.firstLevelCateId > 0) {
+					doPostForm('/goods-category/any/by-first-level-category', {
+						categoryId: this.firstLevelCateId
 					}, {}).then(response => {
 						let [error, res] = response
 						if (res.data.code === ResponseStatus.OK) {
 							let list = res.data.data.rows
-							let cateList = list.filter(item => item.parentId == fid)
+							let cateList = list.filter(item => item.parentId == this.firstLevelCateId)
 							cateList.forEach(item=>{
 								let tempList = list.filter(val => val.parentId == item.id)
 								item.child = tempList
@@ -140,70 +152,150 @@
 					})
 				}
 			},
-			//加载商品 ，带下拉刷新和上滑加载
-			async loadData(type='add', loading) {
-				//没有更多直接返回
-				if(type === 'add'){
-					if(this.loadingType === 'nomore'){
-						return;
+			loadCategoryGoods() {
+				let params = {
+					pageNo: this.pager.pageNo,
+					pageSize: this.pager.pageSize,
+					goodsInfoIsActive: 0,
+					goodsAttributeAttrCode: "salePrice"
+				}
+				this.changeQuery(params)
+				doPostJson('/goods-sku-attr-val/any/category-goods-sku-attr/' + this.cateId, params, {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
+							this.loadingType = 'nomore'
+						}
+						this.goodsList = res.data.data.rows
+						if (this.onPullDownRefresh) {
+							uni.stopPullDownRefresh()
+						}
+						if (this.showLoading) {
+							this.showLoading = false
+							uni.hideLoading()
+						}
 					}
-					this.loadingType = 'loading';
-				}else{
+				}).catch(error => {
+					console.log(error)
+				})
+			},
+			loadHotCategoryGoods() {
+				let params = {
+					pageNo: this.pager.pageNo,
+					pageSize: this.pager.pageSize,
+					goodsInfoIsActive: 0,
+					goodsAttributeAttrCode: "salePrice"
+				}
+				this.changeQuery(params)
+				doPostJson('/goods-sku-attr-val/any/goods-sku-attr/' + this.firstLevelCateId, params, {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
+							this.loadingType = 'nomore'
+						}
+						this.goodsList = res.data.data.rows
+						if (this.onPullDownRefresh) {
+							uni.stopPullDownRefresh()
+						}
+						if (this.showLoading) {
+							this.showLoading = false
+							uni.hideLoading()
+						}
+					}
+				}).catch(error => {
+					console.log(error)
+				})
+			},
+			loadHotGoods() {
+				let params = {
+					pageNo: this.pager.pageNo,
+					pageSize: this.pager.pageSize,
+					goodsInfoIsActive: 0,
+					goodsInfoIsHot: 1,
+					goodsAttributeAttrCode: "salePrice"
+				}
+				this.changeQuery(params)
+				doPostJson('/goods-sku-attr-val/any/hot-goods-sku-attr', params, {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
+							this.loadingType = 'nomore'
+						}
+						this.goodsList = res.data.data.rows
+						if (this.onPullDownRefresh) {
+							uni.stopPullDownRefresh()
+						}
+						if (this.showLoading) {
+							this.showLoading = false
+							uni.hideLoading()
+						}
+					}
+				}).catch(error => {
+					console.log(error)
+				})
+			},
+			loadGoods(type = 'add') {
+				if (type === 'add') {
+					if (this.loadingType === 'nomore') {
+						return
+					}
+					this.loadingType = 'loading'
+					this.pager.pageNo = this.pager.pageNo + 1
+				} else {
 					this.loadingType = 'more'
 				}
-				
-				let goodsList = await this.$api.json('goodsList');
 				if(type === 'refresh'){
-					this.goodsList = [];
+					this.pager.pageNo = 1
 				}
-				//筛选，测试数据直接前端筛选了
-				if(this.filterIndex === 1){
-					goodsList.sort((a,b)=>b.sales - a.sales)
+				if (this.isHot) {
+					// 加载热门商品
+					this.loadHotGoods()
+					return
 				}
-				if(this.filterIndex === 2){
-					goodsList.sort((a,b)=>{
-						if(this.priceOrder == 1){
-							return a.price - b.price;
-						}
-						return b.price - a.price;
-					})
+				if (this.firstLevelCateId > 0 && this.cateId == 0) {
+					// 加载热门分类商品（一级分类商品）
+					this.loadHotCategoryGoods()
+					return
+				} 
+				// 加载三级分类商品
+				this.loadCategoryGoods()
+			},
+			changeQuery(params) {
+				if (this.filterIndex === 1) {
+					params.sortColumn = 'saleQuantity'
+					params.sortOrder = 'desc'
+				} 
+				if (this.filterIndex === 2) {
+					params.sortColumn = 'salePrice'
+					params.sortOrder = this.priceOrder
 				}
-				
-				this.goodsList = this.goodsList.concat(goodsList);
-				
-				//判断是否还有下一页，有是more  没有是nomore(测试数据判断大于20就没有了)
-				this.loadingType  = this.goodsList.length > 20 ? 'nomore' : 'more';
-				if(type === 'refresh'){
-					if(loading == 1){
-						uni.hideLoading()
-					}else{
-						uni.stopPullDownRefresh();
-					}
-				}
+				params.salePriceMin = this.salePriceMin
+				params.salePriceMax = this.salePriceMax
 			},
 			//筛选点击
 			tabClick(index){
 				if(this.filterIndex === index && index !== 2){
-					return;
+					return
 				}
-				this.filterIndex = index;
+				this.filterIndex = index
 				if(index === 2){
-					this.priceOrder = this.priceOrder === 1 ? 2: 1;
+					this.priceOrder = this.priceOrder === 'asc' ? 'desc': 'asc'
 				}else{
-					this.priceOrder = 0;
+					this.priceOrder = 'normal'
 				}
 				uni.pageScrollTo({
 					duration: 300,
 					scrollTop: 0
 				})
-				this.loadData('refresh', 1);
 				uni.showLoading({
 					title: '正在加载'
 				})
+				this.showLoading = true
+				this.loadGoods('refresh')
 			},
 			//显示搜索面板
 			toggleSearchMask(type){
-				this.onPullDownRefresh = !this.onPullDownRefresh
+				this.canPullDownRefresh = !this.canPullDownRefresh
 				let timer = type === 'show' ? 10 : 300;
 				let	state = type === 'show' ? 1 : 0;
 				this.searchMaskState = 2;
@@ -227,10 +319,37 @@
 				*/
 			},
 			doSearch() {
-				this.toggleSearchMask()
+				if (this.checkPrice()) {
+					this.toggleSearchMask()
+					uni.showLoading({
+						title: '正在加载'
+					})
+					this.showLoading = true
+					this.loadGoods('refresh')
+				}
+			},
+			checkPrice() {
+				if (this.salePriceMin && !this.salePriceMax && this.salePriceMin <= 0) {
+					showInfoToast('最低价必须大于0')
+					return false
+				}
+				if (this.salePriceMax && !this.salePriceMin && this.salePriceMax <= 0) {
+					showInfoToast('最高价必须大于0')
+					return false
+				}
+				if (this.salePriceMax && this.salePriceMin && (this.salePriceMin <= 0 || this.salePriceMax <= 0)) {
+					showInfoToast('价格必须大于0')
+					return false
+				}
+				if (this.salePriceMax && this.salePriceMin && this.salePriceMin >= this.salePriceMax) {
+					showInfoToast('最低价需小于最高价')
+					return false
+				}
+				return true
 			},
 			cancelSearch() {
-				
+				this.salePriceMin = null
+				this.salePriceMax = null
 			},
 			stopPrevent(){}
 		},
