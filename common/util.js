@@ -314,7 +314,7 @@ export const doPostJson = (url, data, headers, token) => {
 		headers['Authorization'] = 'Bearer ' + userToken
 	}
 	return uni.request({
-		url: url,
+		url: BASE_URL + url,
 		method: 'POST',
 		data: data,
 		header: headers
@@ -339,7 +339,7 @@ export const doPostForm = (url, data, headers, token) => {
 		headers['Authorization'] = 'Bearer ' + userToken
 	}
 	return uni.request({
-		url: url,
+		url: BASE_URL + url,
 		method: 'POST',
 		data: data,
 		header: headers
@@ -362,7 +362,7 @@ export const doGet = (url, headers) => {
 		headers['Authorization'] = 'Bearer ' + userToken
 	}
 	return uni.request({
-		url: url,
+		url: BASE_URL + url,
 		method: 'GET',
 		header: headers
 	})
