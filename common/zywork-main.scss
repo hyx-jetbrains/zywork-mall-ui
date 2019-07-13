@@ -220,13 +220,13 @@ button[type=primary][plain] {
 	width: 100%;
 }
 
-.zy-disable-flex {
+.zy-display-flex {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 }
 
-.zy-disable-flex-right {
+.zy-display-flex-right {
 	margin-left: auto;
 	margin-right: 20upx;
 }

@@ -29,7 +29,7 @@
 					<image class="portrait" :src="defaultHeadIcon"></image>
 				</view>
 				<view class="info-box">
-					<view class="zy-disable-flex">
+					<view class="zy-display-flex">
 						<button class="zy-wx-btn" open-type="getUserInfo" lang="zh_CN" @getuserinfo="bindGetUserInfo">
 							<view class="zy-text-big zy-text-bold" style="padding-top: 30upx;">点击登录</view>
 						</button>

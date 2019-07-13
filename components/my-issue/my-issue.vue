@@ -1,30 +1,31 @@
 <template>
 	<view class='issue'>
-		<view class="issue-head zy-issue-head zy-disable-flex">
+		<view class="issue-head zy-issue-head zy-display-flex">
 			<slot name="headPic"></slot>
 			<zywork-icon type="iconyunliankeji-" color="#8A8A8A" size="30" class="zy-icon" />
-			<view class="zy-disable-flex zy-rate">
-				<view @click="switchRateType(0)">
-					<zywork-icon type="iconhaoping" :color="rateType == 0 ? '#dd524d' : '#8A8A8A'" size="26" class="zy-icon" />
+			<view class="zy-display-flex zy-rate">
+				<view class="zy-display-flex" @click="switchRateType(0)">
+					<zywork-icon type="iconhaoping" :color="rateType == 0 ? '#dd524d' : '#8A8A8A'" size="24" class="zy-icon" />
 					<text :style="{color:(rateType == 0 ? '#dd524d' : '#8A8A8A')}">好评</text>
 				</view>
-				<view @click="switchRateType(1)">
-					<zywork-icon type="iconchaping1" :color="rateType == 1 ? '#dd524d' : '#8A8A8A'" size="26" class="zy-icon" />
+				<view class="zy-display-flex" @click="switchRateType(1)">
+					<zywork-icon type="iconchaping1" :color="rateType == 1 ? '#dd524d' : '#8A8A8A'" size="24" class="zy-icon" />
 					<text :style="{color:(rateType == 1 ? '#dd524d' : '#8A8A8A')}">中评</text>
 				</view>
-				<view @click="switchRateType(2)">
-					<zywork-icon type="iconchaping1" :color="rateType == 2 ? '#dd524d' : '#8A8A8A'" size="26" class="zy-icon" />
+				<view class="zy-display-flex" @click="switchRateType(2)">
+					<zywork-icon type="iconchaping1" :color="rateType == 2 ? '#dd524d' : '#8A8A8A'" size="24" class="zy-icon" />
 					<text :style="{color:(rateType == 2 ? '#dd524d' : '#8A8A8A')}">差评</text>
 				</view>
 				
 			</view>
 		</view>
 		<textarea v-if="textareaShow" @blur="blur" :value="infoReceive.textareaValue" :placeholder="textareaPlaceholder" />
-		<view class="zy-disable-flex zy-issue-rate">
+		<view class="zy-display-flex zy-issue-rate">
 			 商品评分：<uni-rate />
 		 </view>
 		<view class="issue-btn-box">
-		 	<button v-if="submitShow" class="submit-btn" type="primary" @click="doSubmit">{{submitText}}</button>
+		 	<!-- <button v-if="submitShow" class="submit-btn" type="primary" @click="doSubmit">{{submitText}}</button> -->
+			<button v-if="submitShow" class="zy-add-btn" @click="doSubmit">{{submitText}}</button>
 			<slot name="submit"></slot>
 		 </view>
 		 
@@ -124,7 +125,6 @@
 	}
 </script>
 <style lang='scss'>
-	@import '@/common/zywork-main.scss';
 	
 	$backgroundC:#f9f9f9;
 	$borderColor:#f5f5f5;
@@ -181,15 +181,6 @@
 		}
 		&-btn-box{
 			padding: 54upx 30upx;
-			
-			button{
-				width: 100%;
-				height: 80upx;
-				border-radius: 80upx;
-				font-size: $fontSize;
-				background-color: #3682FF;
-				line-height: 80upx
-			}
 		}
 	}
 	
@@ -214,6 +205,17 @@
 		}
 	}
 	
+	.zy-display-flex {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+	
+	.zy-icon {
+		display: inline-block; 
+		margin-right: 20upx;
+	}
+	
 	.zy-issue-head {
 		padding-top: 10upx;
 	}
@@ -222,6 +224,22 @@
 		background-color: #FFF;
 	}
 	.zy-rate view {
-		margin: 0 20upx;
+		margin: 0 10upx;
+	}
+	.zy-rate text {
+		font-size: 30upx;
+	}
+	.zy-add-btn{
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 690upx;
+		height: 80upx;
+		margin: 60upx auto;
+		font-size: $font-lg;
+		color: #fff;
+		background-color: $base-color;
+		border-radius: 10upx;
+		box-shadow: 1px 2px 5px rgba(219, 63, 96, 0.4);
 	}
 </style>

@@ -2,7 +2,7 @@
 	<view class="container">
 		<!-- 小程序头部兼容 -->
 		<!-- #ifdef MP -->
-		<view class="mp-search-box zy-disable-flex">
+		<view class="mp-search-box zy-display-flex">
 			<input class="ser-input" type="text" value="输入关键字搜索" disabled @click="navToSearchPage"/>
 			<zywork-icon type="iconxiaoxi" size="27" color="#ffffff" reddot="true" @click.native="navToMessagePage"></zywork-icon>
 		</view>
