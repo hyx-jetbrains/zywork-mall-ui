@@ -2,7 +2,7 @@
 	<view class="container">
 		<view class="list-cell">
 			<view class="zy-head-img">
-				<image src="../../static/share/ewm.jpg"></image>
+				<image :src="user.headicon || defaultIcon"></image>
 				<view class="zy-link-color" @click="updateHead">更换头像</view>
 			</view>
 		</view>
@@ -36,7 +36,11 @@
 	import {
 		BASE_URL,
 		USER_TOKEN_KEY,
-		showSuccessToast
+		DEFAULT_HEADICON,
+		showSuccessToast,
+		showInfoToast,
+		doGet,
+		doPostJson
 	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
@@ -45,18 +49,40 @@
 		},
 		data() {
 			return {
+				defaultIcon: DEFAULT_HEADICON,
 				genderArray: genderArray,
 				sourceTypeIndex: 2,
 				sizeTypeIndex: 2,
-				user: {
-					nickname: '危锦辉',
-					gender: 1,
-					phone: '18279700225'
+				user: {},
+				urls: {
+					infoUrl: '/user-detail/user/get-info',
+					updateInfoUrl: '/user-detail/user/update'
 				}
 			};
 		},
+		onLoad() {
+			this.loadData();
+		},
 		methods: {
-
+			/**
+			 * 加载数据
+			 */
+			loadData() {
+				uni.showLoading({
+					title: '加载中...'
+				})
+				doGet(this.urls.infoUrl, {}, true).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						this.user = res.data.data;
+					} else {
+						showInfoToast(res.data.message);
+					}
+					uni.hideLoading()
+				}).catch(err => {
+					console.log(err);
+				})
+			},
 			/**
 			 * 监听性别下拉选择
 			 */
@@ -75,31 +101,31 @@
 					count: 1,
 					success: (chooseImageRes) => {
 						const tempFilePaths = chooseImageRes.tempFilePaths;
-						// uni.showLoading({
-						// 	title: '正在上传'
-						// })
-						// uni.uploadFile({
-						// 	url: BASE_URL + '/user/user/upload-res',
-						// 	filePath: tempFilePaths[0],
-						// 	name: 'file',
-						// 	header: {
-						// 		'Authorization': 'Bearer ' + userToken
-						// 	},
-						// 	success: function (res) {
-						// 		const data = JSON.parse(res.data);
-						// 		if (data.code = ResponseStatus.OK) {
-						// 			showSuccessToast(data.message);
-						// 		} else {
-						// 			showInfoToast(data.message);
-						// 		}
-						// 	},
-						// 	fail: () => {
-						// 		networkError()
-						// 	},
-						// 	complete: () => {
-						// 		uni.hideLoading()
-						// 	}
-						// });
+						uni.showLoading({
+							title: '正在上传'
+						})
+						uni.uploadFile({
+							url: BASE_URL + '/user-detail/user/upload-headicon',
+							filePath: tempFilePaths[0],
+							name: 'file',
+							header: {
+								'Authorization': 'Bearer ' + userToken
+							},
+							success: function(res) {
+								const data = JSON.parse(res.data);
+								if (data.code = ResponseStatus.OK) {
+									showSuccessToast(data.message);
+								} else {
+									showInfoToast(data.message);
+								}
+							},
+							fail: () => {
+								networkError()
+							},
+							complete: () => {
+								uni.hideLoading()
+							}
+						});
 					}
 				})
 			},
@@ -107,7 +133,20 @@
 			 * 提交资料修改
 			 */
 			confirm() {
-				this.$api.msg('提交修改')
+				uni.showLoading({
+					title: '正在更新'
+				})
+				doPostJson(this.urls.updateInfoUrl, this.user, {}, true).then(response => {
+					let [error, res] = response;
+					if (res.data.code = ResponseStatus.OK) {
+						showSuccessToast(res.data.message);
+					} else {
+						showInfoToast(res.data.message);
+					}
+					uni.hideLoading();
+				}).catch(err => {
+					console.log(err);
+				})
 			}
 		}
 	}
@@ -115,7 +154,7 @@
 
 <style lang='scss'>
 	@import '@/common/zywork-main.scss';
-	
+
 	page {
 		background: $page-color-base;
 	}
@@ -175,6 +214,7 @@
 			color: $font-color-light;
 			width: 75%;
 		}
+
 		.cell-picker {
 			font-size: $font-base;
 			color: $font-color-light;
@@ -183,14 +223,14 @@
 		}
 
 		.zy-head-img {
-			margin:10upx auto;
+			margin: 10upx auto;
 			text-align: center;
 		}
+
 		.zy-head-img image {
 			border-radius: 50%;
 			width: 200upx;
 			height: 200upx;
 		}
 	}
-	
 </style>

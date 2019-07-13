@@ -63,7 +63,7 @@
 
 			<view class="tj-sction">
 				<view class="tj-item">
-					<text class="num">128.8</text>
+					<text class="num">0</text>
 					<text>余额</text>
 				</view>
 				<view class="tj-item" @click="toCouponPage">
@@ -362,6 +362,7 @@
 						uni.removeStorageSync(USER_TOKEN_KEY);
 						uni.removeStorageSync(USER_OPENID);
 						uni.removeStorageSync(USER_ID)
+						uni.setStorageSync(LOGIN_FLAG, false);
 						this.xcxLogin();
 					} else {
 						showInfoToast(res.data.message);
