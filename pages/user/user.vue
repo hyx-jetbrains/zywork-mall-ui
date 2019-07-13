@@ -3,17 +3,40 @@
 
 		<view class="user-section">
 			<image class="bg" src="/static/user-bg.jpg"></image>
-			<view class="user-info-box">
+			<view class="user-info-box" v-if="showUserInfo">
 				<view class="portrait-box">
-					<image class="portrait" :src="userInfo.portrait || '/static/missing-face.png'"></image>
+					<image class="portrait" :src="userInfo.headicon || defaultHeadIcon"></image>
 				</view>
 				<view class="info-box">
 					<view>
-						<text class="username">{{userInfo.nickname || '游客'}}</text>
+						<text class="username">{{userInfo.nickname || '暂无昵称'}}</text>
+						<text class="yticon icon-iLinkapp- zy-vip-icon"></text>
+					</view>
+					<view v-if="userInfo.phone">
+						<text class="phone">{{userInfo.phone}}</text>
+					</view>
+					<view v-else>
+						<!-- #ifdef MP-WEIXIN -->
+						<button class="zy-wx-btn zy-get-phone" open-type="getPhoneNumber" lang="zh_CN" @getphonenumber="bindGetPhoneNumber">
+							获取手机号
+						</button>
+						<!-- #endif -->
+					</view>
+				</view>
+			</view>
+			<view class="user-info-box" v-else>
+				<view class="portrait-box">
+					<image class="portrait" :src="defaultHeadIcon"></image>
+				</view>
+				<view class="info-box">
+					<view class="zy-disable-flex">
+						<button class="zy-wx-btn" open-type="getUserInfo" lang="zh_CN" @getuserinfo="bindGetUserInfo">
+							<view class="zy-text-big zy-text-bold" style="padding-top: 30upx;">点击登录</view>
+						</button>
 						<text class="yticon icon-iLinkapp- zy-vip-icon"></text>
 					</view>
 					<view>
-						<text class="phone">{{userInfo.phone || '暂无手机号'}}</text>
+						您还未登录哦
 					</view>
 				</view>
 			</view>
@@ -56,22 +79,22 @@
 			<view class="order-section">
 				<view class="order-item" @click="toOrderPage(0)" hover-class="common-hover" :hover-stay-time="50">
 					<!-- <text class="yticon icon-shouye"></text> -->
-					<zywork-icon type="icontuxing" color="#fa436a" size="20" class="zy-icon yticon" />
+					<zywork-icon type="icontuxing" color="#fa436a" size="20" class="yticon" />
 					<text>全部订单</text>
 				</view>
 				<view class="order-item" @click="toOrderPage(1)" hover-class="common-hover" :hover-stay-time="50">
 					<!-- <text class="yticon icon-daifukuan"></text> -->
-					<zywork-icon type="icontuxing" color="#fa436a" size="20" class="zy-icon yticon" />
+					<zywork-icon type="iconfukuan1" color="#fa436a" size="20" class="yticon" />
 					<text>待付款</text>
 				</view>
 				<view class="order-item" @click="toOrderPage(2)" hover-class="common-hover" :hover-stay-time="50">
 					<!-- <text class="yticon icon-yishouhuo"></text> -->
-					<zywork-icon type="icontuxing" color="#fa436a" size="20" class="zy-icon yticon" />
+					<zywork-icon type="icondaishouhuo" color="#fa436a" size="20" class="yticon" />
 					<text>待收货</text>
 				</view>
 				<view class="order-item" @click="toOrderPage(4)" hover-class="common-hover" :hover-stay-time="50">
 					<!-- <text class="yticon icon-shouhoutuikuan"></text> -->
-					<zywork-icon type="icontuxing" color="#fa436a" size="20" class="zy-icon yticon" />
+					<zywork-icon type="icontuikuanshouhou" color="#fa436a" size="20" class="yticon" />
 					<text>退款售后</text>
 				</view>
 			</view>
@@ -125,8 +148,24 @@
 		NOTICE_PAGE,
 		ORDER_PAGE
 	} from '@/common/page-url.js'
+	import * as ResponseStatus from '@/common/response-status.js'
 	import {
-		navTo
+		navTo,
+		doPostForm,
+		showInfoToast,
+		doGet,
+		doGetForm,
+		nullToStr,
+		DEFAULT_HEADICON,
+		USER_OPENID,
+		USER_TOKEN_KEY,
+		MY_SHARE_CODE,
+		USER_ID,
+		USER_ROLES,
+		USER_PHONE,
+		LOGIN_FLAG,
+		IMAGE_BASE_URL,
+		SHARE_CODE
 	} from '@/common/util.js'
 	import {
 		getBrowseHistory
@@ -144,14 +183,28 @@
 		},
 		data() {
 			return {
+				defaultHeadIcon: DEFAULT_HEADICON,
+				showUserInfo: false,
+				urls: {
+					xcxGetUserInfoUrl: '/wx-auth/xcx-userdetail',
+					xcxSavePhoneUrl: '/wx-auth/xcx-phone',
+					xcxLoginUrl: '/wx-auth/xcx',
+					getUserDetailUrl: '/user-userdetail/user/get',
+					getUserRolesUrl: '/user-role/user/list',
+
+				},
+				userInfo: {
+					nickname: '危锦辉',
+					phone: ''
+				},
 				coverTransform: 'translateY(0px)',
 				coverTransition: '0s',
 				moving: false,
-				browserHistoryArray: []
+				browserHistoryArray: [],
 			}
 		},
 		onLoad() {
-			this.loadData();
+			this.loadData('init');
 		},
 		// #ifndef MP
 		onNavigationBarButtonTap(e) {
@@ -172,13 +225,73 @@
 		},
 		// #endif
 		computed: {
-			...mapState(['hasLogin', 'userInfo'])
 		},
 		methods: {
 			/**
+			 * 获取用户信息
+			 * @param {Object} e
+			 */
+			bindGetUserInfo(e) {
+				const openId = uni.getStorageSync(USER_OPENID);
+				const data = {
+					openid: openId,
+					nickname: e.detail.userInfo.nickName,
+					headicon: e.detail.userInfo.avatarUrl,
+					gender: e.detail.userInfo.gender
+				};
+				uni.showLoading({
+					title: '登录中'
+				})
+				doPostForm(this.urls.xcxGetUserInfoUrl, data, {}, false).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						this.showUserInfo = true;
+						this.userInfo.nickname = data.nickname;
+						this.userInfo.headicon = data.headicon;
+					} else {
+						showInfoToast(res.data.message);
+					}
+					uni.hideLoading()
+				}).catch(err => {
+					console.log(err)
+				})
+			},
+			/**
+			 * 小程序获取用户手机
+			 * @param {Object} e
+			 */
+			bindGetPhoneNumber(e) {
+				if (e.detail.errMsg === 'getPhoneNumber:ok') {
+					const openId = uni.getStorageSync(USER_OPENID);
+					const data = {
+						openid: openId,
+						encryptedData: e.detail.encryptedData,
+						iv: e.detail.iv
+					};
+					doPostForm(this.urls.xcxSavePhoneUrl, data, {}, false).then(response => {
+						let [error, res] = response;
+						if (res.data.code === ResponseStatus.OK) {
+							this.userInfo.phone = res.data.data.phoneNumber
+						} else {
+							showInfoToast(res.data.message);
+						}
+						uni.hideLoading()
+					}).catch(err => {
+						console.log(err)
+					})
+				}
+			},
+			/**
 			 * 加载数据
 			 */
-			loadData() {
+			loadData(type) {
+				this.loadHistoryData();
+				this.judgeLogin(type);
+			},
+			/**
+			 * 加载浏览历史
+			 */
+			loadHistoryData() {
 				// 加载浏览历史
 				var browserHistory = getBrowseHistory();
 				var _this = this;
@@ -189,6 +302,134 @@
 					})
 				}
 			},
+			/**
+			 * 检查登录
+			 * @param {Object} type
+			 */
+			judgeLogin(type) {
+				const userToken = uni.getStorageSync(USER_TOKEN_KEY);
+				if (userToken) {
+					// 用户token存在,直接获取用户信息
+					this.getUserDetail();
+				} else {
+					// #ifdef MP-WEIXIN
+					this.xcxLogin(self)
+					// #endif
+				}
+				if (type === 'pullDown') {
+					uni.stopPullDownRefresh();
+				}
+			},
+			/**
+			 * 获取用户详情
+			 */
+			getUserDetail() {
+				uni.showLoading({
+					title: '登录中'
+				})
+				doGet(this.urls.getUserDetailUrl, {}, true).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						var userInfo = nullToStr(res.data.data.rows[0]);
+						if (userInfo.userDetailNickname) {
+							this.userInfo.nickname = userInfo.userDetailNickname;
+						}
+						if (userInfo.userDetailHeadicon) {
+							this.userInfo.headicon = userInfo.userDetailHeadicon;
+						}
+						if (this.userInfo.headicon !== '' && this.userInfo.headicon.indexOf('http') < 0) {
+							this.userInfo.headicon = IMAGE_BASE_URL + '/' + this.userInfo.headicon;
+						}
+						if (userInfo.userDetailGender) {
+							this.userInfo.gender = userInfo.userDetailGender;
+						}
+						if (userInfo.userPhone) {
+							this.userInfo.phone = userInfo.userPhone;
+						}
+						if (this.userInfo.nickname && this.userInfo.headicon) {
+							// 认为已经获取到了用户信息
+							this.showUserInfo = true;
+							uni.setStorageSync(USER_ID, userInfo.userId);
+							uni.setStorageSync(LOGIN_FLAG, true);
+						} else {
+							uni.setStorageSync(LOGIN_FLAG, false);
+						}
+						uni.setStorageSync(USER_PHONE, userInfo.userPhone);
+						uni.setStorageSync(MY_SHARE_CODE, userInfo.userDetailShareCode);
+						this.getUserRoles();
+					} else if (res.data.code === ResponseStatus.AUTHENTICATION_TOKEN_ERROR) {
+						// 如果token过期了，则直接使用小程序登录，获取最新的token
+						uni.removeStorageSync(USER_TOKEN_KEY);
+						uni.removeStorageSync(USER_OPENID);
+						uni.removeStorageSync(USER_ID)
+						this.xcxLogin();
+					} else {
+						showInfoToast(res.data.message);
+					}
+					uni.hideLoading()
+				}).catch(err => {
+					console.log(err);
+				})
+			},
+			/**
+			 * 获取用户的角色信息
+			 */
+			getUserRoles() {
+				doGet(this.urls.getUserRolesUrl, {}, true).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						var rolesArrey = []
+						res.data.data.rows.forEach(item => {
+							rolesArrey.push(item.roleTitle);
+						})
+						uni.setStorageSync(USER_ROLES, rolesArrey);
+					} else {
+						showInfoToast(res.data.message);
+					}
+				}).catch(err => {
+					console.log(err);
+				})
+			},
+			/**
+			 * 小程序登入
+			 */
+			xcxLogin() {
+				var myThis = this;
+				uni.login({
+					provider: 'weixin',
+					success: function(wxRes) {
+						let theShareCode = uni.getStorageSync(SHARE_CODE)
+						if (!theShareCode) {
+							theShareCode = null
+						}
+						const data = {
+							code: wxRes.code,
+							shareCode: theShareCode
+						}
+						doGetForm(myThis.urls.xcxLoginUrl, data, {}, false).then(response => {
+							let [error, res] = response;
+							if (res.data.code === ResponseStatus.OK) {
+								// 保存用户的openid和token
+								uni.setStorageSync(USER_OPENID, res.data.data[1]);
+								uni.setStorageSync(USER_TOKEN_KEY, res.data.data[2]);
+								if (res.data.data[0] === 'firstLogin') {
+									// 第一次小程序登录，需要点击登录按钮，才能获取用户信息再保存用户信息
+									uni.removeStorageSync(SHARE_CODE);
+								} else {
+									// 第二次开始不需要点击登录按钮，而是直接从后台获取用户信息
+									myThis.getUserDetail();
+								}
+							} else {
+								showInfoToast(res.data.message);
+							}
+						}).catch(err => {
+							console.log(err);
+						})
+					}
+				})
+			},
+
+
 			/**
 			 * 统一跳转接口,拦截未登录路由
 			 * navigator标签现在默认没有转场动画，所以用view
@@ -497,8 +738,28 @@
 			}
 		}
 	}
-	
+
 	.zy-not-browser-history {
 		margin: 10upx 90upx;
 	}
+
+	.zy-wx-btn {
+		text-align: left;
+		line-height: 1;
+		display: inline;
+		padding: 0;
+		background-color: transparent;
+	}
+
+	.zy-get-phone {
+		margin-top: 20upx;
+		font-size: 30upx;
+		margin-left: 20upx;
+	}
+
+	.info-box {
+		margin-left: 20upx;
+	}
+	
+	button::after{ border: none; }
 </style>
