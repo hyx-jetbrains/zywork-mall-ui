@@ -17,7 +17,7 @@
 			重要：添加和修改地址回调仅增加了一条数据做演示，实际开发中将回调改为请求后端接口刷新一下列表即可
 		</text>
 		
-		<button class="add-btn" @click="addAddress('add')">新增地址</button>
+		<button class="zy-add-btn" @click="addAddress('add')">新增地址</button>
 	</view>
 </template>
 

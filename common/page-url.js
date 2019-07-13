@@ -53,6 +53,14 @@ export const NOTICE_PAGE = '/pages/notice/notice'
  * 订单页面
  */
 export const ORDER_PAGE = '/pages/order/order'
+/**
+ * 账户与安全设置的url
+ */
+export const ACCOUNT_SET_PAGE = '/pages/account-set/account-set'
+/**
+ * 关于商城的url
+ */
+export const ABOUT_PAGE = '/pages/about/about'
 
 
 

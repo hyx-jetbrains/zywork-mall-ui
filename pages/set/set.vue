@@ -5,13 +5,13 @@
 			<!-- <text class="cell-more yticon icon-you"></text> -->
 			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
-		<view class="list-cell b-b" @click="navTo('收货地址')" hover-class="cell-hover" :hover-stay-time="50">
+		<view class="list-cell b-b" @click="toAddressPage" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">收货地址</text>
 			<!-- <text class="cell-more yticon icon-you"></text> -->
 			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
-		<view class="list-cell" @click="navTo('实名认证')" hover-class="cell-hover" :hover-stay-time="50">
-			<text class="cell-tit">实名认证</text>
+		<view class="list-cell" @click="toAccountSetPage" hover-class="cell-hover" :hover-stay-time="50">
+			<text class="cell-tit">账户与安全</text>
 			<!-- <text class="cell-more yticon icon-you"></text> -->
 			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
@@ -26,8 +26,8 @@
 			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 			
 		</view>
-		<view class="list-cell b-b" @click="navTo('关于Dcloud')" hover-class="cell-hover" :hover-stay-time="50">
-			<text class="cell-tit">关于Dcloud</text>
+		<view class="list-cell b-b" @click="toAbountPage" hover-class="cell-hover" :hover-stay-time="50">
+			<text class="cell-tit">关于商城</text>
 			<!-- <text class="cell-more yticon icon-you"></text> -->
 			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
@@ -46,7 +46,10 @@
 <script>
 	import zyworkIcon from '@/components/zywork-icon/zywork-icon.vue'
 	import {
-		USER_DATA_PAGE
+		USER_DATA_PAGE,
+		ADDRESS_PAGE,
+		ACCOUNT_SET_PAGE,
+		ABOUT_PAGE
 	} from '@/common/page-url.js'
 	import * as utils from '@/common/util.js'
 	import {  
@@ -90,8 +93,25 @@
 			 * 前往修改个人资料页面
 			 */
 			toUserDataPage() {
-				console.log('调整到个人资料')
 				utils.navTo(USER_DATA_PAGE, true);
+			},
+			/**
+			 * 前往收货地址设置页面
+			 */
+			toAddressPage() {
+				utils.navTo(ADDRESS_PAGE, true);
+			},
+			/**
+			 * 前往账户与安全设置页面
+			 */
+			toAccountSetPage() {
+				utils.navTo(ACCOUNT_SET_PAGE, true);
+			},
+			/**
+			 * 前往关于我们页面
+			 */
+			toAbountPage() {
+				utils.navTo(ABOUT_PAGE, true);
 			}
 		}
 	}

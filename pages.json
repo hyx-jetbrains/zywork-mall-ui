@@ -69,6 +69,18 @@
 			}
 		},
 		{
+			"path": "pages/account-set/account-set",
+			"style": {
+				"navigationBarTitleText": "账户与安全"
+			}
+		},
+		{
+			"path": "pages/about/about",
+			"style": {
+				"navigationBarTitleText": "关于商城"
+			}
+		},
+		{
 			"path": "pages/cart/cart",
 			"style": {
 				"navigationBarTitleText": "购物车"

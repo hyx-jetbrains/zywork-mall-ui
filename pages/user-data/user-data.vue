@@ -19,12 +19,7 @@
 			</picker>
 			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
-		<view class="list-cell" hover-class="cell-hover" :hover-stay-time="50">
-			<text class="cell-tit">手机号</text>
-			<input class="cell-input" v-model="user.phone" :disabled="true" />
-			<text v-html="'&#8195'" />
-		</view>
-
+		<button class="zy-add-btn" @click="confirm">完成</button>
 	</view>
 </template>
 
@@ -61,7 +56,6 @@
 			};
 		},
 		methods: {
-			...mapMutations(['logout']),
 
 			/**
 			 * 监听性别下拉选择
@@ -109,30 +103,12 @@
 					}
 				})
 			},
-
-			navTo(url) {
-				this.$api.msg(`跳转到${url}`);
-			},
-			//退出登录
-			toLogout() {
-				uni.showModal({
-					content: '确定要退出登录么',
-					success: (e) => {
-						if (e.confirm) {
-							this.logout();
-							setTimeout(() => {
-								uni.navigateBack();
-							}, 200)
-						}
-					}
-				});
-			},
-			//switch
-			switchChange(e) {
-				let statusTip = e.detail.value ? '打开' : '关闭';
-				this.$api.msg(`${statusTip}消息推送`);
-			},
-
+			/**
+			 * 提交资料修改
+			 */
+			confirm() {
+				this.$api.msg('提交修改')
+			}
 		}
 	}
 </script>
@@ -216,4 +192,5 @@
 			height: 200upx;
 		}
 	}
+	
 </style>
