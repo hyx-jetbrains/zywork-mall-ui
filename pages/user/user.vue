@@ -55,19 +55,23 @@
 			<!-- 订单 -->
 			<view class="order-section">
 				<view class="order-item" @click="toOrderPage(0)" hover-class="common-hover" :hover-stay-time="50">
-					<text class="yticon icon-shouye"></text>
+					<!-- <text class="yticon icon-shouye"></text> -->
+					<zywork-icon type="icontuxing" color="#fa436a" size="20" class="zy-icon yticon" />
 					<text>全部订单</text>
 				</view>
 				<view class="order-item" @click="toOrderPage(1)" hover-class="common-hover" :hover-stay-time="50">
-					<text class="yticon icon-daifukuan"></text>
+					<!-- <text class="yticon icon-daifukuan"></text> -->
+					<zywork-icon type="icontuxing" color="#fa436a" size="20" class="zy-icon yticon" />
 					<text>待付款</text>
 				</view>
 				<view class="order-item" @click="toOrderPage(2)" hover-class="common-hover" :hover-stay-time="50">
-					<text class="yticon icon-yishouhuo"></text>
+					<!-- <text class="yticon icon-yishouhuo"></text> -->
+					<zywork-icon type="icontuxing" color="#fa436a" size="20" class="zy-icon yticon" />
 					<text>待收货</text>
 				</view>
 				<view class="order-item" @click="toOrderPage(4)" hover-class="common-hover" :hover-stay-time="50">
-					<text class="yticon icon-shouhoutuikuan"></text>
+					<!-- <text class="yticon icon-shouhoutuikuan"></text> -->
+					<zywork-icon type="icontuxing" color="#fa436a" size="20" class="zy-icon yticon" />
 					<text>退款售后</text>
 				</view>
 			</view>

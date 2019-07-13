@@ -1,5 +1,5 @@
-export const BASE_URL = 'https://www.shudagroup.com/api'
-// export const BASE_URL = 'http://localhost:8088'
+// export const BASE_URL = 'https://www.shudagroup.com/api'
+export const BASE_URL = 'http://localhost:8088'
 export const IMAGE_BASE_URL = 'https://www.shudagroup.com'
 export const DOCUMENT_BASE_URL = 'https://www.shudagroup.com'
 export const USER_TOKEN_KEY = 'userToken'
@@ -310,7 +310,8 @@ export const redTo = (url, isLogin) => {
  */
 export const doPostJson = (url, data, headers, token) => {
 	if (token) {
-		headers['Authorization'] = 'Bearer ' + getUserToken()
+		const userToken = uni.getStorageSync(USER_TOKEN_KEY)
+		headers['Authorization'] = 'Bearer ' + userToken
 	}
 	return uni.request({
 		url: url,
@@ -334,7 +335,8 @@ export const doPostJson = (url, data, headers, token) => {
 export const doPostForm = (url, data, headers, token) => {
 	headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
 	if (token) {
-		headers['Authorization'] = 'Bearer ' + getUserToken()
+		const userToken = uni.getStorageSync(USER_TOKEN_KEY)
+		headers['Authorization'] = 'Bearer ' + userToken
 	}
 	return uni.request({
 		url: url,
@@ -356,7 +358,8 @@ export const doPostForm = (url, data, headers, token) => {
  */
 export const doGet = (url, headers) => {
 	if (token) {
-		headers['Authorization'] = 'Bearer ' + getUserToken()
+		const userToken = uni.getStorageSync(USER_TOKEN_KEY)
+		headers['Authorization'] = 'Bearer ' + userToken
 	}
 	return uni.request({
 		url: url,

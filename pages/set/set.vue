@@ -1,16 +1,19 @@
 <template>
 	<view class="container">
-		<view class="list-cell b-b m-t" @click="navTo('个人资料')" hover-class="cell-hover" :hover-stay-time="50">
+		<view class="list-cell b-b m-t" @click="toUserDataPage" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">个人资料</text>
-			<text class="cell-more yticon icon-you"></text>
+			<!-- <text class="cell-more yticon icon-you"></text> -->
+			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
 		<view class="list-cell b-b" @click="navTo('收货地址')" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">收货地址</text>
-			<text class="cell-more yticon icon-you"></text>
+			<!-- <text class="cell-more yticon icon-you"></text> -->
+			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
 		<view class="list-cell" @click="navTo('实名认证')" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">实名认证</text>
-			<text class="cell-more yticon icon-you"></text>
+			<!-- <text class="cell-more yticon icon-you"></text> -->
+			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
 		
 		<view class="list-cell m-t">
@@ -19,16 +22,20 @@
 		</view>
 		<view class="list-cell m-t b-b" @click="navTo('清除缓存')" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">清除缓存</text>
-			<text class="cell-more yticon icon-you"></text>
+			<!-- <text class="cell-more yticon icon-you"></text> -->
+			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
+			
 		</view>
 		<view class="list-cell b-b" @click="navTo('关于Dcloud')" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">关于Dcloud</text>
-			<text class="cell-more yticon icon-you"></text>
+			<!-- <text class="cell-more yticon icon-you"></text> -->
+			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
 		<view class="list-cell">
 			<text class="cell-tit">检查更新</text>
 			<text class="cell-tip">当前版本 1.0.3</text>
-			<text class="cell-more yticon icon-you"></text>
+			<!-- <text class="cell-more yticon icon-you"></text> -->
+			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
 		<view class="list-cell log-out-btn" @click="toLogout">
 			<text class="cell-tit">退出登录</text>
@@ -37,10 +44,18 @@
 </template>
 
 <script>
+	import zyworkIcon from '@/components/zywork-icon/zywork-icon.vue'
+	import {
+		USER_DATA_PAGE
+	} from '@/common/page-url.js'
+	import * as utils from '@/common/util.js'
 	import {  
 	    mapMutations  
 	} from 'vuex';
 	export default {
+		components: {
+			zyworkIcon
+		},
 		data() {
 			return {
 				
@@ -71,7 +86,13 @@
 				let statusTip = e.detail.value ? '打开': '关闭';
 				this.$api.msg(`${statusTip}消息推送`);
 			},
-
+			/**
+			 * 前往修改个人资料页面
+			 */
+			toUserDataPage() {
+				console.log('调整到个人资料')
+				utils.navTo(USER_DATA_PAGE, true);
+			}
 		}
 	}
 </script>

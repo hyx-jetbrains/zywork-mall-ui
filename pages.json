@@ -1,6 +1,5 @@
 {
-	"pages": [
-		{
+	"pages": [{
 			"path": "pages/index/index",
 			"style": {
 				// #ifdef MP 
@@ -62,7 +61,14 @@
 			"style": {
 				"navigationBarTitleText": "修改资料"
 			}
-		}, {
+		}, 
+		{
+			"path": "pages/user-data/user-data",
+			"style": {
+				"navigationBarTitleText": "编辑资料"
+			}
+		},
+		{
 			"path": "pages/cart/cart",
 			"style": {
 				"navigationBarTitleText": "购物车"
@@ -145,67 +151,61 @@
 			"style": {
 				"navigationBarTitleText": "支付成功"
 			}
-		}
-	    ,{
-            "path" : "pages/message/message",
-            "style" : {
+		}, {
+			"path": "pages/message/message",
+			"style": {
 				"navigationBarTitleText": "消息"
 			}
-        }
-        ,{
-            "path" : "pages/category/category",
-            "style" : {
+		}, {
+			"path": "pages/category/category",
+			"style": {
 				"navigationBarTitleText": "分类",
 				"app-plus": {
 					"bounce": "none"
 				}
 			}
-        }
-        ,{
-            "path" : "pages/product/list",
-            "style" : {
+		}, {
+			"path": "pages/product/list",
+			"style": {
 				"enablePullDownRefresh": true,
 				"navigationBarTitleText": "商品列表"
 			}
-        }
-		,{
-            "path" : "pages/search/search",
-            "style" : {
+		}, {
+			"path": "pages/search/search",
+			"style": {
 				"enablePullDownRefresh": false,
 				"navigationBarTitleText": "搜索页面"
 			}
-        }
-		,{
-            "path" : "pages/coupon/coupon",
-            "style" : {
+		}, {
+			"path": "pages/coupon/coupon",
+			"style": {
 				"enablePullDownRefresh": true,
 				"navigationBarTitleText": "我的优惠券"
 			}
-        }
-		,{
-            "path" : "pages/evaluate/evaluate",
-            "style" : {
+		}, {
+			"path": "pages/evaluate/evaluate",
+			"style": {
 				"enablePullDownRefresh": true,
 				"navigationBarTitleText": "商品评论"
 			}
-        },
+		},
 		{
-            "path" : "pages/evaluate/add-evaluate",
-            "style" : {
+			"path": "pages/evaluate/add-evaluate",
+			"style": {
 				"enablePullDownRefresh": false,
 				"navigationBarTitleText": "发布评论"
 			}
-        },
+		},
 		{
-            "path" : "pages/share/share",
-            "style" : {
+			"path": "pages/share/share",
+			"style": {
 				"enablePullDownRefresh": true,
 				"navigationBarTitleText": "分享邀请"
 			}
-        },
+		},
 		{
-            "path" : "pages/login/login",
-            "style": {
+			"path": "pages/login/login",
+			"style": {
 				"navigationBarTitleText": "",
 				"navigationStyle": "custom",
 				"app-plus": {
@@ -213,10 +213,10 @@
 					"animationType": "slide-in-bottom"
 				}
 			}
-        },
+		},
 		{
-            "path" : "pages/register/register",
-            "style": {
+			"path": "pages/register/register",
+			"style": {
 				"navigationBarTitleText": "",
 				"navigationStyle": "custom",
 				"app-plus": {
@@ -224,10 +224,10 @@
 					"animationType": "slide-in-bottom"
 				}
 			}
-        },
+		},
 		{
-            "path" : "pages/forget/forget",
-            "style": {
+			"path": "pages/forget/forget",
+			"style": {
 				"navigationBarTitleText": "",
 				"navigationStyle": "custom",
 				"app-plus": {
@@ -235,8 +235,8 @@
 					"animationType": "slide-in-bottom"
 				}
 			}
-        }
-    ],
+		}
+	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",

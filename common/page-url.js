@@ -31,6 +31,10 @@ export const REGISTER_PAGE = '/pages/register/register'
  * 忘记密码的url
  */
 export const FORGET_PAGE = '/pages/forget/forget'
+/**
+ * 编辑资料的url
+ */
+export const USER_DATA_PAGE = '/pages/user-data/user-data'
 
 
 /**

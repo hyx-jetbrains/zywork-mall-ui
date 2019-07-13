@@ -17,6 +17,8 @@ $seperator-color: #F0F0F0;
 
 $button-background-disabed-color: #a7a8a9;
 
+$link-color: #108EE9;
+
 page {
 	background-color: $primary-page-backcolor;
 }
@@ -360,4 +362,8 @@ button[type=primary][plain] {
 .zy-icon {
 	display: inline-block; 
 	margin-right: 20upx;
+}
+
+.zy-link-color {
+	color: $link-color;
 }
