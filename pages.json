@@ -216,6 +216,13 @@
 			}
 		},
 		{
+			"path": "pages/agent/agent",
+			"style": {
+				"enablePullDownRefresh": true,
+				"navigationBarTitleText": "分销商品列表"
+			}
+		},
+		{
 			"path": "pages/login/login",
 			"style": {
 				"navigationBarTitleText": "",

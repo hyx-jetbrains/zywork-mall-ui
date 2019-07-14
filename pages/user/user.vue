@@ -21,6 +21,11 @@
 							获取手机号
 						</button>
 						<!-- #endif -->
+						<!-- #ifdef H5 -->
+						<view>
+							暂无手机号
+						</view>
+						<!-- #endif -->
 					</view>
 				</view>
 			</view>
@@ -42,7 +47,7 @@
 			</view>
 			<view class="vip-card-box">
 				<image class="card-bg" src="/static/vip-card-bg.png" mode=""></image>
-				<view class="b-btn">
+				<view class="b-btn" @click="toAgentPage">
 					成为代理
 				</view>
 				<view class="tit">
@@ -517,6 +522,12 @@
 			 */
 			toOrderPage(type) {
 				navTo(ORDER_PAGE + '?state=' + type, true);
+			},
+			/**
+			 * 前往成为代理商商品列表页面
+			 */
+			toAgentPage() {
+				navTo("/pages/agent/agent", true);
 			}
 		}
 	}
