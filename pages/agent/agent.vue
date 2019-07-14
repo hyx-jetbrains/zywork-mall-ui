@@ -1,21 +1,11 @@
 <template>
 	<view class="content">
 		<!-- 说明 -->
-		<!-- #ifdef MP-WEIXIN -->
 		<view class="navbar zy-text-small" style="position:fixed;top:70upx;padding: 20upx;font-size: 36upx;">
-		<!-- #endif -->
-		<!-- #ifdef H5 -->
-		<view class="navbar zy-text-small" style="position:fixed;top:150upx;padding: 20upx;font-size: 36upx;">
-		<!-- #endif -->
 			<zywork-icon type="iconsubject9" size="18" style="margin-right: 20upx;"></zywork-icon>
 			分销商特权
 		</view>
-		<!-- #ifdef MP-WEIXIN -->
 		<view class="navbar" style="position:fixed;top:150upx;;padding: 20upx;height: 120upx;">
-		<!-- #endif -->
-		<!-- #ifdef H5 -->
-		<view class="navbar" style="position:fixed;top:230upx;;padding: 20upx;height: 120upx;">
-		<!-- #endif -->
 			<zywork-icon type="iconqiandai1-copy" size="33" color="#e93f33" style="margin-right: 20upx;"></zywork-icon>
 			<view>
 				<view style="font-size: 36upx;">销售佣金</view>
@@ -24,12 +14,7 @@
 				</view>
 			</view>
 		</view>
-		<!-- #ifdef MP-WEIXIN -->
 		<view class="navbar" style="position:fixed;top:270upx;padding: 20upx;height: 160upx;">
-		<!-- #endif -->
-		<!-- #ifdef H5 -->
-		<view class="navbar" style="position:fixed;top:345upx;padding: 20upx;height: 160upx;">
-		<!-- #endif -->
 			<zywork-icon type="iconshandian" size="38" color="#8ee933" style="margin-right: 20upx;"></zywork-icon>
 			<view>
 				<view style="font-size: 36upx;">即刻到账</view>
