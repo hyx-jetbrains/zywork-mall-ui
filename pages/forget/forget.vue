@@ -28,10 +28,12 @@
 			</view>
 			<button class="confirm-btn" @click="updatePassword" :disabled="logining">修改密码</button>
 		</view>
+		<!-- #ifdef APP-PLUS -->
 		<view class="register-section">
 			想起密码?
 			<text @click="toLoginPage">去登录</text>
 		</view>
+		<!-- #endif -->
 	</view>
 </template>
 

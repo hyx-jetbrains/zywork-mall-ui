@@ -145,6 +145,7 @@
 		}, {
 			"path": "pages/address/address",
 			"style": {
+				"enablePullDownRefresh": true,
 				"navigationBarTitleText": "收货地址"
 			}
 		}, {
@@ -266,7 +267,7 @@
 				}
 			}
 		}
-	],
+    ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",

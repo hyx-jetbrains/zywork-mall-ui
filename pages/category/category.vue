@@ -20,7 +20,14 @@
 </template>
 
 <script>
-	import {doPostJson, doPostForm, showInfoToast} from '@/common/util.js'
+	import {
+		doPostJson, 
+		doPostForm, 
+		showInfoToast,
+		MY_SHARE_CODE,
+		SHARE_CODE_PAGE_IMG,
+		SHARE_TITLE
+	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
 		data() {
@@ -36,6 +43,16 @@
 		onLoad(){
 			this.loadCategory();
 		},
+		// #ifdef MP-WEIXIN
+		onShareAppMessage(res) {
+			var shareCode = uni.getStorageSync(MY_SHARE_CODE);
+			return  {
+				title: SHARE_TITLE,
+				path: '/pages/index/index?shareCode=' + shareCode,
+				imageUrl: SHARE_CODE_PAGE_IMG
+			}
+		},
+		// #endif
 		methods: {
 			loadCategory(){
 				uni.showLoading({

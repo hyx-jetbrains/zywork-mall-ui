@@ -20,6 +20,11 @@
 	import {
 		mapMutations
 	} from 'vuex';
+	import {
+		MY_SHARE_CODE,
+		SHARE_CODE_PAGE_IMG,
+		SHARE_TITLE
+	} from '@/common/util.js'
 	export default {
 		components: {
 			zyworkIcon,
@@ -27,6 +32,16 @@
 		data() {
 			return {};
 		},
+		// #ifdef MP-WEIXIN
+		onShareAppMessage(res) {
+			var shareCode = uni.getStorageSync(MY_SHARE_CODE);
+			return  {
+				title: SHARE_TITLE,
+				path: '/pages/index/index?shareCode=' + shareCode,
+				imageUrl: SHARE_CODE_PAGE_IMG
+			}
+		},
+		// #endif
 		methods: {
 			/**
 			 * 拨打电话

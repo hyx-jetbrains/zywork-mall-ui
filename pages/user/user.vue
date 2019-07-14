@@ -134,7 +134,7 @@
 				<view v-else class="zy-not-browser-history">暂无浏览记录</view>
 				<!-- <list-cell icon="icon-iconfontweixin" iconColor="#e07472" title="我的钱包" tips="您的会员还有3天过期"></list-cell> -->
 				<list-cell icon="icon-dizhi" iconColor="#5fcda2" title="地址管理" @eventClick="toAddressPage"></list-cell>
-				<list-cell icon="icon-share" iconColor="#9789f7" title="推广二维码" tips="邀请好友的佣金" @eventClick="toSharePage"></list-cell>
+				<list-cell icon="icon-share" iconColor="#9789f7" title="分享邀请" tips="邀请好友的佣金" @eventClick="toSharePage"></list-cell>
 				<!-- <list-cell icon="icon-pinglun-copy" iconColor="#ee883b" title="晒单" tips="晒单抢红包"></list-cell> -->
 				<list-cell icon="icon-shoucang_xuanzhongzhuangtai" iconColor="#54b4ef" title="我的收藏"></list-cell>
 				<list-cell icon="icon-shezhi1" iconColor="#e07472" title="设置" border="" @eventClick="toSetPage"></list-cell>
@@ -198,10 +198,7 @@
 					getUserRolesUrl: '/user-role/user/list',
 
 				},
-				userInfo: {
-					nickname: '危锦辉',
-					phone: ''
-				},
+				userInfo: {},
 				coverTransform: 'translateY(0px)',
 				coverTransition: '0s',
 				moving: false,

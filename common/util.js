@@ -2,6 +2,7 @@
 export const BASE_URL = 'http://localhost:8088'
 export const IMAGE_BASE_URL = 'https://www.shudagroup.com'
 export const DOCUMENT_BASE_URL = 'https://www.shudagroup.com'
+export const SHARE_TITLE = '智悦商城'
 export const USER_TOKEN_KEY = 'userToken'
 export const USER_OPENID = 'openid'
 export const SHARE_CODE = 'shareCode'
@@ -11,6 +12,7 @@ export const USER_ROLES = 'userRoles'
 export const USER_PHONE = 'userPhone'
 export const LOGIN_FLAG = 'loginFlag'
 export const DEFAULT_HEADICON = '/static/missing-face.png'
+export const SHARE_CODE_PAGE_IMG = '/static/share/share.jpg'
 /**
  * 判断是否为空（null, '', undefined）
  */

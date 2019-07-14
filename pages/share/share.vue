@@ -6,16 +6,31 @@
 				<dt>
 					<image src="../../static/share/logo.png" mode=""></image>
 				</dt>
-				<dd>我的推广二维码</dd>
+				<dd>分享邀请</dd>
 			</dl>
+			<!-- #ifdef H5 -->
 			<view class="img">
-				<image src="../../static/share/ewm.jpg" mode=""></image>
+				<!-- <image :src="shareCode" mode=""></image> -->
+				<tki-qrcode cid="qrcode" ref="qrcode" :val="shareLink" size="300"/>
 			</view>
-			<view class="tgtit">推广链接：<text class="tugurl">http://sishuquan.com?id=3228969</text></view>
+			<view class="tgtit">
+				推广链接：
+				<text class="tugurl">
+					{{shareLink}}
+				</text>
+			</view>
 			<view class="sharbuttn">
 				<view class="btn" @click="save">保存二维码</view>
 				<view class="btn" @click="sharurl">复制推广链接</view>
 			</view>
+			<!-- #endif -->
+			<!-- #ifdef MP-WEIXIN -->
+			<view>
+				<button class="btn" open-type="share">
+					立即分享
+				</button>
+			</view>
+			<!--#endif -->
 
 			<view class="shartitle">
 				<view>分享说明</view>
@@ -36,16 +51,66 @@
 </template>
 
 <script>
+	import {
+		doGet,
+		showInfoToast,
+		showSuccessToast,
+		MY_SHARE_CODE,
+		SHARE_CODE_PAGE_IMG,
+		SHARE_TITLE
+	} from '@/common/util.js'
+	import * as ResponseStatus from '@/common/response-status.js'
+	import tkiQrcode from '@/components/tki-qrcode/tki-qrcode.vue'
 	export default {
+		components: {
+			tkiQrcode
+		},
 		data() {
 			return {
-
+				shareLink: 'http://.....',
+				urls: {
+					shareCodeUrl: '/share-generator/gzh-qrcode',
+					shareLinkUrl: '/share-generator/gzh-link'
+				},
 			}
 		},
 		onLoad() {
-
+			this.loadData();
 		},
+		// #ifdef MP-WEIXIN
+		onShareAppMessage(res) {
+			var shareCode = uni.getStorageSync(MY_SHARE_CODE);
+			return  {
+				title: SHARE_TITLE,
+				path: '/pages/index/index?shareCode=' + shareCode,
+				imageUrl: SHARE_CODE_PAGE_IMG
+			}
+		},
+		// #endif
 		methods: {
+			/**
+			 * 加载数据
+			 */
+			loadData() {
+				this.loadShareLink();
+			},
+			/**
+			 * 加载分享连接
+			 */
+			loadShareLink() {
+				doGet(this.urls.shareLinkUrl, {}, {}, true).then(response => {
+					let [error, res] = response;
+					if (res.data.code = ResponseStatus.OK) {
+						this.shareLink = res.data.data;
+						this.$refs.qrcode._makeCode();
+					} else {
+						showInfoToast(res.data.message);
+					}
+
+				}).catch(err => {
+					console.log(err);
+				})
+			},
 			//复制分享链接
 			sharurl() {
 				uni.setClipboardData({
@@ -69,39 +134,40 @@
 			},
 			//保存图片到相册
 			save() {
-				uni.showActionSheet({
-					itemList: ['保存图片到相册'],
-					success: () => {
-						// plus.gallery.save('http://pds.jyt123.com/wxtest/logo.png', function() {
-						// 	uni.showToast({
-						// 		title:'保存成功',
-						// 		icon:'none'
-						// 	})
-						// }, function() {
-						// 	uni.showToast({
-						// 		title:'保存失败，请重试！',
-						// 		icon:'none'
-						// 	})
-						// });
-						uni.saveFile({
-							tempFilePath: 'http://pds.jyt123.com/wxtest/logo.png',
-							success: (res) => {
-								uni.showModal({
-									title: '保存成功',
-									content: '可在手机相册中查看',
-									showCancel: false
-								});
-							},
-							fail: (res) => {
-								uni.showModal({
-									title: '保存失败',
-									content: '失败原因: ' + JSON.stringify(res),
-									showCancel: false
-								});
-							}
-						})
-					}
-				})
+				this.$refs.qrcode._saveCode();
+				// uni.showActionSheet({
+				// 	itemList: ['保存图片到相册'],
+				// 	success: () => {
+				// 		// plus.gallery.save('http://pds.jyt123.com/wxtest/logo.png', function() {
+				// 		// 	uni.showToast({
+				// 		// 		title:'保存成功',
+				// 		// 		icon:'none'
+				// 		// 	})
+				// 		// }, function() {
+				// 		// 	uni.showToast({
+				// 		// 		title:'保存失败，请重试！',
+				// 		// 		icon:'none'
+				// 		// 	})
+				// 		// });
+				// 		uni.saveFile({
+				// 			tempFilePath: 'http://pds.jyt123.com/wxtest/logo.png',
+				// 			success: (res) => {
+				// 				uni.showModal({
+				// 					title: '保存成功',
+				// 					content: '可在手机相册中查看',
+				// 					showCancel: false
+				// 				});
+				// 			},
+				// 			fail: (res) => {
+				// 				uni.showModal({
+				// 					title: '保存失败',
+				// 					content: '失败原因: ' + JSON.stringify(res),
+				// 					showCancel: false
+				// 				});
+				// 			}
+				// 		})
+				// 	}
+				// })
 			},
 
 			/**
@@ -252,6 +318,7 @@
 		height: auto;
 		padding: 20upx 0;
 	}
+
 	.zy-bottom-tip {
 		background-color: red;
 		padding: 20upx 10upx;

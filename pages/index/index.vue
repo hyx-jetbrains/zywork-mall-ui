@@ -192,7 +192,13 @@
 <script>
 	import zyworkProductList from '@/components/zywork-product-list/zywork-product-list.vue'
 	import zyworkIcon from '@/components/zywork-icon/zywork-icon.vue'
-	import {doPostJson} from '@/common/util.js'
+	import {
+		doPostJson,
+		MY_SHARE_CODE,
+		SHARE_CODE_PAGE_IMG,
+		SHARE_TITLE,
+		SHARE_CODE
+	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {advertisement} from '@/common/advertisement.js'
 	import {
@@ -216,9 +222,25 @@
 			}
 		},
 
-		onLoad() {
+		onLoad(options) {
 			this.loadData();
+			if (options.shareCode != undefined) {
+				uni.setStorage({
+					key: SHARE_CODE,
+					data: options.shareCode
+				});
+			}
 		},
+		// #ifdef MP-WEIXIN
+		onShareAppMessage(res) {
+			var shareCode = uni.getStorageSync(MY_SHARE_CODE);
+			return  {
+				title: SHARE_TITLE,
+				path: '/pages/index/index?shareCode=' + shareCode,
+				imageUrl: SHARE_CODE_PAGE_IMG
+			}
+		},
+		// #endif
 		methods: {
 			async loadData() {
 				this.loadCarouselList()

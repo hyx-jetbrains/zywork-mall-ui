@@ -37,9 +37,11 @@
 			<!-- <text class="cell-more yticon icon-you"></text> -->
 			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
 		</view>
+		<!-- #ifdef APP-PLUS -->
 		<view class="list-cell log-out-btn" @click="toLogout">
 			<text class="cell-tit">退出登录</text>
 		</view>
+		<!-- #endif -->
 	</view>
 </template>
 
