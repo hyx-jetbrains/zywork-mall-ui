@@ -229,8 +229,7 @@
 			}
 		},
 		// #endif
-		computed: {
-		},
+		computed: {},
 		methods: {
 			/**
 			 * 获取用户信息
@@ -335,33 +334,35 @@
 				doGet(this.urls.getUserDetailUrl, {}, true).then(response => {
 					let [error, res] = response;
 					if (res.data.code === ResponseStatus.OK) {
-						var userInfo = nullToStr(res.data.data.rows[0]);
-						if (userInfo.userDetailNickname) {
-							this.userInfo.nickname = userInfo.userDetailNickname;
+						if (res.data.data.total > 0) {
+							var userInfo = nullToStr(res.data.data.rows[0]);
+							if (userInfo.userDetailNickname) {
+								this.userInfo.nickname = userInfo.userDetailNickname;
+							}
+							if (userInfo.userDetailHeadicon) {
+								this.userInfo.headicon = userInfo.userDetailHeadicon;
+							}
+							if (this.userInfo.headicon !== '' && this.userInfo.headicon.indexOf('http') < 0) {
+								this.userInfo.headicon = IMAGE_BASE_URL + '/' + this.userInfo.headicon;
+							}
+							if (userInfo.userDetailGender) {
+								this.userInfo.gender = userInfo.userDetailGender;
+							}
+							if (userInfo.userPhone) {
+								this.userInfo.phone = userInfo.userPhone;
+							}
+							if (this.userInfo.nickname && this.userInfo.headicon) {
+								// 认为已经获取到了用户信息
+								this.showUserInfo = true;
+								uni.setStorageSync(USER_ID, userInfo.userId);
+								uni.setStorageSync(LOGIN_FLAG, true);
+							} else {
+								uni.setStorageSync(LOGIN_FLAG, false);
+							}
+							uni.setStorageSync(USER_PHONE, userInfo.userPhone);
+							uni.setStorageSync(MY_SHARE_CODE, userInfo.userDetailShareCode);
+							this.getUserRoles();
 						}
-						if (userInfo.userDetailHeadicon) {
-							this.userInfo.headicon = userInfo.userDetailHeadicon;
-						}
-						if (this.userInfo.headicon !== '' && this.userInfo.headicon.indexOf('http') < 0) {
-							this.userInfo.headicon = IMAGE_BASE_URL + '/' + this.userInfo.headicon;
-						}
-						if (userInfo.userDetailGender) {
-							this.userInfo.gender = userInfo.userDetailGender;
-						}
-						if (userInfo.userPhone) {
-							this.userInfo.phone = userInfo.userPhone;
-						}
-						if (this.userInfo.nickname && this.userInfo.headicon) {
-							// 认为已经获取到了用户信息
-							this.showUserInfo = true;
-							uni.setStorageSync(USER_ID, userInfo.userId);
-							uni.setStorageSync(LOGIN_FLAG, true);
-						} else {
-							uni.setStorageSync(LOGIN_FLAG, false);
-						}
-						uni.setStorageSync(USER_PHONE, userInfo.userPhone);
-						uni.setStorageSync(MY_SHARE_CODE, userInfo.userDetailShareCode);
-						this.getUserRoles();
 					} else if (res.data.code === ResponseStatus.AUTHENTICATION_TOKEN_ERROR) {
 						// 如果token过期了，则直接使用小程序登录，获取最新的token
 						uni.removeStorageSync(USER_TOKEN_KEY);
@@ -772,6 +773,8 @@
 	.info-box {
 		margin-left: 20upx;
 	}
-	
-	button::after{ border: none; }
+
+	button::after {
+		border: none;
+	}
 </style>
