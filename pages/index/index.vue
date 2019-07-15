@@ -362,7 +362,7 @@
 			//详情页
 			navToDetailPage(goodsInfoId) {
 				uni.navigateTo({
-					url: `/pages/product/product?id=${goodsInfoId}`
+					url: `/pages/product/product?goodsInfoId=${goodsInfoId}`
 				})
 			}
 		},

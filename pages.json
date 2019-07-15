@@ -2,7 +2,7 @@
 	"pages": [{
 			"path": "pages/index/index",
 			"style": {
-				// #ifdef MP 
+				// #ifdef MP || H5 
 				"navigationBarTitleText": "zywork商城",
 				//"navigationStyle": "custom",
 				// #endif 
