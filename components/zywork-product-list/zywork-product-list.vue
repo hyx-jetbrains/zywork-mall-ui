@@ -10,7 +10,7 @@
 				<text class="title clamp">{{item.goodsInfoTitle}}</text>
 				<view class="price-box">
 					<text class="price">{{item.goodsAttributeValueAttrValue}}</text>
-					<text>已售 {{item.saleQuantity}}</text>
+					<text>已售 {{item.goodsInfoSaleCount}}</text>
 				</view>
 			</view>
 		</view>
@@ -40,12 +40,11 @@
 		methods: {
 			//详情
 			navToDetailPage(item) {
+				let goodsInfoId = item.goodsInfoId;
 				// 保存浏览历史
-				setBrowseHistory(item.id, item.goodsPicPicUrl);
-				//测试数据没有写id，用title代替
-				let id = item.goodsInfoId;
+				setBrowseHistory(goodsInfoId, item.goodsPicPicUrl);
 				uni.navigateTo({
-					url: `/pages/product/product?id=${id}`
+					url: `/pages/product/product?goodsInfoId=${goodsInfoId}`
 				})
 			},
 		},

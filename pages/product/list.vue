@@ -262,7 +262,7 @@
 			},
 			changeQuery(params) {
 				if (this.filterIndex === 1) {
-					params.sortColumn = 'saleQuantity'
+					params.sortColumn = 'goodsInfoSaleCount'
 					params.sortOrder = 'desc'
 				} 
 				if (this.filterIndex === 2) {
