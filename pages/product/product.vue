@@ -2,30 +2,26 @@
 	<view class="container">
 		<view class="carousel">
 			<swiper indicator-dots circular=true duration="400">
-				<swiper-item class="swiper-item" v-for="(item,index) in imgList" :key="index">
+				<swiper-item class="swiper-item" v-for="(item,index) in goodsPics" :key="index">
 					<view class="image-wrapper">
-						<image
-							:src="item.src" 
-							class="loaded" 
-							mode="aspectFill"
-						></image>
+						<image :src="item.goodsPicPicUrl" class="loaded" mode="aspectFill"></image>
 					</view>
 				</swiper-item>
 			</swiper>
 		</view>
 		
 		<view class="introduce-section">
-			<text class="title">恒源祥2019春季长袖白色t恤 新款春装</text>
+			<text class="title">{{goodsInfo.goodsInfoTitle}}</text>
 			<view class="price-box">
 				<text class="price-tip">¥</text>
-				<text class="price">341.6</text>
-				<text class="m-price">¥488</text>
-				<text class="coupon-tip">7折</text>
+				<text class="price">{{selectSku.salePrice}}</text>
+				<text class="m-price">¥{{selectSku.price}}</text>
+				<text class="coupon-tip">{{(selectSku.salePrice / selectSku.price * 10).toFixed(1)}}折</text>
 			</view>
 			<view class="bot-row">
-				<text>销量: 108</text>
-				<text>库存: 4690</text>
-				<text>浏览量: 768</text>
+				<text>销量: {{goodsInfo.goodsInfoSaleCount}}</text>
+				<text>库存: {{selectSku.storeCount}}</text>
+				<text>浏览量: {{goodsInfo.goodsInfoClickCount}}</text>
 			</view>
 		</view>
 		
@@ -102,7 +98,7 @@
 			<view class="d-header">
 				<text>图文详情</text>
 			</view>
-			<rich-text :nodes="desc"></rich-text>
+			<rich-text :nodes="goodsInfo.goodsInfoIntro" style="font-size: 28upx;"></rich-text>
 		</view>
 		
 		<!-- 底部操作菜单 -->
@@ -138,10 +134,10 @@
 			<view class="mask"></view>
 			<view class="layer attr-content" @click.stop="stopPrevent">
 				<view class="a-t">
-					<image src="https://gd3.alicdn.com/imgextra/i3/0/O1CN01IiyFQI1UGShoFKt1O_!!0-item_pic.jpg_400x400.jpg"></image>
+					<image :src="selectSku.picUrl"></image>
 					<view class="right">
-						<text class="price">¥328.00</text>
-						<text class="stock">库存：188件</text>
+						<text class="price">¥{{selectSku.salePrice}}</text>
+						<text class="stock">库存：{{selectSku.storeCount}}</text>
 						<view class="selected">
 							已选：
 							<text class="selected-text" v-for="(sItem, sIndex) in specSelected" :key="sIndex">
@@ -156,8 +152,8 @@
 						<text 
 							v-for="(childItem, childIndex) in specChildList" 
 							v-if="childItem.pid === item.id"
-							:key="childIndex" class="tit"
-							:class="{selected: childItem.selected}"
+							:key="childIndex" class="text tit"
+							:class="[{selected: childItem.selected, 'enable-text': !childItem.disable, 'disable-text': childItem.disable}]"
 							@click="selectSpec(childIndex, childItem.pid)"
 						>
 							{{childItem.name}}
@@ -177,7 +173,9 @@
 </template>
 
 <script>
-	import share from '@/components/share';
+	import share from '@/components/share'
+	import {doPostJson, showInfoToast} from '@/common/util.js'
+	import * as responseStatus from '@/common/response-status.js'
 	import {
 		EVALUATE_PAGE
 	} from '@/common/page-url.js'
@@ -187,114 +185,276 @@
 		},
 		data() {
 			return {
+				goodsInfo: {},
+				goodsPics: [],
+				categorySpec: [], // 商品的组合属性（规格属性），按属性正序排列
+				// 选择的sku
+				selectSku: {
+					skuId: null,
+					picUrl: null,
+					price: null,
+					salePrice: null,
+					storeCount: null
+				},
 				specClass: 'none',
-				specSelected:[],
-				
+				specSelected:[], // 选择的sku规格值
+				specSelectedStr: '', // 选择的sku规格组成的字符串，如7#黄色-9#S
+				specList: [], // id, name，用于存储可选规格的名称
+				specChildList: [], // id, pid, name，disable用于存储可选规格的值
+				skuSpecs: {}, // {"1":"7#黄色-9#S-","2":"7#白色-9#M-"}用于存储所有SKU的可选规格的字符串，key为sku的id, 并判断用户选择的规格是否有对应的SKU
 				favorite: true,
 				shareList: [],
-				imgList: [
-					{
-						src: 'https://gd3.alicdn.com/imgextra/i3/0/O1CN01IiyFQI1UGShoFKt1O_!!0-item_pic.jpg_400x400.jpg'
-					},
-					{
-						src: 'https://gd3.alicdn.com/imgextra/i3/TB1RPFPPFXXXXcNXpXXXXXXXXXX_!!0-item_pic.jpg_400x400.jpg'
-					},
-					{
-						src: 'https://gd2.alicdn.com/imgextra/i2/38832490/O1CN01IYq7gu1UGShvbEFnd_!!38832490.jpg_400x400.jpg'
-					}
-				],
-				desc: `
-					<div style="width:100%">
-						<img style="width:100%;display:block;" src="https://gd3.alicdn.com/imgextra/i4/479184430/O1CN01nCpuLc1iaz4bcSN17_!!479184430.jpg_400x400.jpg" />
-						<img style="width:100%;display:block;" src="https://gd2.alicdn.com/imgextra/i2/479184430/O1CN01gwbN931iaz4TzqzmG_!!479184430.jpg_400x400.jpg" />
-						<img style="width:100%;display:block;" src="https://gd3.alicdn.com/imgextra/i3/479184430/O1CN018wVjQh1iaz4aupv1A_!!479184430.jpg_400x400.jpg" />
-						<img style="width:100%;display:block;" src="https://gd4.alicdn.com/imgextra/i4/479184430/O1CN01tWg4Us1iaz4auqelt_!!479184430.jpg_400x400.jpg" />
-						<img style="width:100%;display:block;" src="https://gd1.alicdn.com/imgextra/i1/479184430/O1CN01Tnm1rU1iaz4aVKcwP_!!479184430.jpg_400x400.jpg" />
-					</div>
-				`,
-				specList: [
-					{
-						id: 1,
-						name: '尺寸',
-					},
-					{	
-						id: 2,
-						name: '颜色',
-					},
-				],
-				specChildList: [
-					{
-						id: 1,
-						pid: 1,
-						name: 'XS',
-					},
-					{
-						id: 2,
-						pid: 1,
-						name: 'S',
-					},
-					{
-						id: 3,
-						pid: 1,
-						name: 'M',
-					},
-					{
-						id: 4,
-						pid: 1,
-						name: 'L',
-					},
-					{
-						id: 5,
-						pid: 1,
-						name: 'XL',
-					},
-					{
-						id: 6,
-						pid: 1,
-						name: 'XXL',
-					},
-					{
-						id: 7,
-						pid: 2,
-						name: '白色',
-					},
-					{
-						id: 8,
-						pid: 2,
-						name: '珊瑚粉',
-					},
-					{
-						id: 9,
-						pid: 2,
-						name: '草木绿',
-					},
-				]
-			};
+			}
 		},
 		async onLoad(options){
-			
-			//接收传值,id里面放的是标题，因为测试数据并没写id 
-			let id = options.id;
-			if(id){
-				this.$api.msg(`点击了${id}`);
+			let goodsInfoId = options.goodsInfoId
+			if (options.goodsSkuId) {
+				this.selectSku.skuId = options.goodsSkuId
 			}
-			
-			
-			//规格 默认选中第一条
-			this.specList.forEach(item=>{
-				for(let cItem of this.specChildList){
-					if(cItem.pid === item.id){
-						this.$set(cItem, 'selected', true);
-						this.specSelected.push(cItem);
-						break; //forEach不能使用break
-					}
-				}
-			})
+			this.loadGoodsPic(goodsInfoId)
+			this.loadGoodsInfoById(goodsInfoId)
 			this.shareList = await this.$api.json('shareList');
 		},
 		methods:{
+			// 加载商品的所有图片
+			loadGoodsPic(goodsInfoId) {
+				doPostJson('/goods-pic/any/all-cond', {
+					goodsId: goodsInfoId,
+					sortColumn: 'picOrder',
+					sortOrder: 'asc'
+				}, {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === responseStatus.OK) {
+						this.goodsPics = res.data.data.rows
+					} 
+				}).catch(error => {
+					console.log(error)
+				})
+			},
+			// 加载商品的详细信息，包括所有 SKU 的所有属性值 
+			loadGoodsInfoById(goodsInfoId) {
+				doPostJson('/goods-sku-attr-val/any/goods-goods-sku-attr', {
+					"goodsInfoId": goodsInfoId,
+					"sortColumn": "goodsSkuId",
+					"sortOrder":"asc"
+				}, {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === responseStatus.OK) {
+						this.goodsInfo = res.data.data
+						if (this.goodsInfo.goodsSkuVOList && this.goodsInfo.goodsSkuVOList.length > 0) {
+							// 设置被选中的sku信息
+							this.setSelectSku()
+						}
+						// 加载商品类目指定的组合属性（规格属性），按属性正序排列
+						this.loadCategoryAttrGroup()
+					} else {
+						showInfoToast('没有商品信息')
+					}
+				}).catch(error => {
+					console.log(error)
+				})
+			},
+			// 设置被选中的SKU信息
+			setSelectSku() {
+				if (this.selectSku.skuId == null) {
+					// 如果不是由某个具体的SKU进来的，则显示商品的第一个SKU信息
+					let skuInfo = this.goodsInfo.goodsSkuVOList[0]
+					this.setSkuInfo(skuInfo)
+				} else {
+					// 否则显示指定的SKU的信息
+					for (let skuInfo of this.goodsInfo.goodsSkuVOList) {
+						if (skuInfo.goodsSkuId === this.selectSku.skuId) {
+							this.setSkuInfo(skuInfo)
+							break
+						}
+					}
+				}
+			},
+			// 从SKU中获取selectSku需要的信息并赋值给selectSku
+			setSkuInfo(skuInfo) {
+				this.selectSku.skuId = skuInfo.goodsSkuId
+				this.selectSku.picUrl = skuInfo.goodsPicPicUrl
+				skuInfo.goodsSkuAttrVOList.forEach((skuAttr, index) => {
+					if (skuAttr.goodsAttributeAttrCode == 'price') {
+						this.selectSku.price = skuAttr.goodsAttributeValueAttrValue
+					} else if (skuAttr.goodsAttributeAttrCode == 'salePrice') {
+						this.selectSku.salePrice = skuAttr.goodsAttributeValueAttrValue
+					} else if (skuAttr.goodsAttributeAttrCode == 'storeCount') {
+						this.selectSku.storeCount = skuAttr.goodsAttributeValueAttrValue
+					}
+				})
+			},
+			// 获取类目的组合属性（规格属性）
+			loadCategoryAttrGroup() {
+				doPostJson('/goods-category-attr/any/all-cond', {
+					goodsCategoryId: this.goodsInfo.goodsInfoCategoryId,
+					goodsCategoryAttributeIsAttrGroup: 1,
+					sortColumn: 'goodsCategoryAttributeAttrOrder',
+					sortOrder: 'asc'
+				}, {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === responseStatus.OK) {
+						this.categorySpec = res.data.data.rows
+						this.getSkuSpec()
+					}
+				}).catch(error => {
+					console.log(error)
+				})
+			},
+			// 获取sku的所有规格，包括规格名称和规格的值；并且记录所有sku对应的规格字符串，字符串格式参考data部分说明
+			getSkuSpec() {
+				let idIndex = 1
+				let attrValueArray = []
+				this.categorySpec.forEach((item, index) => {
+					let attrId = item.goodsAttributeId
+					// 设置规格名称
+					this.specList.push({
+						id: attrId,
+						name: item.goodsAttributeAttrName
+					})
+					let attrCode = item.goodsAttributeAttrCode
+					// 按照SKU的顺序去获取所有可选的规格值
+					this.goodsInfo.goodsSkuVOList.forEach((skuItem, index) => {
+						let skuAttrList = skuItem.goodsSkuAttrVOList
+						for (let skuAttr of skuAttrList) {
+							// 如果sku属性的代码与规格属性代码一致
+							if (skuAttr.goodsAttributeAttrCode === attrCode) {
+								let attrValue = skuAttr.goodsAttributeValueAttrValue
+								this.skuSpecs[skuItem.goodsSkuId] = this.skuSpecs[skuItem.goodsSkuId] === undefined ? 
+								attrId + '#' + attrValue + '-' 
+								: this.skuSpecs[skuItem.goodsSkuId] + attrId + '#' + attrValue + '-'
+								if (attrValueArray.indexOf(attrValue) < 0) {
+									attrValueArray.push(attrValue)
+									this.specChildList.push({
+										id: idIndex,
+										pid: attrId,
+										name: attrValue
+									})
+									idIndex++
+								}
+								break
+							}
+						}
+					})
+				})
+				// 设置选中的SKU的规格
+				this.setSelectSkuSpec()
+			},
+			// 设置选中的sku的规格
+			setSelectSkuSpec() {
+				this.specList.forEach(item=>{
+					// specChildList中，每个规格属性的第一个规格值就是第一个SKU的规格 
+					for(let cItem of this.specChildList){
+						if(cItem.pid === item.id){
+							this.$set(cItem, 'selected', true)
+							this.specSelected.push(cItem)
+							this.specSelectedStr += cItem.pid + '#' + cItem.name + '-'
+							break
+						}
+					}
+				})
+			},
+			//选择规格
+			selectSpec(index, pid){
+				// 标记选中的规格是否有对应的sku
+				let hasSku = false
+				// 清除已选中规格的字符串
+				this.specSelectedStr = ''
+				let list = this.specChildList
+				if (list[index].disable) {
+					// 如果选择的规格是不可用的，则直接返回
+					console.log(list[index].disable)
+					return
+				}
+				// 把同一个规格名称的所有规格值设置为未选中状态
+				list.forEach(item=>{
+					if(item.pid === pid){
+						this.$set(item, 'selected', false)
+					}
+				})
+				// 把当前选中的规格设置为选中状态
+				this.$set(list[index], 'selected', true)
+				// 选中的规格清除
+				this.specSelected = []
+				// 把所有选中状态的规格放入到specSelected中，并组装选中规格的字符串值，字符串格式参考data部分说明
+				list.forEach(item=>{ 
+					if(item.selected === true){ 
+						this.specSelectedStr += item.pid + '#' + item.name + '-'
+						this.specSelected.push(item)
+					} 
+				})
+				// 对已经选择的规格进行判断，看是否有对应的skuid与之对应，如果没有，则specSelected中只保留最后一个选择的规格值
+				for (let key in this.skuSpecs) {
+					if (this.skuSpecs[key] === this.specSelectedStr) {
+						// 选择的规格有对应的sku，则把key赋值给selectSku
+						this.selectSku.skuId = parseInt(key)
+						// 重新设置sku的基本信息
+						this.setSelectSku()
+						hasSku = true
+						break;
+					}
+				}
+				if (!hasSku) {
+					// 如果没有对应的规格，则specSelected中只保留最后一个选择的规格值
+					this.specSelected = this.specSelected.filter(item => item.id === list[index].id)
+				}
+				// 去计算规格是否可以进行相互组合，对于不能相互组合的规格，会禁用掉，以不能点击选择
+				this.specMatch(list[index], hasSku)
+			},
+			specMatch(specItem, hasSku) {
+				// 用户选择的规格的pid
+				let specPid = specItem.pid
+				// 用户选择的规格值
+				let specValue = specItem.name
+				// 把所有规格都设置成禁用状态
+				this.specChildList.forEach((item, index) => {
+					item.disable = true
+				})
+				// 对记录的SKU的规格信息进行循环，"7#黄色-9#S-", 3: "7#红色-9#M-", 4: "7#白色-9#S-"
+				for (let key in this.skuSpecs) {
+					// sku对应的规格字符串
+					let skuSpecValue = this.skuSpecs[key]
+					// 如果sku对应的规格字符串包含有用户点选的规格值
+					if (skuSpecValue.indexOf(specValue) >= 0) {
+						// 对sku对应的规格字符串按 - 切分，得到所有规格值的父编号和规格的值，如7#黄色，9#S
+						let skuSpecValArray = skuSpecValue.split('-')
+						skuSpecValArray.forEach((skuSpecVal, index) => {
+							// 分别获取SKU规格值的父id和规格具体值
+							let thePid = skuSpecVal.split('#')[0]
+							let theVal = skuSpecVal.split('#')[1]
+							if (theVal) {
+								this.specChildList.forEach((item, index) => {
+									// 如果规格值的父id与选择的规格值的父id一致，则这类规格值可选择，规格值disable为false
+									if (item.pid === specPid) {
+										item.disable = false
+									}
+									// 如果规格值的父id与选择的规格值的父id不一致，
+									// 且规格值的父id与SKU的规格值的父id一致，
+									// 且规格值与记录的规格值一致，表明sku拥有此规格值，规格值是可选择的，规格值disable设置为false
+									if (item.pid != specPid && item.pid == thePid && item.name == theVal) {
+										item.disable = false
+									}
+									// 如果规格值的父id与选择的规格值的父id不一致，
+									// 且规格值的父id与SKU的规格值的父id一致，
+									// 且规格值与记录的规格值不一样，表明sku不拥有此规格值，规格值是不可选择的，规格值disable保持为true
+									// 但是此时由于规格值可能是被选中状态的，所以当选择新规格值时，没有对应的新的sku，则需要把原先不属于sku的选中状态的规格值设置为未选中状态
+									if (item.pid !== specPid && item.pid == thePid && item.name != theVal && !hasSku) {
+										if (item.selected) {
+											item.selected = false
+										}
+									}
+								})
+							}
+						})
+					}
+				}
+			},
 			//规格弹窗开关
 			toggleSpec() {
+				if (this.specSelected.length !== this.categorySpec.length) {
+					showInfoToast('请选择商品规格')
+					return
+				}
 				if(this.specClass === 'show'){
 					this.specClass = 'hide';
 					setTimeout(() => {
@@ -303,30 +463,6 @@
 				}else if(this.specClass === 'none'){
 					this.specClass = 'show';
 				}
-			},
-			//选择规格
-			selectSpec(index, pid){
-				let list = this.specChildList;
-				list.forEach(item=>{
-					if(item.pid === pid){
-						this.$set(item, 'selected', false);
-					}
-				})
-
-				this.$set(list[index], 'selected', true);
-				//存储已选择
-				/**
-				 * 修复选择规格存储错误
-				 * 将这几行代码替换即可
-				 * 选择的规格存放在specSelected中
-				 */
-				this.specSelected = []; 
-				list.forEach(item=>{ 
-					if(item.selected === true){ 
-						this.specSelected.push(item); 
-					} 
-				})
-				
 			},
 			//分享
 			share(){
@@ -667,7 +803,7 @@
 			padding: 20upx 0 0;
 			display: flex;
 			flex-wrap: wrap;
-			text{
+			.text{
 				display: flex;
 				align-items: center;
 				justify-content: center;
@@ -679,11 +815,17 @@
 				height: 60upx;
 				padding: 0 20upx;
 				font-size: $font-base;
-				color: $font-color-dark;
 			}
 			.selected{
 				background: #fbebee;
 				color: $uni-color-primary;
+				border: 1upx solid $uni-color-primary;
+			}
+			.enable-text {
+				color: $font-color-dark;
+			}
+			.disable-text {
+				color: #ccc;
 			}
 		}
 	}
