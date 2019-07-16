@@ -6,7 +6,7 @@
 		</view>
 		<view class="zy-display-flex">
 			<view class="zy-type-title zy-text-bold">佣金记录</view>
-			<view class="zy-display-flex-right">
+			<!-- <view class="zy-display-flex-right">
 				<view class="uni-list-cell-db">
 					<picker @change="chooseType" :value="typeIndex" :range="typeArray">
 						<view class="zy-type-picker">
@@ -15,7 +15,7 @@
 						</view>
 					</picker>
 				</view>
-			</view>
+			</view> -->
 		</view>
 		<view class="zy-commission-record">
 			<view v-if="commissionList.length > 0" class="zy-page-list" style="padding: 0upx 30upx;">
