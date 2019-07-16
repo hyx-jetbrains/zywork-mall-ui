@@ -120,7 +120,7 @@
 			
 			<view class="action-btn-group">
 				<button type="primary" class=" action-btn no-border buy-now-btn" @click="buy">立即购买</button>
-				<button type="primary" class=" action-btn no-border add-cart-btn">加入购物车</button>
+				<button type="primary" class=" action-btn no-border add-cart-btn" @click="addCart">加入购物车</button>
 			</view>
 		</view>
 		
@@ -162,6 +162,17 @@
 						</text>
 					</view>
 				</view>
+				<view class="attr-list quantity">
+					<text>数量</text>
+					<uni-number-box 
+						:min="1" 
+						:max="selectSku.storeCount"
+						:value="1"
+						:isMax="selectSkuQuantity >= selectSku.storeCount ? true : false"
+						:isMin="selectSkuQuantity === 1"
+						@eventChange="changeQuantity"
+					></uni-number-box>
+				</view>
 				<button class="btn" @click="toggleSpec">完成</button>
 			</view>
 		</view>
@@ -176,14 +187,16 @@
 
 <script>
 	import share from '@/components/share'
+	import uniNumberBox from '@/components/uni-number-box.vue'
 	import {doPostJson, showInfoToast} from '@/common/util.js'
-	import * as responseStatus from '@/common/response-status.js'
+	import * as ResponseStatus from '@/common/response-status.js'
 	import {
 		EVALUATE_PAGE
 	} from '@/common/page-url.js'
  	export default{
 		components: {
-			share
+			share,
+			uniNumberBox
 		},
 		data() {
 			return {
@@ -199,6 +212,7 @@
 					salePrice: null,
 					storeCount: null
 				},
+				selectSkuQuantity: 1,
 				specClass: 'none',
 				specSelected:[], // 选择的sku规格值
 				specSelectedStr: '', // 选择的sku规格组成的字符串，如7#黄色-9#S
@@ -207,6 +221,16 @@
 				skuSpecs: {}, // {"1":"7#黄色-9#S-","2":"7#白色-9#M-"}用于存储所有SKU的可选规格的字符串，key为sku的id, 并判断用户选择的规格是否有对应的SKU
 				favorite: true,
 				shareList: [],
+			}
+		},
+		watch: {
+			selectSkuQuantity(newVal) {
+				console.log(newVal)
+				if (newVal <= 0) {
+					this.selectSkuQuantity = 1
+				} else if (newVal > this.selectSku.storeCount) {
+					this.selectSkuQuantity = this.selectSku.storeCount
+				}
 			}
 		},
 		async onLoad(options){
@@ -227,7 +251,7 @@
 					sortOrder: 'asc'
 				}, {}).then(response => {
 					let [error, res] = response
-					if (res.data.code === responseStatus.OK) {
+					if (res.data.code === ResponseStatus.OK) {
 						this.goodsPics = res.data.data.rows
 					} 
 				}).catch(error => {
@@ -242,7 +266,7 @@
 					"sortOrder":"asc"
 				}, {}).then(response => {
 					let [error, res] = response
-					if (res.data.code === responseStatus.OK) {
+					if (res.data.code === ResponseStatus.OK) {
 						this.goodsInfo = res.data.data
 						if (this.goodsInfo.goodsSkuVOList && this.goodsInfo.goodsSkuVOList.length > 0) {
 							// 设置被选中的sku信息
@@ -298,7 +322,7 @@
 					sortOrder: 'asc'
 				}, {}).then(response => {
 					let [error, res] = response
-					if (res.data.code === responseStatus.OK) {
+					if (res.data.code === ResponseStatus.OK) {
 						this.categorySpec = res.data.data.rows
 						this.getSkuSpec()
 					}
@@ -454,6 +478,9 @@
 					}
 				}
 			},
+			changeQuantity(data) {
+				this.selectSkuQuantity = data.number
+			},
 			//规格弹窗开关
 			toggleSpec() {
 				if (this.specSelected.length !== this.categorySpec.length) {
@@ -469,6 +496,33 @@
 					this.specClass = 'show';
 				}
 			},
+			addCart() {
+				if (this.selectSku.skuId === null) {
+					showInfoToast('请选择商品规格')
+					return
+				}
+				doPostJson('/goods-cart/user/save', {
+					goodsId: this.goodsInfo.goodsInfoId,
+					goodsSkuId: this.selectSku.skuId,
+					quantity: 1
+				}, {}, true).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						showInfoToast('已加入购物车')
+					} else if (res.data.code === ResponseStatus.AUTHENTICATION_TOKEN_ERROR) {
+						showInfoToast('您好像还未登录哦')
+					} else {
+						showInfoToast('请稍候再加入购物车')
+					}
+				}).catch(error => {
+					console.log(error)
+				})
+			},
+			buy(){
+				uni.navigateTo({
+					url: `/pages/order/createOrder`
+				})
+			},
 			//分享
 			share(){
 				this.$refs.share.toggleMask();	
@@ -476,11 +530,6 @@
 			//收藏
 			toFavorite(){
 				this.favorite = !this.favorite;
-			},
-			buy(){
-				uni.navigateTo({
-					url: `/pages/order/createOrder`
-				})
 			},
 			stopPrevent(){},
 			/**
@@ -791,6 +840,12 @@
 			color: $font-color-base;
 			padding-top: 30upx;
 			padding-left: 10upx;
+		}
+		.quantity {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
 		}
 		.item-list{
 			padding: 20upx 0 0;

@@ -1,11 +1,11 @@
 <template>
 	<view class="container">
 		<!-- 空白页 -->
-		<view v-if="!hasLogin || empty===true" class="empty">
+		<view v-if="!hasUserInfo || empty===true" class="empty">
 			<image src="/static/emptyCart.jpg" mode="aspectFit"></image>
-			<view v-if="hasLogin" class="empty-tips">
+			<view v-if="hasUserInfo" class="empty-tips">
 				空空如也
-				<navigator class="navigator" v-if="hasLogin" url="../index/index" open-type="switchTab">随便逛逛></navigator>
+				<navigator class="navigator" v-if="hasUserInfo" url="../index/index" open-type="switchTab">随便逛逛></navigator>
 			</view>
 			<view v-else class="empty-tips">
 				空空如也
@@ -39,7 +39,7 @@
 							<text class="attr">{{item.attr_val}}</text>
 							<text class="price">¥{{item.price}}</text>
 							<uni-number-box 
-								class="step"
+								class="number-box"
 								:min="1" 
 								:max="item.stock"
 								:value="item.number>item.stock?item.stock:item.number"
@@ -80,15 +80,13 @@
 </template>
 
 <script>
-	import {
-		mapState
-	} from 'vuex';
 	import uniNumberBox from '@/components/uni-number-box.vue'
 	import {
 		LOGIN_PAGE
 	} from '@/common/page-url.js'
 	import {
-		navTo
+		navTo,
+		HAS_USER_INFO
 	} from '@/common/util.js'
 	export default {
 		components: {
@@ -96,14 +94,20 @@
 		},
 		data() {
 			return {
+				hasUserInfo: false,
 				total: 0, //总价格
 				allChecked: false, //全选状态  true|false
 				empty: false, //空白页现实  true|false
 				cartList: [],
 			};
 		},
-		onLoad(){
+		onLoad() {
 			this.loadData();
+		},
+		onShow() {
+			if (uni.getStorageSync(HAS_USER_INFO)) {
+				this.hasUserInfo = true
+			}
 		},
 		watch:{
 			//显示空白页
@@ -113,9 +117,6 @@
 					this.empty = empty;
 				}
 			}
-		},
-		computed:{
-			...mapState(['hasLogin'])
 		},
 		methods: {
 			//请求数据
@@ -305,6 +306,10 @@
 			.price{
 				height: 50upx;
 				line-height:50upx;
+			}
+			.number-box {
+				position:absolute;
+				bottom: 0;
 			}
 		}
 		.del-btn{

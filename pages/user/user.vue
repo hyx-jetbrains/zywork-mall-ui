@@ -165,7 +165,7 @@
 		USER_ID,
 		USER_ROLES,
 		USER_PHONE,
-		LOGIN_FLAG,
+		HAS_USER_INFO,
 		IMAGE_BASE_URL,
 		SHARE_CODE
 	} from '@/common/util.js'
@@ -349,9 +349,9 @@
 								// 认为已经获取到了用户信息
 								this.showUserInfo = true;
 								uni.setStorageSync(USER_ID, userInfo.userId);
-								uni.setStorageSync(LOGIN_FLAG, true);
+								uni.setStorageSync(HAS_USER_INFO, true);
 							} else {
-								uni.setStorageSync(LOGIN_FLAG, false);
+								uni.setStorageSync(HAS_USER_INFO, false);
 							}
 							uni.setStorageSync(USER_PHONE, userInfo.userPhone);
 							uni.setStorageSync(MY_SHARE_CODE, userInfo.userDetailShareCode);
@@ -362,7 +362,7 @@
 						uni.removeStorageSync(USER_TOKEN_KEY);
 						uni.removeStorageSync(USER_OPENID);
 						uni.removeStorageSync(USER_ID)
-						uni.setStorageSync(LOGIN_FLAG, false);
+						uni.setStorageSync(HAS_USER_INFO, false);
 						this.xcxLogin();
 					} else {
 						showInfoToast(res.data.message);

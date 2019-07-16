@@ -3,12 +3,12 @@
 		<view class="uni-numbox-minus" 
 			@click="_calcValue('subtract')"
 		>
-			<text class="iconfont iconjian" :class="minDisabled?'uni-numbox-disabled': ''" ></text>
+			<text class="iconfont iconjian" :class="isMin?'uni-numbox-disabled': ''" ></text>
 		</view>
 		<input 
 			class="uni-numbox-value" 
 			type="number" 
-			:disabled="disabled"
+			:disabled="true"
 			:value="inputValue" 
 			
 			@blur="_onBlur"
@@ -17,7 +17,7 @@
 			class="uni-numbox-plus" 
 			@click="_calcValue('add')"
 		>
-			<text class="iconfont iconjia" :class="maxDisabled?'uni-numbox-disabled': ''" ></text>
+			<text class="iconfont iconjia" :class="isMax?'uni-numbox-disabled': ''" ></text>
 		</view>
 	</view>
 </template>
@@ -60,14 +60,10 @@
 		},
 		data() {
 			return {
-				inputValue: this.value,
-				minDisabled: false,
-				maxDisabled: false
+				inputValue: this.value
 			}
 		},
 		created(){
-			this.maxDisabled = this.isMax;
-			this.minDisabled = this.isMin;
 		},
 		computed: {
 
@@ -91,24 +87,24 @@
 				if(type === 'subtract'){
 					newValue = value - step;
 					if (newValue <= this.min){
-						this.minDisabled = true;
+						this.isMin = true;
 					}
 					if(newValue < this.min){
 						newValue = this.min
 					}
-					if(newValue < this.max && this.maxDisabled === true){
-						this.maxDisabled = false;
+					if(newValue < this.max && this.isMax === true){
+						this.isMax = false;
 					}
 				}else if(type === 'add'){
 					newValue = value + step;
 					if (newValue >= this.max){
-						this.maxDisabled = true;
+						this.isMax = true;
 					}
 					if(newValue > this.max){
 						newValue = this.max
 					}
-					if(newValue > this.min && this.minDisabled === true){
-						this.minDisabled = false;
+					if(newValue > this.min && this.isMin === true){
+						this.isMin = false;
 					}
 				}
 				if(newValue === value){
@@ -144,9 +140,6 @@
 </script>
 <style>
 	.uni-numbox {
-		position:absolute;
-		left: 30upx;
-		bottom: 0;
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;

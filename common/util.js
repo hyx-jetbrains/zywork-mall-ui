@@ -10,7 +10,7 @@ export const MY_SHARE_CODE = 'myShareCode'
 export const USER_ID = 'userId'
 export const USER_ROLES = 'userRoles'
 export const USER_PHONE = 'userPhone'
-export const LOGIN_FLAG = 'loginFlag'
+export const HAS_USER_INFO = 'hasUserInfo'
 export const DEFAULT_HEADICON = '/static/missing-face.png'
 export const SHARE_CODE_PAGE_IMG = '/static/share/share.jpg'
 /**
