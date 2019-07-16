@@ -11,7 +11,7 @@
 		</view>
 		
 		<view class="introduce-section">
-			<text class="title">{{goodsInfo.goodsInfoTitle}}</text>
+			<text class="title">{{selectSku.title}}</text>
 			<view class="price-box">
 				<text class="price-tip">¥</text>
 				<text class="price">{{selectSku.salePrice}}</text>
@@ -191,6 +191,7 @@
 				// 选择的sku
 				selectSku: {
 					skuId: null,
+					title: null,
 					picUrl: null,
 					price: null,
 					salePrice: null,
@@ -275,7 +276,9 @@
 				this.selectSku.skuId = skuInfo.goodsSkuId
 				this.selectSku.picUrl = skuInfo.goodsPicPicUrl
 				skuInfo.goodsSkuAttrVOList.forEach((skuAttr, index) => {
-					if (skuAttr.goodsAttributeAttrCode == 'price') {
+					if (skuAttr.goodsAttributeAttrCode == 'title') {
+						this.selectSku.title = skuAttr.goodsAttributeValueAttrValue
+					} else if (skuAttr.goodsAttributeAttrCode == 'price') {
 						this.selectSku.price = skuAttr.goodsAttributeValueAttrValue
 					} else if (skuAttr.goodsAttributeAttrCode == 'salePrice') {
 						this.selectSku.salePrice = skuAttr.goodsAttributeValueAttrValue
