@@ -2,15 +2,15 @@
 	<view class="container">
 		<view class="list-cell b-b m-t" @click="toUserDataPage" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">个人资料</text>
-			<zywork-icon type="iconarr-right" color="#909399" size="12" class="zy-icon cell-more" />
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="zy-icon cell-more" />
 		</view>
 		<view class="list-cell b-b" @click="toAddressPage" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">收货地址</text>
-			<zywork-icon type="iconarr-right" color="#909399" size="12" class="zy-icon cell-more" />
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="zy-icon cell-more" />
 		</view>
 		<view class="list-cell" @click="toAccountSetPage" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">账户与安全</text>
-			<zywork-icon type="iconarr-right" color="#909399" size="12" class="zy-icon cell-more" />
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="zy-icon cell-more" />
 		</view>
 		
 		<view class="list-cell m-t">
@@ -19,17 +19,17 @@
 		</view>
 		<view class="list-cell m-t b-b" @click="navTo('清除缓存')" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">清除缓存</text>
-			<zywork-icon type="iconarr-right" color="#909399" size="12" class="zy-icon cell-more" />
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="zy-icon cell-more" />
 			
 		</view>
 		<view class="list-cell b-b" @click="toAbountPage" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">关于商城</text>
-			<zywork-icon type="iconarr-right" color="#909399" size="12" class="zy-icon cell-more" />
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="zy-icon cell-more" />
 		</view>
 		<view class="list-cell">
 			<text class="cell-tit">检查更新</text>
 			<text class="cell-tip">当前版本 1.0.3</text>
-			<zywork-icon type="iconarr-right" color="#909399" size="12" class="zy-icon cell-more" />
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="zy-icon cell-more" />
 		</view>
 		<!-- #ifdef APP-PLUS -->
 		<view class="list-cell log-out-btn" @click="toLogout">

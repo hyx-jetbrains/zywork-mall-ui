@@ -58,6 +58,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		padding: 0 30upx;
+		padding-top: 10upx;
 		background: #fff;
 
 		.goods-item {

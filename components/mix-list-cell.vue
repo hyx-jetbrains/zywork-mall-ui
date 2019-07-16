@@ -30,7 +30,7 @@
 			return {
 				typeList: {
 					left: 'iconfangxiang-xiangzuo',
-					right: 'iconfangxiang-xiangyou',
+					right: 'iconxiangyou',
 					up: 'iconfangxiang-xiangshang',
 					down: 'iconfangxiang-xiangxia'
 				},

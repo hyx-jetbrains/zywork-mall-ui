@@ -407,8 +407,9 @@
 				width: 30upx;
 				height: 14upx;
 				line-height: 1;
-				margin-left: 4upx;
-				font-size: 26upx;
+				margin-top: 10upx;
+				margin-left: 6upx;
+				font-size: 22upx;
 				color: #888;
 				&.active{
 					color: $base-color;

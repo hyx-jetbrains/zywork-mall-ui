@@ -50,12 +50,12 @@
 						{{sItem.name}}
 					</text>
 				</view>
-				<text class="iconfont iconarr-right icon-more"></text>
+				<text class="iconfont iconxiangyou icon-more"></text>
 			</view>
 			<view class="c-row b-b">
 				<text class="tit">优惠券</text>
 				<text class="con t-r red">领取优惠券</text>
-				<text class="iconfont iconarr-right icon-more"></text>
+				<text class="iconfont iconxiangyou icon-more"></text>
 			</view>
 			<view class="c-row b-b">
 				<text class="tit">促销活动</text>
@@ -81,7 +81,7 @@
 				<text class="tit">评价</text>
 				<text>(86)</text>
 				<text class="tip">好评率 100%</text>
-				<text class="iconfont iconarr-right icon-more"></text>
+				<text class="iconfont iconxiangyou icon-more"></text>
 			</view> 
 			<view class="eva-box">
 				<image class="portrait" src="http://img3.imgtn.bdimg.com/it/u=1150341365,1327279810&fm=26&gp=0.jpg" mode="aspectFill"></image>
