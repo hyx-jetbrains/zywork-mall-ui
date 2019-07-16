@@ -10,7 +10,7 @@
 				<view class="info-box">
 					<view>
 						<text class="username">{{userInfo.nickname || '暂无昵称'}}</text>
-						<text class="yticon icon-iLinkapp- zy-vip-icon"></text>
+						<text class="iconfont iconicon-test zy-vip-icon"></text>
 					</view>
 					<view v-if="userInfo.phone">
 						<text class="phone">{{userInfo.phone}}</text>
@@ -38,7 +38,7 @@
 						<button class="zy-wx-btn" open-type="getUserInfo" lang="zh_CN" @getuserinfo="bindGetUserInfo">
 							<view class="zy-text-big zy-text-bold" style="padding-top: 30upx;">点击登录</view>
 						</button>
-						<text class="yticon icon-iLinkapp- zy-vip-icon"></text>
+						<text class="iconfont iconicon-test zy-vip-icon"></text>
 					</view>
 					<view>
 						您还未登录哦
@@ -51,7 +51,7 @@
 					成为代理
 				</view>
 				<view class="tit">
-					<text class="yticon icon-iLinkapp-"></text>
+					<text class="iconfont iconicon-test"></text>
 					代理商
 				</view>
 				<text class="e-m">Distributor</text>
@@ -83,23 +83,19 @@
 			<!-- 订单 -->
 			<view class="order-section">
 				<view class="order-item" @click="toOrderPage(0)" hover-class="common-hover" :hover-stay-time="50">
-					<!-- <text class="yticon icon-shouye"></text> -->
-					<zywork-icon type="icontuxing" color="#fa436a" size="20" class="yticon" />
+					<zywork-icon type="icontuxing" color="#fa436a" size="20" class="iconfont" />
 					<text>全部订单</text>
 				</view>
 				<view class="order-item" @click="toOrderPage(1)" hover-class="common-hover" :hover-stay-time="50">
-					<!-- <text class="yticon icon-daifukuan"></text> -->
-					<zywork-icon type="iconfukuan1" color="#fa436a" size="20" class="yticon" />
+					<zywork-icon type="iconfukuan1" color="#fa436a" size="20" class="iconfont" />
 					<text>待付款</text>
 				</view>
 				<view class="order-item" @click="toOrderPage(2)" hover-class="common-hover" :hover-stay-time="50">
-					<!-- <text class="yticon icon-yishouhuo"></text> -->
-					<zywork-icon type="icondaishouhuo" color="#fa436a" size="20" class="yticon" />
+					<zywork-icon type="icondaishouhuo" color="#fa436a" size="20" class="iconfont" />
 					<text>待收货</text>
 				</view>
 				<view class="order-item" @click="toOrderPage(4)" hover-class="common-hover" :hover-stay-time="50">
-					<!-- <text class="yticon icon-shouhoutuikuan"></text> -->
-					<zywork-icon type="icontuikuanshouhou" color="#fa436a" size="20" class="yticon" />
+					<zywork-icon type="icontuikuanshouhou" color="#fa436a" size="20" class="iconfont" />
 					<text>退款售后</text>
 				</view>
 			</view>
@@ -124,7 +120,7 @@
 			<!-- 浏览历史 -->
 			<view class="history-section icon">
 				<view class="sec-header">
-					<text class="yticon icon-lishijilu"></text>
+					<text class="iconfont iconhistory" style="color:#F06C7A"></text>
 					<text>浏览历史</text>
 				</view>
 				<scroll-view v-if="browserHistoryArray.length > 0" scroll-x class="h-list">
@@ -133,11 +129,11 @@
 				</scroll-view>
 				<view v-else class="zy-not-browser-history">暂无浏览记录</view>
 				<!-- <list-cell icon="icon-iconfontweixin" iconColor="#e07472" title="我的钱包" tips="您的会员还有3天过期"></list-cell> -->
-				<list-cell icon="icon-dizhi" iconColor="#5fcda2" title="地址管理" @eventClick="toAddressPage"></list-cell>
-				<list-cell icon="icon-share" iconColor="#9789f7" title="分享邀请" tips="邀请好友的佣金" @eventClick="toSharePage"></list-cell>
+				<list-cell icon="icondizhi" iconColor="#5fcda2" title="地址管理" @eventClick="toAddressPage"></list-cell>
+				<list-cell icon="iconfenxiang" iconColor="#9789f7" title="分享邀请" tips="邀请好友的佣金" @eventClick="toSharePage"></list-cell>
 				<!-- <list-cell icon="icon-pinglun-copy" iconColor="#ee883b" title="晒单" tips="晒单抢红包"></list-cell> -->
-				<list-cell icon="icon-shoucang_xuanzhongzhuangtai" iconColor="#54b4ef" title="我的收藏"></list-cell>
-				<list-cell icon="icon-shezhi1" iconColor="#e07472" title="设置" border="" @eventClick="toSetPage"></list-cell>
+				<list-cell icon="iconshoucang1" iconColor="#54b4ef" title="我的收藏"></list-cell>
+				<list-cell icon="iconshezhi" iconColor="#e07472" title="设置" border="" @eventClick="toSetPage"></list-cell>
 			</view>
 		</view>
 	</view>
@@ -640,7 +636,7 @@
 			color: #f7d680;
 			margin-bottom: 28upx;
 
-			.yticon {
+			.iconfont {
 				color: #f6e5a3;
 				margin-right: 16upx;
 			}
@@ -702,7 +698,7 @@
 			color: $font-color-dark;
 		}
 
-		.yticon {
+		.iconfont {
 			font-size: 48upx;
 			margin-bottom: 18upx;
 			color: #fa436a;
@@ -734,7 +730,7 @@
 			line-height: 40upx;
 			margin-left: 30upx;
 
-			.yticon {
+			.iconfont {
 				font-size: 44upx;
 				color: #5eba8f;
 				margin-right: 16upx;

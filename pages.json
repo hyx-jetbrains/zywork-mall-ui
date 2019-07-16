@@ -27,8 +27,8 @@
 							// 	"background": "rgba(0,0,0,0)"
 							// },
 							{
-								"fontSrc": "/static/yticon.ttf",
-								"text": "\ue744",
+								"fontSrc": "/static/iconfont.ttf",
+								"text": "\ue644",
 								"fontSize": "27",
 								"color": "#303133",
 								"background": "rgba(0,0,0,0)",
@@ -97,17 +97,17 @@
 					"titleNView": {
 						"type": "transparent",
 						"buttons": [{
-								"fontSrc": "/static/yticon.ttf",
-								"text": "\ue60f",
-								"fontSize": "24",
+								"fontSrc": "/static/iconfont.ttf",
+								"text": "\ue62d",
+								"fontSize": "28",
 								"color": "#303133",
 								"width": "46px",
 								"background": "rgba(0,0,0,0)"
 							},
 							{
-								"fontSrc": "/static/yticon.ttf",
-								"text": "\ue744",
-								"fontSize": "28",
+								"fontSrc": "/static/iconfont.ttf",
+								"text": "\ue644",
+								"fontSize": "26",
 								"color": "#303133",
 								"background": "rgba(0,0,0,0)",
 								"redDot": true

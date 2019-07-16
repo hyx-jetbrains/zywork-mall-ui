@@ -1,12 +1,10 @@
 <template>
 	<view class="content">
-		<view class="top"></view>
 		<view class="banner">
 			<dl>
 				<dt>
-					<image src="../../static/share/logo.png" mode=""></image>
+					<image src="../../static/share/logo.png" mode="aspectFill"></image>
 				</dt>
-				<dd>分享邀请</dd>
 			</dl>
 			<!-- #ifdef H5 -->
 			<view class="img">
@@ -134,40 +132,7 @@
 			},
 			//保存图片到相册
 			save() {
-				this.$refs.qrcode._saveCode();
-				// uni.showActionSheet({
-				// 	itemList: ['保存图片到相册'],
-				// 	success: () => {
-				// 		// plus.gallery.save('http://pds.jyt123.com/wxtest/logo.png', function() {
-				// 		// 	uni.showToast({
-				// 		// 		title:'保存成功',
-				// 		// 		icon:'none'
-				// 		// 	})
-				// 		// }, function() {
-				// 		// 	uni.showToast({
-				// 		// 		title:'保存失败，请重试！',
-				// 		// 		icon:'none'
-				// 		// 	})
-				// 		// });
-				// 		uni.saveFile({
-				// 			tempFilePath: 'http://pds.jyt123.com/wxtest/logo.png',
-				// 			success: (res) => {
-				// 				uni.showModal({
-				// 					title: '保存成功',
-				// 					content: '可在手机相册中查看',
-				// 					showCancel: false
-				// 				});
-				// 			},
-				// 			fail: (res) => {
-				// 				uni.showModal({
-				// 					title: '保存失败',
-				// 					content: '失败原因: ' + JSON.stringify(res),
-				// 					showCancel: false
-				// 				});
-				// 			}
-				// 		})
-				// 	}
-				// })
+				this.$refs.qrcode._saveCode()
 			},
 
 			/**
@@ -180,7 +145,7 @@
 	}
 </script>
 
-<style>
+<style lang="scss">
 	.tugurl {
 		color: #999;
 	}
@@ -236,25 +201,7 @@
 		background-color: #ffffff;
 	}
 
-	.top {
-		width: 100%;
-		height: 400upx;
-		background: url(http://pds.jyt123.com/wxtest/banner.png) no-repeat;
-		background-size: 100%;
-		background-position: center center;
-	}
-
-	.banner {
-		width: 100%;
-		background-color: #FFFFFF;
-		border-radius: 60upx 60upx 0 0;
-		margin-top: -60upx;
-	}
-
-	.banner dl {
-		margin-top: -80upx;
-	}
-
+	
 	.banner dl dt {
 		text-align: center;
 	}
@@ -272,7 +219,6 @@
 	.img {
 		width: 300upx;
 		height: 300upx;
-		background-color: red;
 		margin: 0 auto;
 		margin-top: 60upx;
 	}
@@ -292,18 +238,18 @@
 		border: 0;
 		font-size: 26upx;
 		outline: 0;
-		background: #33b17b;
+		background: $base-color;
 		color: #FFFFFF;
 		text-align: center;
 	}
 
 	.bottom {
 		width: 100%;
-		height: 400upx;
 		/* 	background: url(../../static/share/beij.png) no-repeat; */
 		background-position: left bottom;
 		/* 设置背景图片位置 */
 		background-size: 20%;
+		font-size: 28upx;
 	}
 
 	.bottom ul {
@@ -323,6 +269,7 @@
 		background-color: red;
 		padding: 20upx 10upx;
 		color: #FFFFFF;
-		margin: 50upx 30upx
+		margin: 30upx 30upx;
+		font-size: 30upx;
 	}
 </style>

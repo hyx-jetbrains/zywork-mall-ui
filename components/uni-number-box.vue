@@ -3,7 +3,7 @@
 		<view class="uni-numbox-minus" 
 			@click="_calcValue('subtract')"
 		>
-			<text class="yticon icon--jianhao" :class="minDisabled?'uni-numbox-disabled': ''" ></text>
+			<text class="iconfont iconjian" :class="minDisabled?'uni-numbox-disabled': ''" ></text>
 		</view>
 		<input 
 			class="uni-numbox-value" 
@@ -17,7 +17,7 @@
 			class="uni-numbox-plus" 
 			@click="_calcValue('add')"
 		>
-			<text class="yticon icon-jia2" :class="maxDisabled?'uni-numbox-disabled': ''" ></text>
+			<text class="iconfont iconjia" :class="maxDisabled?'uni-numbox-disabled': ''" ></text>
 		</view>
 	</view>
 </template>
@@ -165,8 +165,8 @@
 		text-align: center;
 		position: relative;
 	}
-	.uni-numbox-minus .yticon,
-	.uni-numbox-plus .yticon{
+	.uni-numbox-minus .iconfont,
+	.uni-numbox-plus .iconfont{
 		font-size: 36upx;
 		color: #555;
 	}
@@ -193,7 +193,7 @@
 		font-size: 30upx;
 	}
 
-	.uni-numbox-disabled.yticon {
+	.uni-numbox-disabled.iconfont {
 		color: #d6d6d6;
 	}
 </style>

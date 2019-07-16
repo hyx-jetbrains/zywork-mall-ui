@@ -27,15 +27,17 @@
 		
 		<!--  分享 -->
 		<view class="share-section" @click="share">
-			<view class="share-icon">
-				<text class="yticon icon-xingxing"></text>
-				 返
+			<view class="share-des">
+				<view class="share-icon">
+					<text class="iconfont iconxingxing"></text>
+					<text style="color: #fff;">返</text>
+				</view>
 			</view>
 			<text class="tit">该商品分享可领49减10红包</text>
-			<text class="yticon icon-bangzhu1"></text>
+			<text class="iconfont iconbangzhu" style="font-size: 24upx;"></text>
 			<view class="share-btn">
 				立即分享
-				<text class="yticon icon-you"></text>
+				<text class="iconfont icon-you"></text>
 			</view>
 			
 		</view>
@@ -48,12 +50,12 @@
 						{{sItem.name}}
 					</text>
 				</view>
-				<text class="yticon icon-you"></text>
+				<text class="iconfont iconarr-right icon-more"></text>
 			</view>
 			<view class="c-row b-b">
 				<text class="tit">优惠券</text>
 				<text class="con t-r red">领取优惠券</text>
-				<text class="yticon icon-you"></text>
+				<text class="iconfont iconarr-right icon-more"></text>
 			</view>
 			<view class="c-row b-b">
 				<text class="tit">促销活动</text>
@@ -79,7 +81,7 @@
 				<text class="tit">评价</text>
 				<text>(86)</text>
 				<text class="tip">好评率 100%</text>
-				<text class="yticon icon-you"></text>
+				<text class="iconfont iconarr-right icon-more"></text>
 			</view> 
 			<view class="eva-box">
 				<image class="portrait" src="http://img3.imgtn.bdimg.com/it/u=1150341365,1327279810&fm=26&gp=0.jpg" mode="aspectFill"></image>
@@ -104,15 +106,15 @@
 		<!-- 底部操作菜单 -->
 		<view class="page-bottom">
 			<navigator url="/pages/index/index" open-type="switchTab" class="p-b-btn">
-				<text class="yticon icon-xiatubiao--copy"></text>
+				<text class="iconfont iconshouye"></text>
 				<text>首页</text>
 			</navigator>
 			<navigator url="/pages/cart/cart" open-type="switchTab" class="p-b-btn">
-				<text class="yticon icon-gouwuche"></text>
+				<text class="iconfont icongouwuche"></text>
 				<text>购物车</text>
 			</navigator>
 			<view class="p-b-btn" :class="{active: favorite}" @click="toFavorite">
-				<text class="yticon icon-shoucang"></text>
+				<text class="iconfont iconshoucang"></text>
 				<text>收藏</text>
 			</view>
 			
@@ -582,37 +584,25 @@
 		color: $font-color-base;
 		background: linear-gradient(left, #fdf5f6, #fbebf6);
 		padding: 12upx 30upx;
-		.share-icon{
-			display:flex;
-			align-items:center;
+		.share-des {
 			width: 70upx;
 			height: 30upx;
-			line-height: 1;
-			border: 1px solid $uni-color-primary;
 			border-radius: 4upx;
-			position:relative;
-			overflow: hidden;
-			font-size: 22upx;
-			color: $uni-color-primary;
-			&:after{
-				content: '';
-				width: 50upx;
-				height: 50upx;
-				border-radius: 50%;
-				left: -20upx;
-				top: -12upx;
-				position:absolute;
-				background: $uni-color-primary;
-			}
-		}
-		.icon-xingxing{
-			position:relative;
-			z-index: 1;
-			font-size: 24upx;
-			margin-left: 2upx;
-			margin-right: 10upx;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			background-color: $uni-color-primary;
 			color: #fff;
-			line-height: 1;
+			font-size: 22upx;
+			.share-icon{
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				.iconxingxing {
+					font-size: 24upx;
+					margin-right: 10upx;
+				}
+			}
 		}
 		.tit{
 			font-size: $font-base;
@@ -946,12 +936,12 @@
 			color: $font-color-base;
 			width: 96upx;
 			height: 80upx;
-			.yticon{
+			.iconfont{
 				font-size: 40upx;
 				line-height: 48upx;
 				color: $font-color-light;
 			}
-			&.active, &.active .yticon{
+			&.active, &.active .iconfont{
 				color: $uni-color-primary;
 			}
 			.icon-fenxiang2{
@@ -994,6 +984,11 @@
 				background: transparent;
 			}
 		}
+	}
+	
+	.icon-more {
+		font-size: 26upx;
+		color: #909399;
 	}
 	
 </style>

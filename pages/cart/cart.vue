@@ -29,7 +29,7 @@
 								@error="onImageError('cartList', index)"
 							></image>
 							<view 
-								class="yticon icon-xuanzhong2 checkbox"
+								class="iconfont iconxuanzhong checkbox"
 								:class="{checked: item.checked}"
 								@click="check('item', index)"
 							></view>
@@ -49,7 +49,7 @@
 								@eventChange="numberChange"
 							></uni-number-box>
 						</view>
-						<text class="del-btn yticon icon-fork" @click="deleteCartItem(index)"></text>
+						<text class="del-btn iconfont iconguanbi" @click="deleteCartItem(index)"></text>
 					</view>
 				</block>
 			</view>
