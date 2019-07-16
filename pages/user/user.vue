@@ -107,7 +107,7 @@
 			<view class="order-section">
 				<view class="order-section-item">
 					<zywork-icon type="iconyongjin" color="#fa436a" size="26" class="zy-icon" />
-					<view class="order-item" @click="navTo('/pages/order/order?state=0')" hover-class="common-hover" :hover-stay-time="50">
+					<view class="order-item" @click="toCommissionPage" hover-class="common-hover" :hover-stay-time="50">
 						<text>分销佣金</text>
 						<text>0/元</text>
 					</view>
@@ -151,7 +151,8 @@
 		SET_PAGE,
 		ADDRESS_PAGE,
 		NOTICE_PAGE,
-		ORDER_PAGE
+		ORDER_PAGE,
+		COMMISSION_PAGE
 	} from '@/common/page-url.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
@@ -526,6 +527,12 @@
 			 */
 			toAgentPage() {
 				navTo("/pages/agent/agent", true);
+			},
+			/**
+			 * 前往佣金页面
+			 */
+			toCommissionPage() {
+				navTo(COMMISSION_PAGE, true);
 			}
 		}
 	}
