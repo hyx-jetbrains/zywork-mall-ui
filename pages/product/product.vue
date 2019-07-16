@@ -134,7 +134,7 @@
 			<view class="mask"></view>
 			<view class="layer attr-content" @click.stop="stopPrevent">
 				<view class="a-t">
-					<image :src="selectSku.picUrl"></image>
+					<image :src="selectSku.picUrl" mode="aspectFill"></image>
 					<view class="right">
 						<text class="price">¥{{selectSku.salePrice}}</text>
 						<text class="stock">库存：{{selectSku.storeCount}}</text>
