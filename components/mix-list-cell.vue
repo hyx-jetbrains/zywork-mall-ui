@@ -29,10 +29,10 @@
 		data() {
 			return {
 				typeList: {
-					left: 'icon-zuo',
-					right: 'iconarr-right',
-					up: 'icon-shang',
-					down: 'icon-xia'
+					left: 'iconfangxiang-xiangzuo',
+					right: 'iconfangxiang-xiangyou',
+					up: 'iconfangxiang-xiangshang',
+					down: 'iconfangxiang-xiangxia'
 				},
 			}
 		},

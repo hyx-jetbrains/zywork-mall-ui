@@ -10,11 +10,11 @@
 			<view class="nav-item" :class="{current: filterIndex === 2}" @click="tabClick(2)">
 				<text>价格</text>
 				<view class="p-box">
-					<text :class="{active: priceOrder === 'asc' && filterIndex === 2}" class="yticon icon-shang"></text>
-					<text :class="{active: priceOrder === 'desc' && filterIndex === 2}" class="yticon icon-shang xia"></text>
+					<text :class="{active: priceOrder === 'asc' && filterIndex === 2}" class="iconfont iconfangxiang-xiangshang"></text>
+					<text :class="{active: priceOrder === 'desc' && filterIndex === 2}" class="iconfont iconfangxiang-xiangxia"></text>
 				</view>
 			</view>
-			<text class="search-item yticon icon-fenlei1" @click="toggleSearchMask('show')"></text>
+			<text class="search-item iconfont iconfenleichazhao" @click="toggleSearchMask('show')"></text>
 		</view>
 		<!-- 商品列表 -->
 		<zywork-product-list :list="goodsList"></zywork-product-list>
@@ -400,7 +400,7 @@
 		.p-box{
 			display: flex;
 			flex-direction: column;
-			.yticon{
+			.iconfont{
 				display: flex;
 				align-items: center;
 				justify-content: center;
