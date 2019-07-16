@@ -35,6 +35,10 @@ export const FORGET_PAGE = '/pages/forget/forget'
  * 编辑资料的url
  */
 export const USER_DATA_PAGE = '/pages/user-data/user-data'
+/**
+ * 佣金页面的url
+ */
+export const COMMISSION_PAGE = '/pages/commission/commission'
 
 
 /**
