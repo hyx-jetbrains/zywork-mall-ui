@@ -389,7 +389,7 @@ button[type=primary][plain] {
 		line-height:60upx;
 		position:relative;
 		background: #fff;
-		justify-content: center;
+		justify-content: space-between;
 		&.log-out-btn{
 			margin-top: 40upx;
 			.cell-tit{
@@ -413,20 +413,19 @@ button[type=primary][plain] {
 			margin-left:10upx;
 		}
 		.cell-tit{
-			flex: 1;
 			font-size: $font-base + 2upx;
 			color: $font-color-dark;
-			margin-right:10upx;
+			margin-right:20upx;
 		}
 		.cell-tip{
 			font-size: $font-base;
 			color: $font-color-light;
 		}
 		.cell-content {
+			flex: 1;
 			font-size: $font-base;
 			color: $font-color-light;
 			text-align: right;
-			width: 75%;
 		}
 		switch{
 			transform: translateX(16upx) scale(.84);
