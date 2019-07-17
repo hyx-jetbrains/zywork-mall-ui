@@ -179,7 +179,17 @@
 				"enablePullDownRefresh": true,
 				"navigationBarTitleText": "我的优惠券"
 			}
-		}, {
+		}, 
+		{
+			"path": "pages/team/team",
+			"style": {
+				"navigationBarTitleText": "我的团队",
+				"enablePullDownRefresh": true,
+				"app-plus": {
+					"bounce": "none"
+				}
+			}
+		},{
 			"path": "pages/evaluate/evaluate",
 			"style": {
 				"enablePullDownRefresh": true,
@@ -211,7 +221,10 @@
 			"path": "pages/agent/agent",
 			"style": {
 				"enablePullDownRefresh": true,
-				"navigationBarTitleText": "分销商品列表"
+				"navigationBarTitleText": "分销商品列表",
+				"app-plus": {
+					"titleNView": false
+				}
 			}
 		},
 		{

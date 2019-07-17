@@ -102,15 +102,15 @@
 			<!-- 分销 -->
 			<view class="order-section">
 				<view class="order-section-item">
-					<zywork-icon type="iconyongjin" color="#fa436a" size="24"/>
+					<zywork-icon type="iconyongjin" color="#fa436a" size="24" style="margin-right: 20upx;"/>
 					<view class="order-item" @click="toCommissionPage" hover-class="common-hover" :hover-stay-time="50">
 						<text>分销佣金</text>
 						<text>0/元</text>
 					</view>
 				</view>
 				<view class="order-section-item">
-					<zywork-icon type="icongroup" color="#fa436a" size="24"/>
-					<view class="order-item" @click="navTo('/pages/order/order?state=4')" hover-class="common-hover" :hover-stay-time="50">
+					<zywork-icon type="icongroup" color="#fa436a" size="24" style="margin-right: 20upx;"/>
+					<view class="order-item" @click="toTeamPage" hover-class="common-hover" :hover-stay-time="50">
 						<text>我的团队</text>
 						<text>0/人</text>
 					</view>
@@ -148,7 +148,8 @@
 		ADDRESS_PAGE,
 		NOTICE_PAGE,
 		ORDER_PAGE,
-		COMMISSION_PAGE
+		COMMISSION_PAGE,
+		TEAM_PAGE
 	} from '@/common/page-url.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
@@ -529,6 +530,12 @@
 			 */
 			toCommissionPage() {
 				navTo(COMMISSION_PAGE, true);
+			},
+			/**
+			 * 前往我的团队页面
+			 */
+			toTeamPage() {
+				navTo(TEAM_PAGE, true);
 			}
 		}
 	}
