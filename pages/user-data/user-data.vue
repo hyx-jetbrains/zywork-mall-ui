@@ -1,23 +1,22 @@
 <template>
 	<view class="container">
-		<view class="list-cell">
+		<view class="zy-list-cell">
 			<view class="zy-head-img">
 				<image :src="user.headicon || defaultIcon"></image>
 				<view class="zy-link-color" @click="updateHead">更换头像</view>
 			</view>
 		</view>
-		<view class="list-cell b-b m-t" hover-class="cell-hover" :hover-stay-time="50">
+		<view class="zy-list-cell b-b m-t" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">昵称</text>
-			<input class="cell-input" v-model="user.nickname" />
-			<text v-html="'&#8195'" />
+			<input class="cell-content" v-model="user.nickname" />
+			
 		</view>
-		<view class="list-cell b-b" hover-class="cell-hover" :hover-stay-time="50">
+		<view class="zy-list-cell b-b" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">性别</text>
-			<!-- <input class="cell-input" v-model="genderArray[user.gender]" :disabled="true" /> -->
-			<picker class="cell-picker" @change="chooseGender" :range="genderArray">
+			<picker class="cell-content" @change="chooseGender" :range="genderArray">
 				<input v-model="genderArray[user.gender]" :disabled="true" />
 			</picker>
-			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more " />
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
 		<button class="zy-add-btn" @click="confirm">完成</button>
 	</view>
@@ -158,79 +157,14 @@
 	page {
 		background: $page-color-base;
 	}
+	.zy-head-img {
+		margin: 10upx auto;
+		text-align: center;
+	}
 
-	.list-cell {
-		display: flex;
-		align-items: baseline;
-		padding: 20upx $page-row-spacing;
-		line-height: 60upx;
-		position: relative;
-		background: #fff;
-		justify-content: center;
-
-		&.log-out-btn {
-			margin-top: 40upx;
-
-			.cell-tit {
-				color: $uni-color-primary;
-				text-align: center;
-				margin-right: 0;
-			}
-		}
-
-		&.cell-hover {
-			background: #fafafa;
-		}
-
-		&.b-b:after {
-			left: 30upx;
-		}
-
-		&.m-t {
-			margin-top: 16upx;
-		}
-
-		.cell-more {
-			align-self: baseline;
-			font-size: $font-lg;
-			color: $font-color-light;
-			margin-left: 10upx;
-		}
-
-		.cell-tit {
-			flex: 1;
-			font-size: $font-base + 2upx;
-			color: $font-color-dark;
-			margin-right: 10upx;
-		}
-
-		.cell-tip {
-			font-size: $font-base;
-			color: $font-color-light;
-		}
-
-		.cell-input {
-			font-size: $font-base;
-			color: $font-color-light;
-			width: 75%;
-		}
-
-		.cell-picker {
-			font-size: $font-base;
-			color: $font-color-light;
-			width: 75%;
-			padding-left: 30upx;
-		}
-
-		.zy-head-img {
-			margin: 10upx auto;
-			text-align: center;
-		}
-
-		.zy-head-img image {
-			border-radius: 50%;
-			width: 200upx;
-			height: 200upx;
-		}
+	.zy-head-img image {
+		border-radius: 50%;
+		width: 200upx;
+		height: 200upx;
 	}
 </style>
