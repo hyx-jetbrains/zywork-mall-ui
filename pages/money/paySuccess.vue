@@ -1,6 +1,6 @@
 <template>
 	<view class="content">
-		<text class="success-icon yticon icon-xuanzhong2"></text>
+		<text class="success-icon iconfont iconxuanzhong" style="color: #fa436a;"></text>
 		<text class="tit">支付成功</text>
 		
 		<view class="btn-group">

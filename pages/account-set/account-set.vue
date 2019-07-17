@@ -7,11 +7,11 @@
 		<view class="list-cell" @click="toUpdatePhonePage">
 			<text class="cell-tit">修改手机号</text>
 			<text class="cell-tip">18279700225</text>
-			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
+			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more" />
 		</view>
 		<view class="list-cell" @click="toForgetPage">
 			<text class="cell-tit">修改登录密码</text>
-			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
+			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more" />
 		</view>
 	</view>
 </template>

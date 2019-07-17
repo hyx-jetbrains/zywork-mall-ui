@@ -17,7 +17,7 @@
 			<picker class="cell-picker" @change="chooseGender" :range="genderArray">
 				<input v-model="genderArray[user.gender]" :disabled="true" />
 			</picker>
-			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more yticon " />
+			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more " />
 		</view>
 		<button class="zy-add-btn" @click="confirm">完成</button>
 	</view>

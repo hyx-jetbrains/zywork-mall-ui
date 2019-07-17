@@ -8,7 +8,7 @@
 		<view class="pay-type-list">
 
 			<view class="type-item b-b" @click="changePayType(1)">
-				<text class="icon yticon icon-weixinzhifu"></text>
+				<text class="icon iconfont iconweixinzhifu" style="color:#4CD964;"></text>
 				<view class="con">
 					<text class="tit">微信支付</text>
 					<text>推荐使用微信支付</text>
@@ -19,7 +19,7 @@
 				</label>
 			</view>
 			<view class="type-item b-b" @click="changePayType(2)">
-				<text class="icon yticon icon-alipay"></text>
+				<text class="icon iconfont iconzhifubaozhifu" style="color: #4399FC;"></text>
 				<view class="con">
 					<text class="tit">支付宝支付</text>
 				</view>
@@ -29,7 +29,7 @@
 				</label>
 			</view>
 			<view class="type-item" @click="changePayType(3)">
-				<text class="icon yticon icon-erjiye-yucunkuan"></text>
+				<text class="icon iconfont iconbalance" style="color:#D76D9D;"></text>
 				<view class="con">
 					<text class="tit">预存款支付</text>
 					<text>可用余额 ¥198.5</text>

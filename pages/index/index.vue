@@ -47,7 +47,7 @@
 				<text class="hour timer">07</text>
 				<text class="minute timer">13</text>
 				<text class="second timer">55</text>
-				<text class="yticon icon-you"></text>
+				<text class="iconfont iconxianyou"></text>
 			</view>
 			<scroll-view class="floor-list" scroll-x>
 				<view class="scoll-wrapper">
@@ -72,7 +72,7 @@
 				<text class="tit">精品团购</text>
 				<text class="tit2">Boutique Group Buying</text>
 			</view>
-			<text class="yticon icon-you"></text>
+			<text class="iconfont iconxianyou"></text>
 		</view>
 		<view class="group-section">
 			<swiper class="g-swiper" :duration="500">
@@ -132,7 +132,7 @@
 						<text class="tit">{{item.categoryTitle}}精选</text>
 						<text class="tit2">为您精选的{{item.categoryTitle}}</text>
 					</view>
-					<text class="yticon icon-you" @click="navToProductList(item.categoryId)"></text>
+					<text class="iconfont iconxiangyou" @click="navToProductList(item.categoryId)"></text>
 				</view>
 				<view class="hot-floor">
 					<scroll-view class="floor-list" scroll-x>
@@ -164,7 +164,7 @@
 				<text class="tit">猜你喜欢</text>
 				<text class="tit2">猜你喜欢的商品</text>
 			</view>
-			<text class="yticon icon-you"></text>
+			<text class="iconfont iconxianyou"></text>
 		</view>
 		
 		<view class="guess-section">
@@ -179,7 +179,7 @@
 				<text class="tit">热门商品</text>
 				<text class="tit2">最多人喜欢的商品</text>
 			</view>
-			<text class="yticon icon-you" @click="navToHotProductList"></text>
+			<text class="iconfont iconxiangyou" @click="navToHotProductList"></text>
 		</view>
 		
 		<view>
@@ -602,7 +602,7 @@
 				border-radius: 2px;
 				background: rgba(0,0,0,.8);
 			}
-			.icon-you{
+			.iconxianyou{
 				font-size: $font-lg;
 				color: $font-color-light;
 				flex: 1;
@@ -659,7 +659,7 @@
 			font-size: $font-sm;
 			color: $font-color-light;
 		}
-		.icon-you{
+		.iconxianyou{
 			font-size: $font-lg +2upx;
 			color: $font-color-light;
 		}

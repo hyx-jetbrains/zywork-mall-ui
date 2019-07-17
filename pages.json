@@ -19,7 +19,7 @@
 						"buttons": [
 							// 注释掉扫一扫，如需要，放开下面的注释即可
 							// {
-							// 	"fontSrc": "/static/yticon.ttf",
+							// 	"fontSrc": "/static/iconfont.ttf",
 							// 	"text": "\ue60d",
 							// 	"fontSize": "26",
 							// 	"color": "#303133",
@@ -55,13 +55,6 @@
 				"navigationBarTitleText": "设置"
 			}
 		},
-
-		{
-			"path": "pages/userinfo/userinfo",
-			"style": {
-				"navigationBarTitleText": "修改资料"
-			}
-		}, 
 		{
 			"path": "pages/user-data/user-data",
 			"style": {
@@ -116,17 +109,8 @@
 					}
 				}
 			}
-		}, {
-			"path": "pages/detail/detail",
-			"style": {
-				"navigationBarTitleText": "",
-				"app-plus": {
-					"titleNView": {
-						"type": "transparent"
-					}
-				}
-			}
-		}, {
+		},
+		{
 			"path": "pages/order/order",
 			"style": {
 				"navigationBarTitleText": "我的订单",

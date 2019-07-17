@@ -18,7 +18,7 @@
 						<view class="i-top b-b">
 							<text class="time">{{item.time}}</text>
 							<text class="state" :style="{color: item.stateTipColor}">{{item.stateTip}}</text>
-							<text v-if="item.state===9" class="del-btn yticon icon-iconfontshanchu1" @click="deleteOrder(index)"></text>
+							<text v-if="item.state===9" class="del-btn iconfont iconguanbi" @click="deleteOrder(index)"></text>
 						</view>
 
 						<scroll-view v-if="item.goodsList.length > 1" class="goods-box" scroll-x>

@@ -13,7 +13,6 @@
 			<text @click="chooseLocation" class="input">
 				{{addressData.addressAlias}}
 			</text>
-			<!-- <text class="yticon icon-shouhuodizhi"></text> -->
 			<zywork-icon @click="chooseLocation" type="icondizhi" size="16"></zywork-icon>
 		</view>
 		<view class="row b-b"> 

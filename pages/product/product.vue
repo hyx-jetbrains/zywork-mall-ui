@@ -176,7 +176,7 @@
 				<view class="attr-list quantity">
 					<text>数量</text>
 					<!-- #ifdef MP || APP-PLUS -->
-					<uni-number-box 
+					<uni-number-box ref="numberBox"
 						:min="1" 
 						:max="parseInt(selectSku.storeCount)"
 						:value="selectSkuQuantity"
@@ -184,7 +184,7 @@
 					></uni-number-box>
 					<!-- #endif -->
 					<!-- #ifdef H5 -->
-					<uni-number-box 
+					<uni-number-box ref="numberBox"
 						:min="1" 
 						:max="parseInt(selectSku.storeCount)"
 						:value="selectSkuQuantity"
@@ -1054,7 +1054,7 @@
 	
 	.icon-more {
 		font-size: 26upx;
-		color: #909399;
+		color: $font-color-light;
 	}
 	
 </style>

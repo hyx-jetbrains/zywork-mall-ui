@@ -4,18 +4,18 @@
 			<view class="wrapper">
 				<view class="address-box">
 					<text v-if="item.isDefault === 1" class="tag">默认</text>
-					<text class="address">{{item.addressAlias}} {{item.area}}</text>
+					<view>
+						<view class="address-title">{{item.addressAlias}}</view>
+						<view class="address">{{item.address}} {{item.area}}</view>
+					</view>
 				</view>
 				<view class="u-box">
 					<text class="name">{{item.realName}}</text>
 					<text class="mobile">{{item.phone}}</text>
 				</view>
 			</view>
-			<text class="yticon icon-bianji" @click.stop="addAddress('edit', item)"></text>
+			<text class="iconfont iconbianji" @click.stop="addAddress('edit', item)"></text>
 		</view>
-		<!-- <text style="display:block;padding: 16upx 30upx 10upx;lihe-height: 1.6;color: #fa436a;font-size: 24upx;">
-			重要：添加和修改地址回调仅增加了一条数据做演示，实际开发中将回调改为请求后端接口刷新一下列表即可
-		</text> -->
 
 		<button class="zy-add-btn" @click="addAddress('add')">新增地址</button>
 
@@ -110,7 +110,7 @@
 			checkAddress(item) {
 				if (this.source == 1) {
 					//this.$api.prePage()获取上一页实例，在App.vue定义
-					this.$api.prePage().addressData = item;
+					this.$api.prePage().selectedAddress = item;
 					uni.navigateBack()
 				}
 			},
@@ -196,9 +196,14 @@
 			line-height: 1;
 		}
 
-		.address {
+		.address-title {
 			font-size: 30upx;
 			color: $font-color-dark;
+		}
+		
+		.address {
+			font-size: 30upx;
+			color: $font-color-light;
 		}
 	}
 
@@ -221,7 +226,7 @@
 		padding-left: 30upx;
 	}
 
-	.add-btn {
+	.zy-add-btn {
 		position: fixed;
 		left: 30upx;
 		right: 30upx;

@@ -102,7 +102,7 @@
 		.cell-more{
 			align-self: center;
 			font-size:26upx;
-			color: #909399;
+			color: $font-color-light;
 			margin-left:$uni-spacing-row-sm;
 		}
 		.cell-tit{
