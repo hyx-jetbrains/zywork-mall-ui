@@ -128,7 +128,7 @@
 		},
 		//加载更多
 		onReachBottom(){
-			this.loadGoods();
+			this.loadGoods('add');
 		},
 		methods: {
 			//加载分类，前提条件是有一级分类
@@ -152,7 +152,34 @@
 					})
 				}
 			},
-			loadCategoryGoods() {
+			loadGoods(type = 'add') {
+				if (type === 'add') {
+					if (this.loadingType === 'nomore') {
+						return
+					}
+					this.loadingType = 'loading'
+					this.pager.pageNo = this.pager.pageNo + 1
+				} else {
+					this.loadingType = 'loading'
+				}
+				if(type === 'refresh'){
+					this.pager.pageNo = 1
+					this.loadingType = 'loading'
+				}
+				if (this.isHot) {
+					// 加载热门商品
+					this.loadHotGoods(type)
+					return
+				}
+				if (this.firstLevelCateId > 0 && this.cateId == 0) {
+					// 加载热门分类商品（一级分类商品）
+					this.loadHotCategoryGoods(type)
+					return
+				} 
+				// 加载三级分类商品
+				this.loadCategoryGoods(type)
+			},
+			loadCategoryGoods(type) {
 				let params = {
 					pageNo: this.pager.pageNo,
 					pageSize: this.pager.pageSize,
@@ -163,10 +190,12 @@
 				doPostJson('/goods-sku-attr-val/any/category-goods-sku-attr/' + this.cateId, params, {}).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
-						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
-							this.loadingType = 'nomore'
+						this.loadingType = this.pager.pageNo * this.pager.pageSize >= res.data.data.total ? 'nomore' : 'more'
+						if (type === 'refresh') {
+							this.goodsList = res.data.data.rows
+						} else {
+							this.goodsList = this.goodsList.concat(res.data.data.rows)
 						}
-						this.goodsList = res.data.data.rows
 						if (this.onPullDownRefresh) {
 							uni.stopPullDownRefresh()
 						}
@@ -179,7 +208,7 @@
 					console.log(error)
 				})
 			},
-			loadHotCategoryGoods() {
+			loadHotCategoryGoods(type) {
 				let params = {
 					pageNo: this.pager.pageNo,
 					pageSize: this.pager.pageSize,
@@ -190,10 +219,12 @@
 				doPostJson('/goods-sku-attr-val/any/goods-sku-attr/' + this.firstLevelCateId, params, {}).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
-						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
-							this.loadingType = 'nomore'
+						this.loadingType = this.pager.pageNo * this.pager.pageSize >= res.data.data.total ? 'nomore' : 'more'
+						if (type === 'refresh') {
+							this.goodsList = res.data.data.rows
+						} else {
+							this.goodsList = this.goodsList.concat(res.data.data.rows)
 						}
-						this.goodsList = res.data.data.rows
 						if (this.onPullDownRefresh) {
 							uni.stopPullDownRefresh()
 						}
@@ -206,7 +237,7 @@
 					console.log(error)
 				})
 			},
-			loadHotGoods() {
+			loadHotGoods(type) {
 				let params = {
 					pageNo: this.pager.pageNo,
 					pageSize: this.pager.pageSize,
@@ -218,10 +249,12 @@
 				doPostJson('/goods-sku-attr-val/any/hot-goods-sku-attr', params, {}).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
-						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
-							this.loadingType = 'nomore'
+						this.loadingType = this.pager.pageNo * this.pager.pageSize >= res.data.data.total ? 'nomore' : 'more'
+						if (type === 'refresh') {
+							this.goodsList = res.data.data.rows
+						} else {
+							this.goodsList = this.goodsList.concat(res.data.data.rows)
 						}
-						this.goodsList = res.data.data.rows
 						if (this.onPullDownRefresh) {
 							uni.stopPullDownRefresh()
 						}
@@ -233,32 +266,6 @@
 				}).catch(error => {
 					console.log(error)
 				})
-			},
-			loadGoods(type = 'add') {
-				if (type === 'add') {
-					if (this.loadingType === 'nomore') {
-						return
-					}
-					this.loadingType = 'loading'
-					this.pager.pageNo = this.pager.pageNo + 1
-				} else {
-					this.loadingType = 'more'
-				}
-				if(type === 'refresh'){
-					this.pager.pageNo = 1
-				}
-				if (this.isHot) {
-					// 加载热门商品
-					this.loadHotGoods()
-					return
-				}
-				if (this.firstLevelCateId > 0 && this.cateId == 0) {
-					// 加载热门分类商品（一级分类商品）
-					this.loadHotCategoryGoods()
-					return
-				} 
-				// 加载三级分类商品
-				this.loadCategoryGoods()
 			},
 			changeQuery(params) {
 				if (this.filterIndex === 1) {
