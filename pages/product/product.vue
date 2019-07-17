@@ -52,6 +52,13 @@
 				</view>
 				<text class="iconfont iconxiangyou icon-more"></text>
 			</view>
+			<view class="c-row b-b" @click="toggleSpec">
+				<text class="tit">购买数量</text>
+				<view class="con">
+					<text class="selected-text">{{selectSkuQuantity}}</text>
+				</view>
+				<text class="iconfont iconxiangyou icon-more"></text>
+			</view>
 			<view class="c-row b-b">
 				<text class="tit">优惠券</text>
 				<text class="con t-r red">领取优惠券</text>
@@ -146,6 +153,10 @@
 								{{sItem.name}}
 							</text>
 						</view>
+						<view class="selected">
+							数量：
+							<text class="selected-text">{{selectSkuQuantity}}</text>
+						</view>
 					</view>
 				</view>
 				<view v-for="(item,index) in specList" :key="index" class="attr-list">
@@ -164,14 +175,23 @@
 				</view>
 				<view class="attr-list quantity">
 					<text>数量</text>
+					<!-- #ifdef MP || APP-PLUS -->
 					<uni-number-box 
 						:min="1" 
-						:max="selectSku.storeCount"
-						:value="1"
-						:isMax="selectSkuQuantity >= selectSku.storeCount ? true : false"
-						:isMin="selectSkuQuantity === 1"
+						:max="parseInt(selectSku.storeCount)"
+						:value="selectSkuQuantity"
 						@eventChange="changeQuantity"
 					></uni-number-box>
+					<!-- #endif -->
+					<!-- #ifdef H5 -->
+					<uni-number-box 
+						:min="1" 
+						:max="parseInt(selectSku.storeCount)"
+						:value="selectSkuQuantity"
+						:disabled="true"
+						@eventChange="changeQuantity"
+					></uni-number-box>
+					<!-- #endif -->
 				</view>
 				<button class="btn" @click="toggleSpec">完成</button>
 			</view>
@@ -221,16 +241,6 @@
 				skuSpecs: {}, // {"1":"7#黄色-9#S-","2":"7#白色-9#M-"}用于存储所有SKU的可选规格的字符串，key为sku的id, 并判断用户选择的规格是否有对应的SKU
 				favorite: true,
 				shareList: [],
-			}
-		},
-		watch: {
-			selectSkuQuantity(newVal) {
-				console.log(newVal)
-				if (newVal <= 0) {
-					this.selectSkuQuantity = 1
-				} else if (newVal > this.selectSku.storeCount) {
-					this.selectSkuQuantity = this.selectSku.storeCount
-				}
 			}
 		},
 		async onLoad(options){
@@ -395,6 +405,7 @@
 					console.log(list[index].disable)
 					return
 				}
+				this.selectSkuQuantity = 1
 				// 把同一个规格名称的所有规格值设置为未选中状态
 				list.forEach(item=>{
 					if(item.pid === pid){
@@ -504,7 +515,7 @@
 				doPostJson('/goods-cart/user/save', {
 					goodsId: this.goodsInfo.goodsInfoId,
 					goodsSkuId: this.selectSku.skuId,
-					quantity: 1
+					quantity: this.selectSkuQuantity
 				}, {}, true).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {

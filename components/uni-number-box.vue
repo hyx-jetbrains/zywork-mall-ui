@@ -3,21 +3,20 @@
 		<view class="uni-numbox-minus" 
 			@click="_calcValue('subtract')"
 		>
-			<text class="iconfont iconjian" :class="isMin?'uni-numbox-disabled': ''" ></text>
+			<text class="iconfont iconjian" :class="disableMin?'uni-numbox-disabled': ''" ></text>
 		</view>
 		<input 
 			class="uni-numbox-value" 
 			type="number" 
-			:disabled="true"
+			:disabled="disabled"
 			:value="inputValue" 
-			
 			@blur="_onBlur"
 		>
 		<view 
 			class="uni-numbox-plus" 
 			@click="_calcValue('add')"
 		>
-			<text class="iconfont iconjia" :class="isMax?'uni-numbox-disabled': ''" ></text>
+			<text class="iconfont iconjia" :class="disableMax?'uni-numbox-disabled': ''" ></text>
 		</view>
 	</view>
 </template>
@@ -25,14 +24,6 @@
 	export default {
 		name: 'uni-number-box',
 		props: {
-			isMax: {
-				type: Boolean,
-				default: false
-			},
-			isMin: {
-				type: Boolean,
-				default: false
-			},
 			index: {
 				type: Number,
 				default: 0
@@ -60,13 +51,21 @@
 		},
 		data() {
 			return {
-				inputValue: this.value
+				inputValue: this.value,
+				disableMin: false,
+				disableMax: false
 			}
 		},
 		created(){
+			if (this.min === this.inputValue) {
+				this.disableMin = true
+			}
+			if (this.inputValue >= this.max) {
+				this.disableMax = true
+				this.inputValue = this.max
+			}
 		},
 		computed: {
-
 		},
 		watch: {
 			inputValue(number) {
@@ -87,24 +86,24 @@
 				if(type === 'subtract'){
 					newValue = value - step;
 					if (newValue <= this.min){
-						this.isMin = true;
+						this.disableMin = true
 					}
 					if(newValue < this.min){
 						newValue = this.min
 					}
-					if(newValue < this.max && this.isMax === true){
-						this.isMax = false;
+					if(newValue < this.max){
+						this.disableMax = false
 					}
 				}else if(type === 'add'){
 					newValue = value + step;
 					if (newValue >= this.max){
-						this.isMax = true;
+						this.disableMax = true
 					}
 					if(newValue > this.max){
 						newValue = this.max
 					}
-					if(newValue > this.min && this.isMin === true){
-						this.isMin = false;
+					if(newValue > this.min){
+						this.disableMin = false
 					}
 				}
 				if(newValue === value){

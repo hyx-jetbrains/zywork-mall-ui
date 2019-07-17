@@ -38,16 +38,27 @@
 							<text class="clamp title">{{item.title}}</text>
 							<text class="attr">{{item.attr_val}}</text>
 							<text class="price">¥{{item.price}}</text>
+							<!-- #ifdef MP || APP-PLUS -->
 							<uni-number-box 
 								class="number-box"
 								:min="1" 
 								:max="item.stock"
 								:value="item.number>item.stock?item.stock:item.number"
-								:isMax="item.number>=item.stock?true:false"
-								:isMin="item.number===1"
 								:index="index"
 								@eventChange="numberChange"
 							></uni-number-box>
+							<!-- #endif -->
+							<!-- #ifdef H5 -->
+							<uni-number-box 
+								class="number-box"
+								:min="1" 
+								:max="item.stock"
+								:value="item.number>item.stock?item.stock:item.number"
+								:index="index"
+								:disabled="true"
+								@eventChange="numberChange"
+							></uni-number-box>
+							<!-- #endif -->
 						</view>
 						<text class="del-btn iconfont iconguanbi" @click="deleteCartItem(index)"></text>
 					</view>
