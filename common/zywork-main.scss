@@ -418,11 +418,13 @@ button[type=primary][plain] {
 			margin-right:20upx;
 		}
 		.cell-tip{
+			flex-grow: 1;
 			font-size: $font-base;
 			color: $font-color-light;
+			text-align: right;
 		}
 		.cell-content {
-			flex: 1;
+			flex-grow: 1;
 			font-size: $font-base;
 			color: $font-color-light;
 			text-align: right;
