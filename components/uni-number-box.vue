@@ -60,7 +60,7 @@
 			if (this.min === this.inputValue) {
 				this.disableMin = true
 			}
-			if (this.inputValue >= this.max) {
+			if (this.max != 0 && this.inputValue >= this.max) {
 				this.disableMax = true
 				this.inputValue = this.max
 			}

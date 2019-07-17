@@ -43,7 +43,7 @@
 								class="number-box"
 								:min="1" 
 								:max="item.stock"
-								:value="item.number>item.stock?item.stock:item.number"
+								:value="item.number"
 								:index="index"
 								@eventChange="numberChange"
 							></uni-number-box>
@@ -53,7 +53,7 @@
 								class="number-box"
 								:min="1" 
 								:max="item.stock"
-								:value="item.number>item.stock?item.stock:item.number"
+								:value="item.number"
 								:index="index"
 								:disabled="true"
 								@eventChange="numberChange"
