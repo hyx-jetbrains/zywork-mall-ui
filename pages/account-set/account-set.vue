@@ -1,17 +1,17 @@
 <template>
 	<view class="container">
-		<view class="list-cell">
+		<view class="zy-list-cell b-b m-t" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">昵称</text>
 			<text class="cell-tip">危锦辉</text>
 		</view>
-		<view class="list-cell" @click="toUpdatePhonePage">
+		<view class="zy-list-cell b-b" @click="toUpdatePhonePage" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">修改手机号</text>
 			<text class="cell-tip">18279700225</text>
-			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more" />
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
-		<view class="list-cell" @click="toForgetPage">
+		<view class="zy-list-cell b-b" @click="toForgetPage" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">修改登录密码</text>
-			<zywork-icon type="iconarr-right" color="#909399" size="16" class="zy-icon cell-more" />
+			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
 	</view>
 </template>
@@ -54,52 +54,9 @@
 </script>
 
 <style lang='scss'>
+	@import '@/common/zywork-main.scss';
 	page{
 		background: $page-color-base;
 	}
-	.list-cell{
-		display:flex;
-		align-items:baseline;
-		padding: 20upx $page-row-spacing;
-		line-height:60upx;
-		position:relative;
-		background: #fff;
-		justify-content: center;
-		&.log-out-btn{
-			margin-top: 40upx;
-			.cell-tit{
-				color: $uni-color-primary;
-				text-align: center;
-				margin-right: 0;
-			}
-		}
-		&.cell-hover{
-			background:#fafafa;
-		}
-		&.b-b:after{
-			left: 30upx;
-		}
-		&.m-t{
-			margin-top: 16upx; 
-		}
-		.cell-more{
-			align-self: baseline;
-			font-size:$font-lg;
-			color:$font-color-light;
-			margin-left:10upx;
-		}
-		.cell-tit{
-			flex: 1;
-			font-size: $font-base + 2upx;
-			color: $font-color-dark;
-			margin-right:10upx;
-		}
-		.cell-tip{
-			font-size: $font-base;
-			color: $font-color-light;
-		}
-		switch{
-			transform: translateX(16upx) scale(.84);
-		}
-	}
+	
 </style>
