@@ -3,9 +3,11 @@
 		<view class="list b-b" v-for="(item, index) in addressList" :key="index" @click="checkAddress(item)">
 			<view class="wrapper">
 				<view class="address-box">
-					<text v-if="item.isDefault === 1" class="tag">默认</text>
 					<view>
-						<view class="address-title">{{item.addressAlias}}</view>
+						<view class="address-title">
+							<text v-if="item.isDefault === 1" class="tag">默认</text>
+							<text>{{item.addressAlias}}</text>
+						</view>
 						<view class="address">{{item.address}} {{item.area}}</view>
 					</view>
 				</view>
@@ -202,6 +204,7 @@
 		}
 		
 		.address {
+			margin-top: 10upx;
 			font-size: 30upx;
 			color: $font-color-light;
 		}
@@ -210,7 +213,7 @@
 	.u-box {
 		font-size: 28upx;
 		color: $font-color-light;
-		margin-top: 16upx;
+		margin-top: 10upx;
 
 		.name {
 			margin-right: 30upx;
