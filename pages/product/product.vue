@@ -208,7 +208,7 @@
 <script>
 	import share from '@/components/share'
 	import uniNumberBox from '@/components/uni-number-box.vue'
-	import {doPostJson, showInfoToast} from '@/common/util.js'
+	import {doPostJson, showInfoToast, REFRESH_CART} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
 		EVALUATE_PAGE
@@ -282,8 +282,9 @@
 							// 设置被选中的sku信息
 							this.setSelectSku()
 						}
-						// 加载商品类目指定的组合属性（规格属性），按属性正序排列
-						this.loadCategoryAttrGroup()
+						// 获取商品类目指定的组合属性（规格属性），按属性正序排列
+						let firstSkuInfo = this.goodsInfo.goodsSkuVOList[0]
+						this.getCategoryAttrGroup(firstSkuInfo.goodsSkuAttrVOList)
 					} else {
 						showInfoToast('没有商品信息')
 					}
@@ -324,21 +325,17 @@
 				})
 			},
 			// 获取类目的组合属性（规格属性）
-			loadCategoryAttrGroup() {
-				doPostJson('/goods-category-attr/any/all-cond', {
-					goodsCategoryId: this.goodsInfo.goodsInfoCategoryId,
-					goodsCategoryAttributeIsAttrGroup: 1,
-					sortColumn: 'goodsCategoryAttributeAttrOrder',
-					sortOrder: 'asc'
-				}, {}).then(response => {
-					let [error, res] = response
-					if (res.data.code === ResponseStatus.OK) {
-						this.categorySpec = res.data.data.rows
-						this.getSkuSpec()
+			getCategoryAttrGroup(goodsSkuAttrVOList) {
+				goodsSkuAttrVOList.forEach((goodsSkuAttr, index) => {
+					if (goodsSkuAttr.goodsCategoryAttributeIsAttrGroup === 1) {
+						this.categorySpec.push({
+							goodsAttributeId: goodsSkuAttr.goodsCategoryAttributeAttrId,
+							goodsAttributeAttrCode: goodsSkuAttr.goodsAttributeAttrCode,
+							goodsAttributeAttrName: goodsSkuAttr.goodsAttributeAttrName
+						})
 					}
-				}).catch(error => {
-					console.log(error)
 				})
+				this.getSkuSpec()
 			},
 			// 获取sku的所有规格，包括规格名称和规格的值；并且记录所有sku对应的规格字符串，字符串格式参考data部分说明
 			getSkuSpec() {
@@ -519,9 +516,12 @@
 				}, {}, true).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
+						uni.setStorageSync(REFRESH_CART, true)
 						showInfoToast('已加入购物车')
 					} else if (res.data.code === ResponseStatus.AUTHENTICATION_TOKEN_ERROR) {
 						showInfoToast('您好像还未登录哦')
+					} else if (res.data.code === ResponseStatus.DATA_ERROR) {
+						showInfoToast('购物车中的该商品已达到库存量，无法继续添加到购物车')
 					} else {
 						showInfoToast('请稍候再加入购物车')
 					}
@@ -531,7 +531,7 @@
 			},
 			buy(){
 				uni.navigateTo({
-					url: `/pages/order/createOrder`
+					url: `/pages/order/createOrder?skuIds=${this.selectSku.skuId}&quantity=${this.selectSkuQuantity}`
 				})
 			},
 			//分享

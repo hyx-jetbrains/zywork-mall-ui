@@ -9,7 +9,7 @@
 			class="uni-numbox-value" 
 			type="number" 
 			:disabled="disabled"
-			:value="inputValue" 
+			v-model="inputValue" 
 			@blur="_onBlur"
 		>
 		<view 
@@ -73,7 +73,10 @@
 					number: number,
 					index: this.index
 				}
-				this.$emit('eventChange', data);
+				this.$emit('eventChange', data)
+			},
+			value(number) {
+				this.inputValue = number
 			}
 		},
 		methods: {
@@ -120,14 +123,14 @@
 				return scale;
 			},
 			_onBlur(event) {
-				let value = event.detail.value;
+				let value = event.detail.value
 				if (!value) {
-					this.inputValue = 0;
+					this.inputValue = 0
 					return
 				}
-				value = +value;
+				value = +value
 				if (value > this.max) {
-					value = this.max;
+					value = this.max
 				} else if (value < this.min) {
 					value = this.min
 				}

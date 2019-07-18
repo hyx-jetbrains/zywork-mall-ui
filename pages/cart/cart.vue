@@ -15,13 +15,13 @@
 		<view v-else>
 			<!-- 列表 -->
 			<view class="cart-list">
-				<block v-for="(item, index) in cartList" :key="item.id">
+				<block v-for="(item, index) in cartList" :key="index">
 					<view
 						class="cart-item" 
 						:class="{'b-b': index!==cartList.length-1}"
 					>
 						<view class="image-wrapper">
-							<image :src="item.image" 
+							<image :src="item.goodsSkuPicUrl" 
 								:class="[item.loaded]"
 								mode="aspectFill" 
 								lazy-load 
@@ -36,31 +36,31 @@
 						</view>
 						<view class="item-right">
 							<text class="clamp title">{{item.title}}</text>
-							<text class="attr">{{item.attr_val}}</text>
-							<text class="price">¥{{item.price}}</text>
+							<text class="attr">{{item.skuSpecStr}}</text>
+							<text class="price">¥{{item.salePrice}}</text>
 							<!-- #ifdef MP || APP-PLUS -->
-							<uni-number-box 
+							<uni-number-box
 								class="number-box"
 								:min="1" 
-								:max="item.stock"
-								:value="item.number"
+								:max="item.storeCount"
+								:value="item.quantity"
 								:index="index"
 								@eventChange="numberChange"
 							></uni-number-box>
 							<!-- #endif -->
 							<!-- #ifdef H5 -->
-							<uni-number-box 
+							<uni-number-box
 								class="number-box"
 								:min="1" 
-								:max="item.stock"
-								:value="item.number"
+								:max="item.storeCount"
+								:value="item.quantity"
 								:index="index"
 								:disabled="true"
 								@eventChange="numberChange"
 							></uni-number-box>
 							<!-- #endif -->
 						</view>
-						<text class="del-btn iconfont iconguanbi" @click="deleteCartItem(index)"></text>
+						<text class="del-btn iconfont iconguanbi" @click="deleteCartItem(item.id, index)"></text>
 					</view>
 				</block>
 			</view>
@@ -80,7 +80,7 @@
 					<text class="price">¥{{total}}</text>
 					<text class="coupon">
 						已优惠
-						<text>74.35</text>
+						<text>{{discount}}</text>
 						元
 					</text>
 				</view>
@@ -92,6 +92,8 @@
 
 <script>
 	import uniNumberBox from '@/components/uni-number-box.vue'
+	import {doPostJson, doGet, REFRESH_CART} from '@/common/util.js'
+	import * as ResponseStatus from '@/common/response-status.js'
 	import {
 		LOGIN_PAGE
 	} from '@/common/page-url.js'
@@ -106,18 +108,23 @@
 		data() {
 			return {
 				hasUserInfo: false,
-				total: 0, //总价格
-				allChecked: false, //全选状态  true|false
 				empty: false, //空白页现实  true|false
 				cartList: [],
+				total: 0, //总价格
+				discount: 0,
+				allChecked: false //全选状态  true|false
 			};
 		},
 		onLoad() {
-			this.loadData();
+			this.loadCart()
 		},
 		onShow() {
 			if (uni.getStorageSync(HAS_USER_INFO)) {
 				this.hasUserInfo = true
+				if (uni.getStorageSync(REFRESH_CART)) {
+					this.loadCart()
+					uni.setStorageSync(REFRESH_CART, false)
+				}
 			}
 		},
 		watch:{
@@ -130,15 +137,81 @@
 			}
 		},
 		methods: {
-			//请求数据
-			async loadData(){
-				let list = await this.$api.json('cartList'); 
-				let cartList = list.map(item=>{
-					item.checked = true;
-					return item;
-				});
-				this.cartList = cartList;
-				this.calcTotal();  //计算总价
+			//请求购物车数据
+			async loadCart(){
+				uni.showLoading({
+					title: '加载购物车...'
+				})
+				doPostJson('/goods-cart/user/all-cond', {
+					sortColumn: 'updateTime',
+					sortOrder: 'desc'
+				}, {}, true).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						let cartDataList = res.data.data.rows
+						let skuIds = ''
+						cartDataList.forEach((item, index) => {
+							skuIds += item.goodsSkuId + ','
+						})
+						this.loadCartSku(skuIds, cartDataList)
+					}
+				}).catch(error => {
+					console.log(error)
+				})
+			},
+			// 根据购物车中的skuid去获取sku所有的属性信息
+			loadCartSku(skuIds, cartDataList) {
+				doPostJson('/goods-sku-attr-val/any/goods-goods-sku-attr/' + skuIds, {}, {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						let goodsList = res.data.data
+						if (goodsList.length > 0) {
+							let list = []
+							goodsList.forEach((item, index) => {
+								let goodsSku = item.goodsSkuVOList[0]
+								let theSkuInfo = {}
+								theSkuInfo.goosInfoId = item.goodsInfoId
+								theSkuInfo.goodsSkuId = goodsSku.goodsSkuId
+								theSkuInfo.goodsSkuPicUrl = goodsSku.goodsPicPicUrl
+								let skuSpecStr = ''
+								goodsSku.goodsSkuAttrVOList.forEach((goodsSkuAttr, index) => {
+									if (goodsSkuAttr.goodsAttributeAttrCode === 'title') {
+										theSkuInfo.title = goodsSkuAttr.goodsAttributeValueAttrValue
+									}
+									if (goodsSkuAttr.goodsAttributeAttrCode === 'salePrice') {
+										theSkuInfo.salePrice = goodsSkuAttr.goodsAttributeValueAttrValue
+									}
+									if (goodsSkuAttr.goodsAttributeAttrCode === 'storeCount') {
+										theSkuInfo.storeCount = goodsSkuAttr.goodsAttributeValueAttrValue
+									}
+									if (goodsSkuAttr.goodsCategoryAttributeIsAttrGroup === 1) {
+										skuSpecStr += goodsSkuAttr.goodsAttributeValueAttrValue + ' '
+									}
+								})
+								theSkuInfo.skuSpecStr = skuSpecStr
+								list.push(theSkuInfo)
+							})
+							let cartList = list.map(item=>{
+								item.checked = true
+								return item
+							})
+							this.cartList = cartList
+							// 获取每个sku的购买数量
+							this.cartList.forEach((cartItem, index) => {
+								cartDataList.forEach((cartData, index) => {
+									if (cartItem.goodsSkuId === cartData.goodsSkuId) {
+										cartItem.id = cartData.id
+										cartItem.quantity = cartData.quantity
+									}
+								})
+							})
+							this.calcTotal()
+						}
+						uni.hideLoading()
+					} 
+				}).catch(error => {
+					console.log(error)
+				})
 			},
 			//监听image加载完成
 			onImageLoad(key, index) {
@@ -170,18 +243,32 @@
 			},
 			//数量
 			numberChange(data){
-				this.cartList[data.index].number = data.number;
+				this.cartList[data.index].quantity = data.number;
 				this.calcTotal();
 			},
 			//删除
-			deleteCartItem(index){
-				let list = this.cartList;
-				let row = list[index];
-				let id = row.id;
-
-				this.cartList.splice(index, 1);
-				this.calcTotal();
-				uni.hideLoading();
+			deleteCartItem(id, index){
+				uni.showModal({
+					content: '删除商品？',
+					success: (e)=>{
+						if(e.confirm){
+							uni.showLoading({
+								title: '删除中...'
+							})
+							console.log(id)
+							doGet('/goods-cart/user/remove/' + id, {}, true).then(response => {
+								let [error, res] = response
+								if (res.data.code === ResponseStatus.OK) {
+									this.cartList.splice(index, 1);
+									this.calcTotal();
+									uni.hideLoading();
+								}
+							}).catch(error => {
+								console.log(error)
+							})
+						}
+					}
+				})
 			},
 			//清空
 			clearCart(){
@@ -189,7 +276,22 @@
 					content: '清空购物车？',
 					success: (e)=>{
 						if(e.confirm){
-							this.cartList = [];
+							uni.showLoading({
+								title: '清空中...'
+							})
+							let ids = []
+							this.cartList.forEach((item, index) => {
+								ids.push(item.id)
+							})
+							doPostJson('/goods-cart/user/batch-remove', ids, {}, true).then(response => {
+								let [error, res] = response
+								if (res.data.code === ResponseStatus.OK) {
+									this.cartList = []
+									uni.hideLoading();
+								}
+							}).catch(error => {
+								console.log(error)
+							})
 						}
 					}
 				})
@@ -205,7 +307,7 @@
 				let checked = true;
 				list.forEach(item=>{
 					if(item.checked === true){
-						total += item.price * item.number;
+						total += item.salePrice * item.quantity;
 					}else if(checked === true){
 						checked = false;
 					}
@@ -231,7 +333,6 @@
 						goodsData: goodsData
 					})}`
 				})
-				this.$api.msg('跳转下一页 sendData');
 			}
 		}
 	}
