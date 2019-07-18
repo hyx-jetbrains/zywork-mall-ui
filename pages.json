@@ -113,12 +113,23 @@
 		{
 			"path": "pages/order/order",
 			"style": {
+				"enablePullDownRefresh": true,
 				"navigationBarTitleText": "我的订单",
 				"app-plus": {
 					"bounce": "none"
 				}
 			}
-		}, {
+		}, 
+		{
+			"path": "pages/order/orderDetail",
+			"style": {
+				"navigationBarTitleText": "订单详情",
+				"app-plus": {
+					"bounce": "none"
+				}
+			}
+		},
+		{
 			"path": "pages/money/money",
 			"style": {}
 		}, {

@@ -43,6 +43,10 @@ export const COMMISSION_PAGE = '/pages/commission/commission'
  * 我的团队的url
  */
 export const TEAM_PAGE = '/pages/team/team'
+/**
+ * 订单详情页面的url
+ */
+export const ORDER_DETAIL_PAGE = '/pages/order/orderDetail'
 
 
 /**

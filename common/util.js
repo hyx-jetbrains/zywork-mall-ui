@@ -1,4 +1,5 @@
 // export const BASE_URL = 'https://www.shudagroup.com/api'
+export const BASE_URL = 'http://127.0.0.1:8088'
 export const IMAGE_BASE_URL = 'https://www.shudagroup.com'
 export const DOCUMENT_BASE_URL = 'https://www.shudagroup.com'
 export const SHARE_TITLE = '智悦商城'

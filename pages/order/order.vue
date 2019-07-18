@@ -11,14 +11,15 @@
 			<swiper-item class="tab-content" v-for="(tabItem,tabIndex) in navList" :key="tabIndex">
 				<scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData">
 					<!-- 空白页 -->
-					<empty v-if="tabItem.loaded === true && tabItem.orderList.length === 0"></empty>
+					<empty v-if="tabItem.orderList.length === 0"></empty>
 
 					<!-- 订单列表 -->
 					<view v-for="(item,index) in tabItem.orderList" :key="index" class="order-item">
 						<view class="i-top b-b">
 							<text class="time">{{item.time}}</text>
 							<text class="state" :style="{color: item.stateTipColor}">{{item.stateTip}}</text>
-							<text v-if="item.state===9" class="del-btn iconfont iconguanbi" @click="deleteOrder(index)"></text>
+							<!-- 已取消的订单可以删除 -->
+							<text v-if="item.state===6" class="del-btn iconfont iconguanbi" @click="deleteOrder(index)"></text>
 						</view>
 
 						<scroll-view v-if="item.goodsList.length > 1" class="goods-box" scroll-x>
@@ -78,6 +79,12 @@
 	import {
 		ADD_EVALUATE_PAGE
 	} from '@/common/page-url.js'
+	import {
+		doPostJson,
+		showInfoToast,
+		nullToStr
+	} from '@/common/util.js'
+	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
 		components: {
 			uniLoadMore,
@@ -117,75 +124,103 @@
 						orderList: []
 					}
 				],
+				urls: {
+					searchUrl: '/user-goods-order-item/user/pager-cond'
+				},
+				pager: {
+					pageNo: 1,
+					pageSize: 10,
+					isActive: 0,
+					goodsOrderOrderStatusMin: '',
+					goodsOrderOrderStatusMax: ''
+				}
 			};
 		},
 
 		onLoad(options) {
-			/**
-			 * 修复app端点击除全部订单外的按钮进入时不加载数据的问题
-			 * 替换onLoad下代码即可
-			 */
-			this.tabCurrentIndex = +options.state;
-			// #ifndef MP
-			this.loadData()
-			// #endif
-			// #ifdef MP
-			if (options.state == 0) {
-				this.loadData()
-			}
-			// #endif
-
+			this.loadData('init');
 		},
-
+		//下拉刷新
+		onPullDownRefresh() {
+			this.pager.pageNo = 1;
+			this.loadData('pullDown');
+		},
+		//加载更多
+		onReachBottom() {
+			this.pager.pageNo += 1;
+			this.loadData('reachBottom');
+		},
 		methods: {
 			//获取订单列表
-			loadData(source) {
+			loadData(type) {
 				//这里是将订单挂载到tab列表下
 				let index = this.tabCurrentIndex;
 				let navItem = this.navList[index];
-				let state = navItem.state;
-
-				if (source === 'tabChange' && navItem.loaded === true) {
-					//tab切换只有第一次需要加载数据
-					return;
-				}
 				if (navItem.loadingType === 'loading') {
 					//防止重复加载
 					return;
 				}
-
 				navItem.loadingType = 'loading';
-
-				setTimeout(() => {
-					let orderList = Json.orderList.filter(item => {
-						//添加不同状态下订单的表现形式
-						item = Object.assign(item, this.orderStateExp(item.state));
-						//演示数据所以自己进行状态筛选
-						if (state === 0) {
-							//0为全部订单
-							return item;
+				doPostJson(this.urls.searchUrl, this.pager, {}, true).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						// 判断是否还有数据， 有改为 more， 没有改为noMore 
+						navItem.loadingType = 'more';
+						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
+							navItem.loadingType = 'nomore';
 						}
-						return item.state === state
-					});
-					orderList.forEach(item => {
-						navItem.orderList.push(item);
-					})
-					//loaded新字段用于表示数据加载完毕，如果为空可以显示空白页
-					this.$set(navItem, 'loaded', true);
-
-					//判断是否还有数据， 有改为 more， 没有改为noMore 
-					navItem.loadingType = 'more';
-				}, 600);
+						const rows = nullToStr(res.data.data.rows);
+						rows = Json.rows.filter(item => {
+							//添加不同状态下订单的表现形式
+							item = Object.assign(item, this.orderStateExp(item));
+							return item;
+						});
+						if (type === 'init') {
+							navItem.orderList = rows;
+						} else if (type === 'pullDown') {
+							uni.stopPullDownRefresh();
+							navItem.orderList = rows;
+						} else if (type === 'reachBottom') {
+							if (rows.length > 0) {
+								navItem.orderList = navItem.orderList.concat(rows);
+							}
+						}
+					} else {
+						showInfoToast(res.data.message);
+					}
+				}).catch(err => {
+					console.log(err);
+				})
 			},
 
 			//swiper 切换
 			changeTab(e) {
-				this.tabCurrentIndex = e.target.current;
-				this.loadData('tabChange');
+				const index = e.target.current;
+				this.tabClick(index);
 			},
 			//顶部tab点击
 			tabClick(index) {
-				this.tabCurrentIndex = index;
+				if (this.tabCurrentIndex !== index) {
+					this.tabCurrentIndex = index;
+					if (index === 0) {
+						// 全部订单
+						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = '';
+					} else if (index === 1) {
+						// 待付款订单
+						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = 0;
+					} else if (index === 2) {
+						// 待收货订单
+						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = 4;
+					} else if (index === 3) {
+						// 待评价订单
+						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = 5;
+					} else if (index === 4) {
+						// 售后订单
+						this.pager.goodsOrderOrderStatusMin = 7
+						this.pager.goodsOrderOrderStatusMax = 10;
+					}
+					this.loadData('init');
+				}
 			},
 			//删除订单
 			deleteOrder(index) {
@@ -223,32 +258,61 @@
 			},
 
 			//订单状态文字和颜色
-			orderStateExp(state) {
+			orderStateExp(item) {
+				const state = item.goodsOrderOrderStatus;
 				let stateTip = '',
 					stateTipColor = '#fa436a';
 				switch (+state) {
-					case 1:
+					case 0:
 						stateTip = '待付款';
+						time = item.goodsOrderCreateTime;
+						break;
+					case 1:
+						stateTip = '已付款';
+						time = item.goodsOrderCreateTime;
 						break;
 					case 2:
-						stateTip = '待收货';
+						stateTip = '支付失败';
+						time = item.goodsOrderPayTime;
 						break;
 					case 3:
-						stateTip = '待评价';
+						stateTip = '待发货';
+						time = item.goodsOrderPayTime;
 						break;
 					case 4:
-						stateTip = '退款售后';
+						stateTip = '待收货';
+						time = item.goodsOrderDeliverTime;
+						break;
+					case 5:
+						stateTip = '已确认收货';
+						time = item.goodsOrderDealTime;
+						break;
+					case 6:
+						stateTip = '已取消';
+						stateTipColor = '#909399';
+						time = item.goodsOrderCreateTime;
+						break;
+					case 7:
+						stateTip = '已申请退货';
+						time = item.goodsOrderCreateTime;
+						break;
+					case 8:
+						stateTip: '拒绝退货';
+						time = item.goodsOrderCreateTime;
 						break;
 					case 9:
-						stateTip = '订单已关闭';
-						stateTipColor = '#909399';
+						stateTip: '退货中';
+						time = item.goodsOrderCreateTime;
 						break;
-
-						//更多自定义
+					case 10:
+						stateTip: '已退货';
+						time = item.goodsOrderCreateTime;
+						break;
 				}
 				return {
 					stateTip,
-					stateTipColor
+					stateTipColor,
+					time
 				};
 			},
 			/**
