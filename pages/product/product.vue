@@ -208,7 +208,7 @@
 <script>
 	import share from '@/components/share'
 	import uniNumberBox from '@/components/uni-number-box.vue'
-	import {doPostJson, showInfoToast, REFRESH_CART} from '@/common/util.js'
+	import {doPostJson, showInfoToast, REFRESH_CART, REFRESH_PRODUCT} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
 		EVALUATE_PAGE
@@ -225,6 +225,7 @@
 				categorySpec: [], // 商品的组合属性（规格属性），按属性正序排列
 				// 选择的sku
 				selectSku: {
+					goodsId: null,
 					skuId: null,
 					title: null,
 					picUrl: null,
@@ -251,6 +252,12 @@
 			this.loadGoodsPic(goodsInfoId)
 			this.loadGoodsInfoById(goodsInfoId)
 			this.shareList = await this.$api.json('shareList');
+		},
+		onShow() {
+			if (uni.getStorageSync(REFRESH_PRODUCT)) {
+				this.loadGoodsInfoById(this.goodsInfo.goodsInfoId)
+				uni.setStorageSync(REFRESH_PRODUCT, false)
+			}
 		},
 		methods:{
 			// 加载商品的所有图片
@@ -521,7 +528,7 @@
 					} else if (res.data.code === ResponseStatus.AUTHENTICATION_TOKEN_ERROR) {
 						showInfoToast('您好像还未登录哦')
 					} else if (res.data.code === ResponseStatus.DATA_ERROR) {
-						showInfoToast('购物车中的该商品已达到库存量，无法继续添加到购物车')
+						showInfoToast('购物车中的该商品数量已达最大库存量')
 					} else {
 						showInfoToast('请稍候再加入购物车')
 					}
@@ -530,6 +537,10 @@
 				})
 			},
 			buy(){
+				if (this.selectSku.storeCount == 0) {
+					showInfoToast('商品库存不足')
+					return
+				}
 				uni.navigateTo({
 					url: `/pages/order/createOrder?skuIds=${this.selectSku.skuId}&quantity=${this.selectSkuQuantity}`
 				})

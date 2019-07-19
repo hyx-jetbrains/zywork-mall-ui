@@ -14,6 +14,7 @@ export const HAS_USER_INFO = 'hasUserInfo'
 export const DEFAULT_HEADICON = '/static/missing-face.png'
 export const SHARE_CODE_PAGE_IMG = '/static/share/share.jpg'
 export const REFRESH_CART = 'refreshCart'
+export const REFRESH_PRODUCT = 'refreshProduct'
 /**
  * 判断是否为空（null, '', undefined）
  */

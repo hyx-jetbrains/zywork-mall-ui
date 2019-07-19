@@ -32,7 +32,28 @@
 					<text class="spec">{{item.skuSpecStr}}</text>
 					<view class="price-box">
 						<text class="price">￥{{item.salePrice}}</text>
-						<text class="number">x {{item.quantity}}</text>
+						<text style="color: #fa436a; font-size: 26upx;" v-if="item.overStoreCount">库存不足</text>
+						<!-- #ifdef MP || APP-PLUS -->
+						<uni-number-box
+							class="number-box"
+							:min="1" 
+							:max="item.storeCount"
+							:value="item.quantity"
+							:index="index"
+							@eventChange="numberChange"
+						></uni-number-box>
+						<!-- #endif -->
+						<!-- #ifdef H5 -->
+						<uni-number-box
+							class="number-box"
+							:min="1" 
+							:max="item.storeCount"
+							v-model="item.quantity"
+							:index="index"
+							:disabled="true"
+							@eventChange="numberChange"
+						></uni-number-box>
+						<!-- #endif -->
 					</view>
 				</view>
 			</view>
@@ -85,7 +106,7 @@
 				<text class="price-tip">￥</text>
 				<text class="price">{{actualPay}}</text>
 			</view>
-			<text class="submit" @click="submit">提交订单</text>
+			<text class="submit" @click="submitOrder">提交订单</text>
 		</view>
 		
 		<!-- 优惠券面板 -->
@@ -115,11 +136,18 @@
 </template>
 
 <script>
-	import {doPostJson} from '@/common/util.js'
+	import uniNumberBox from '@/components/uni-number-box.vue'
+	import {doPostJson, showInfoToast, REFRESH_PRODUCT, REFRESH_CART} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
+		components: {
+			uniNumberBox
+		},
 		data() {
 			return {
+				skuIds: null,
+				quantity: null,
+				cartData: null,
 				selectedAddress: {},
 				skuList: [],
 				totalPay: 0,
@@ -144,13 +172,17 @@
 			}
 		},
 		onLoad(option){
-			let skuIds = option.skuIds
-			let quantity = option.quantity
+			this.skuIds = option.skuIds
+			this.quantity = option.quantity
+			let cartData = option.cartData
+			if (cartData) {
+				this.cartData = JSON.parse(cartData)
+			}
 			this.loadDefaultAddress()
-			this.loadGoodsSkus(skuIds, quantity)
-			//商品数据
-			//let data = JSON.parse(option.data);
-			//console.log(data);
+			// 如果有skuIds和quantity，表示从商品详情直接下单
+			this.loadGoodsSkuFromProductDetail()
+			// 如果有cartData，表示从购物车中下单，包含有sku的编号和数量
+			this.loadGoodsSkuFromCart()
 		},
 		methods: {
 			loadDefaultAddress() {
@@ -171,45 +203,82 @@
 					console.log(error)
 				})
 			},
-			loadGoodsSkus(skuIds, quantity) {
-				if (skuIds.indexOf(',') < 0) {
-					// 从商品详情直接购买下单
+			loadGoodsSkuFromProductDetail() {
+				if (this.skuIds && this.quantity) {
 					doPostJson('/goods-sku-attr-val/any/goods-goods-sku-attr', {
-						"goodsSkuId": skuIds,
+						"goodsSkuId": this.skuIds,
 						"sortColumn": "goodsSkuId",
 						"sortOrder":"asc"
 					}, {}).then(response => {
 						let [error, res] = response
 						if (res.data.code === ResponseStatus.OK) {
 							let goodsInfo = res.data.data
-							let goodsSku = goodsInfo.goodsSkuVOList[0]
-							let theSkuInfo = {}
-							theSkuInfo.goosInfoId = goodsInfo.goodsInfoId
-							theSkuInfo.goodsSkuId = goodsSku.goodsSkuId
-							theSkuInfo.goodsSkuPicUrl = goodsSku.goodsPicPicUrl
-							let skuSpecStr = ''
-							goodsSku.goodsSkuAttrVOList.forEach((goodsSkuAttr, index) => {
-								if (goodsSkuAttr.goodsAttributeAttrCode === 'title') {
-									theSkuInfo.title = goodsSkuAttr.goodsAttributeValueAttrValue
-								}
-								if (goodsSkuAttr.goodsAttributeAttrCode === 'salePrice') {
-									theSkuInfo.salePrice = goodsSkuAttr.goodsAttributeValueAttrValue
-								}
-								if (goodsSkuAttr.goodsCategoryAttributeIsAttrGroup === 1) {
-									skuSpecStr += goodsSkuAttr.goodsAttributeValueAttrValue + ' '
-								}
-							})
-							theSkuInfo.skuSpecStr = skuSpecStr
-							theSkuInfo.quantity = quantity
-							this.skuList.push(theSkuInfo)
+							this.skuList.push(this.getSkuInfo(goodsInfo, this.quantity))
 							this.calculateActualPay()
 						}
 					}).catch(error => {
 						console.log(error)
 					})
-				} else {
-					// 从购物车购买下单
 				}
+			},
+			loadGoodsSkuFromCart() {
+				if (this.cartData) {
+					let skuIds = ''
+					this.cartData.forEach((item, index) => {
+						skuIds += item.goodsSkuId + ','
+					})
+					doPostJson('/goods-sku-attr-val/any/goods-goods-sku-attr/' + skuIds, {}, {}).then(response => {
+						let [error, res] = response
+						if (res.data.code === ResponseStatus.OK) {
+							let goodsList = res.data.data
+							if (goodsList.length > 0) {
+								let list = []
+								goodsList.forEach((item, index) => {
+									this.skuList.push(this.getSkuInfo(item, 0))
+								})
+								// 获取每个sku的购买数量
+								this.skuList.forEach((skuInfo, index) => {
+									this.cartData.forEach((item, index) => {
+										if (skuInfo.goodsSkuId === item.goodsSkuId) {
+											skuInfo.quantity = item.quantity
+										}
+									})
+								})
+								this.calculateActualPay()
+							}
+							uni.hideLoading()
+						} 
+					}).catch(error => {
+						console.log(error)
+					})
+				}
+			},
+			getSkuInfo(goodsInfo, quantity) {
+				let theSkuInfo = {}
+				let goodsSku = goodsInfo.goodsSkuVOList[0]
+				theSkuInfo.goosInfoId = goodsInfo.goodsInfoId
+				theSkuInfo.goodsSkuId = goodsSku.goodsSkuId
+				theSkuInfo.goodsPicId = goodsSku.goodsPicId
+				theSkuInfo.goodsSkuPicUrl = goodsSku.goodsPicPicUrl
+				let skuSpecStr = ''
+				goodsSku.goodsSkuAttrVOList.forEach((goodsSkuAttr, index) => {
+					if (goodsSkuAttr.goodsAttributeAttrCode === 'title') {
+						theSkuInfo.title = goodsSkuAttr.goodsAttributeValueAttrValue
+					}
+					if (goodsSkuAttr.goodsAttributeAttrCode === 'salePrice') {
+						theSkuInfo.salePrice = goodsSkuAttr.goodsAttributeValueAttrValue
+					}
+					if (goodsSkuAttr.goodsAttributeAttrCode === 'storeCount') {
+						theSkuInfo.storeCount = goodsSkuAttr.goodsAttributeValueAttrValue
+					}
+					if (goodsSkuAttr.goodsCategoryAttributeIsAttrGroup === 1) {
+						skuSpecStr += goodsSkuAttr.goodsAttributeValueAttrValue + ' '
+					}
+				})
+				theSkuInfo.skuSpecStr = skuSpecStr
+				theSkuInfo.quantity = quantity
+				theSkuInfo.overStoreCount = false
+				return theSkuInfo
 			},
 			// 计算实付金额
 			calculateActualPay() {
@@ -220,9 +289,67 @@
 				this.actualPay = (this.totalPay - this.discount).toFixed(2)
 			},
 			// 保存订单并跳转到支付页面
-			submit(){
-				uni.redirectTo({
-					url: '/pages/money/pay'
+			submitOrder(){
+				uni.showLoading({
+					title:'提交订单...'
+				})
+				let order = {}
+				order.totalAmount = this.totalPay
+				order.payAmount = this.actualPay
+				order.discountAmount = this.discount
+				order.remark = this.remark
+				let orderItems = []
+				this.skuList.forEach((item, index) => {
+					let orderItem = {
+						goodsId: item.goosInfoId,
+						goodsSkuId: item.goodsSkuId,
+						skuPicId: item.goodsPicId,
+						skuTitle: item.title,
+						skuInfo: item.skuSpecStr,
+						quantity: item.quantity,
+						payAmount: item.salePrice * item.quantity
+					}
+					orderItems.push(orderItem)
+				})
+				order.goodsOrderItemInVOList = orderItems
+				doPostJson('/goods-order/user/save', order, {}, true).then(response => {
+					uni.hideLoading()
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						// 如果从商品中直接购买，则需要刷新商品信息
+						if (this.skuIds) {
+							uni.setStorageSync(REFRESH_PRODUCT, true)
+						}
+						if (this.cartData) {
+							// 如果从购物车中结算，则需要删除购物车中结算的sku信息
+							let cartIds = []
+							this.cartData.forEach((item, index) => {
+								cartIds.push(item.cartId)
+							})
+							doPostJson('/goods-cart/user/batch-remove', cartIds, {}, true).then(response => {
+							}).catch(error => {
+								console.log(error)
+							})
+							uni.setStorageSync(REFRESH_CART, true)
+						}
+						let orderId = res.data.data['0']
+						console.log(orderId)
+						uni.redirectTo({
+							url: `/pages/money/pay?orderId=${orderId}&totalPay=${this.actualPay}`
+						})
+					} else if (res.data.code === ResponseStatus.DATA_ERROR) {
+						// sku库存不足
+						this.skuList.forEach((sku, index) => {
+							// 判断哪些sku库存不足
+							if (res.data.data[sku.goodsSkuId] === 0) {
+								// 此sku库存不足
+								sku.overStoreCount = true
+							}
+						})
+						showInfoToast('部分商品库存不足，请修改购买数量后再下单')
+					}
+				}).catch(error => {
+					console.log(error)
 				})
 			},
 			//显示优惠券面板
@@ -236,6 +363,7 @@
 			},
 			numberChange(data) {
 				this.number = data.number;
+				this.skuList[data.index].quantity = data.number
 			},
 			stopPrevent(){}
 		}
@@ -360,6 +488,7 @@
 			.price-box {
 				display: flex;
 				align-items: center;
+				justify-content: space-between;
 				font-size: 32upx;
 				color: $font-color-dark;
 				padding-top: 10upx;

@@ -92,7 +92,7 @@
 
 <script>
 	import uniNumberBox from '@/components/uni-number-box.vue'
-	import {doPostJson, doGet, REFRESH_CART} from '@/common/util.js'
+	import {doPostJson, doGet, showInfoToast, REFRESH_CART} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
 		LOGIN_PAGE
@@ -161,6 +161,7 @@
 			},
 			// 根据购物车中的skuid去获取sku所有的属性信息
 			loadCartSku(skuIds, cartDataList) {
+				this.cartList = []
 				doPostJson('/goods-sku-attr-val/any/goods-goods-sku-attr/' + skuIds, {}, {}).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
@@ -318,20 +319,22 @@
 			//创建订单
 			createOrder(){
 				let list = this.cartList;
-				let goodsData = [];
+				let cartData = [];
 				list.forEach(item=>{
 					if(item.checked){
-						goodsData.push({
-							attr_val: item.attr_val,
-							number: item.number
+						cartData.push({
+							cartId: item.id,
+							goodsSkuId: item.goodsSkuId,
+							quantity: item.quantity
 						})
 					}
 				})
-
+				if (cartData.length === 0) {
+					showInfoToast('请选择商品')
+					return
+				}
 				uni.navigateTo({
-					url: `/pages/order/createOrder?data=${JSON.stringify({
-						goodsData: goodsData
-					})}`
+					url: `/pages/order/createOrder?cartData=${JSON.stringify(cartData)}`
 				})
 			}
 		}
