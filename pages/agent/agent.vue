@@ -15,7 +15,7 @@
 			</view>
 		</view>
 		<view class="navbar" style="position:fixed;top:270upx;padding: 20upx;height: 160upx;">
-			<zywork-icon type="iconshandian" size="38" color="#8ee933" style="margin-right: 20upx;"></zywork-icon>
+			<zywork-icon type="iconshandian" size="33" color="#8ee933" style="margin-right: 20upx;"></zywork-icon>
 			<view>
 				<view style="font-size: 36upx;">即刻到账</view>
 				<view style="font-size: 26upx;color:#CCCCCC;">
@@ -33,11 +33,11 @@
 			<view class="nav-item" :class="{current: filterIndex === 2}" @click="tabClick(2)">
 				<text>价格</text>
 				<view class="p-box">
-					<text :class="{active: priceOrder === 'asc' && filterIndex === 2}" class="yticon icon-shang"></text>
-					<text :class="{active: priceOrder === 'desc' && filterIndex === 2}" class="yticon icon-shang xia"></text>
+					<text :class="{active: priceOrder === 'asc' && filterIndex === 2}" class="iconfont iconfangxiang-xiangshang"></text>
+					<text :class="{active: priceOrder === 'desc' && filterIndex === 2}" class="iconfont iconfangxiang-xiangxia"></text>
 				</view>
 			</view>
-			<text class="search-item yticon icon-fenlei1" @click="toggleSearchMask('show')"></text>
+			<text class="search-item iconfont iconfenleichazhao" @click="toggleSearchMask('show')"></text>
 		</view>
 		
 		<!-- 商品列表 -->
@@ -435,18 +435,18 @@
 			display: flex;
 			flex-direction: column;
 
-			.yticon {
+			.iconfont{
 				display: flex;
 				align-items: center;
 				justify-content: center;
 				width: 30upx;
 				height: 14upx;
 				line-height: 1;
-				margin-left: 4upx;
-				font-size: 26upx;
+				margin-top: 10upx;
+				margin-left: 6upx;
+				font-size: 22upx;
 				color: #888;
-
-				&.active {
+				&.active{
 					color: $base-color;
 				}
 			}
