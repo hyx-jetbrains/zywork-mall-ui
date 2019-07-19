@@ -293,26 +293,7 @@
 				uni.showLoading({
 					title:'提交订单...'
 				})
-				let order = {}
-				order.totalAmount = this.totalPay
-				order.payAmount = this.actualPay
-				order.discountAmount = this.discount
-				order.remark = this.remark
-				let orderItems = []
-				this.skuList.forEach((item, index) => {
-					let orderItem = {
-						goodsId: item.goosInfoId,
-						goodsSkuId: item.goodsSkuId,
-						skuPicId: item.goodsPicId,
-						skuTitle: item.title,
-						skuInfo: item.skuSpecStr,
-						quantity: item.quantity,
-						payAmount: item.salePrice * item.quantity
-					}
-					orderItems.push(orderItem)
-				})
-				order.goodsOrderItemInVOList = orderItems
-				doPostJson('/goods-order/user/save', order, {}, true).then(response => {
+				doPostJson('/goods-order/user/save', this.getOrderInfo(), {}, true).then(response => {
 					uni.hideLoading()
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
@@ -333,7 +314,6 @@
 							uni.setStorageSync(REFRESH_CART, true)
 						}
 						let orderId = res.data.data['0']
-						console.log(orderId)
 						uni.redirectTo({
 							url: `/pages/money/pay?orderId=${orderId}&totalPay=${this.actualPay}`
 						})
@@ -351,6 +331,28 @@
 				}).catch(error => {
 					console.log(error)
 				})
+			},
+			getOrderInfo() {
+				let order = {}
+				order.totalAmount = this.totalPay
+				order.payAmount = this.actualPay
+				order.discountAmount = this.discount
+				order.remark = this.remark
+				let orderItems = []
+				this.skuList.forEach((item, index) => {
+					let orderItem = {
+						goodsId: item.goosInfoId,
+						goodsSkuId: item.goodsSkuId,
+						skuPicId: item.goodsPicId,
+						skuTitle: item.title,
+						skuInfo: item.skuSpecStr,
+						quantity: item.quantity,
+						payAmount: item.salePrice * item.quantity
+					}
+					orderItems.push(orderItem)
+				})
+				order.goodsOrderItemInVOList = orderItems
+				return order
 			},
 			//显示优惠券面板
 			toggleMask(type){
