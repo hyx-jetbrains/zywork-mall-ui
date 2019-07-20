@@ -221,6 +221,8 @@
 			}
 			// #endif
 			this.judgeLogin()
+		},
+		onShow() {
 			this.loadHistoryData()
 		},
 		onPullDownRefresh() {
