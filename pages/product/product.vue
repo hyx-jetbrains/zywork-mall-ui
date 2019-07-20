@@ -246,7 +246,6 @@
 			}
 		},
 		async onLoad(options){
-			console.log('aa')
 			// #ifdef H5
 			let openid = options.openid
 			let token = options.token
