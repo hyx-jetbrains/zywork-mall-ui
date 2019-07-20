@@ -15,36 +15,36 @@
 
 					<!-- 订单列表 -->
 					<view v-for="(item,index) in tabItem.orderList" :key="index" class="order-item">
-						<view @click="toOrderDetail(item.goodsOrderId)">
+
 						<view class="i-top b-b">
-							<text class="time">{{item.timeTip}}:{{item.time}}</text>
-							<text class="state" :style="{color: item.stateTipColor}">{{item.stateTip}}</text>
+							<text class="time" @click="toOrderDetail(item.goodsOrderId)">{{item.timeTip}}:{{item.time}}</text>
+							<text class="state" @click="toOrderDetail(item.goodsOrderId)" :style="{color: item.stateTipColor}">{{item.stateTip}}</text>
 							<!-- 已取消的订单可以删除 -->
 							<text v-if="item.goodsOrderOrderStatus===6" class="del-btn iconfont iconguanbi" @click="deleteOrder(item.goodsOrderId)"></text>
 						</view>
-
-						<scroll-view v-if="item.userGoodsOrderItemVOList.length > 1" class="goods-box" scroll-x>
-							<view v-for="(goodsItem, goodsIndex) in item.userGoodsOrderItemVOList" :key="goodsIndex" class="goods-item">
+						<view @click="toOrderDetail(item.goodsOrderId)">
+							<scroll-view v-if="item.userGoodsOrderItemVOList.length > 1" class="goods-box" scroll-x>
+								<view v-for="(goodsItem, goodsIndex) in item.userGoodsOrderItemVOList" :key="goodsIndex" class="goods-item">
+									<image class="goods-img" :src="imgBaseUrl + '/' + goodsItem.goodsPicPicUrl" mode="aspectFill"></image>
+								</view>
+							</scroll-view>
+							<view v-if="item.userGoodsOrderItemVOList.length === 1" class="goods-box-single" v-for="(goodsItem, goodsIndex) in item.userGoodsOrderItemVOList"
+							 :key="goodsIndex">
 								<image class="goods-img" :src="imgBaseUrl + '/' + goodsItem.goodsPicPicUrl" mode="aspectFill"></image>
+								<view class="right">
+									<text class="title clamp">{{goodsItem.goodsOrderItemSkuTitle}}</text>
+									<text class="attr-box">{{goodsItem.goodsOrderItemSkuInfo}} x {{goodsItem.goodsOrderItemQuantity}}</text>
+									<text class="price">{{goodsItem.goodsOrderItemPayAmount}}</text>
+								</view>
 							</view>
-						</scroll-view>
-						<view v-if="item.userGoodsOrderItemVOList.length === 1" class="goods-box-single" v-for="(goodsItem, goodsIndex) in item.userGoodsOrderItemVOList"
-						 :key="goodsIndex">
-							<image class="goods-img" :src="imgBaseUrl + '/' + goodsItem.goodsPicPicUrl" mode="aspectFill"></image>
-							<view class="right">
-								<text class="title clamp">{{goodsItem.goodsOrderItemSkuTitle}}</text>
-								<text class="attr-box">{{goodsItem.goodsOrderItemSkuInfo}} x {{goodsItem.goodsOrderItemQuantity}}</text>
-								<text class="price">{{goodsItem.goodsOrderItemPayAmount}}</text>
-							</view>
-						</view>
 
-						<view class="price-box">
-							共
-							<text class="num">{{item.userGoodsOrderItemVOList.length}}</text>
-							件商品 
-							实付款
-							<text class="price">{{item.goodsOrderPayAmount}}</text>
-						</view>
+							<view class="price-box">
+								共
+								<text class="num">{{item.userGoodsOrderItemVOList.length}}</text>
+								件商品
+								实付款
+								<text class="price">{{item.goodsOrderPayAmount}}</text>
+							</view>
 						</view>
 						<!-- 待付款 -->
 						<view class="action-box b-t" v-if="item.goodsOrderOrderStatus === 0">
@@ -96,7 +96,7 @@
 		data() {
 			return {
 				imgBaseUrl: IMAGE_BASE_URL,
-				tabCurrentIndex: 0,
+				tabCurrentIndex: -1,
 				navList: [{
 						state: 0,
 						text: '全部',
@@ -235,21 +235,29 @@
 			},
 			//删除订单
 			deleteOrder(id) {
-				uni.showLoading({
-					title: '请稍后'
-				})
-				doGet(this.urls.removeUrl + id, {}, false).then(response => {
-					let [error, res] = response;
-					if (res.data.code === ResponseStatus.OK) {
-						showSuccessToast("删除成功");
-					} else {
-						showInfoToast(res.data.message);
+				uni.showModal({
+					title: '确定要删除订单吗？',
+					success: (res) => {
+						if (res.confirm) {
+							uni.showLoading({
+								title: '请稍后'
+							})
+							doGet(this.urls.removeUrl + id, {}, false).then(response => {
+								let [error, res] = response;
+								if (res.data.code === ResponseStatus.OK) {
+									showSuccessToast("删除成功");
+								} else {
+									showInfoToast(res.data.message);
+								}
+								this.loadData('init');
+								uni.hideLoading();
+							}).catch(err => {
+								console.log(err);
+							})
+						}
 					}
-					this.loadData('init');
-					uni.hideLoading();
-				}).catch(err => {
-					console.log(err);
 				})
+
 			},
 			//取消订单
 			cancelOrder(item) {
