@@ -16,10 +16,7 @@
 			<!-- 列表 -->
 			<view class="cart-list">
 				<block v-for="(item, index) in cartList" :key="index">
-					<view
-						class="cart-item" 
-						:class="{'b-b': index!==cartList.length-1}"
-					>
+					<view class="cart-item" :class="{'b-b': index!==cartList.length-1}">
 						<view class="image-wrapper">
 							<image :src="item.goodsSkuPicUrl" 
 								:class="[item.loaded]"
@@ -35,9 +32,11 @@
 							></view>
 						</view>
 						<view class="item-right">
-							<text class="clamp title">{{item.title}}</text>
-							<text class="attr">{{item.skuSpecStr}}</text>
-							<text class="price">¥{{item.salePrice}}</text>
+							<view @click="navToGoodsSku(item.goodsInfoId, item.goodsSkuId)">
+								<text class="clamp title">{{item.title}}</text>
+								<text class="attr">{{item.skuSpecStr}}</text>
+								<text class="price">¥{{item.salePrice}}</text>
+							</view>
 							<!-- #ifdef MP || APP-PLUS -->
 							<uni-number-box
 								class="number-box"
@@ -183,7 +182,7 @@
 							goodsList.forEach((item, index) => {
 								let goodsSku = item.goodsSkuVOList[0]
 								let theSkuInfo = {}
-								theSkuInfo.goosInfoId = item.goodsInfoId
+								theSkuInfo.goodsInfoId = item.goodsInfoId
 								theSkuInfo.goodsSkuId = goodsSku.goodsSkuId
 								theSkuInfo.goodsSkuPicUrl = goodsSku.goodsPicPicUrl
 								let skuSpecStr = ''
@@ -264,6 +263,11 @@
 			numberChange(data){
 				this.cartList[data.index].quantity = data.number;
 				this.calcTotal();
+			},
+			navToGoodsSku(goodsId, goodsSkuId) {
+				uni.navigateTo({
+					url: `/pages/product/product?goodsInfoId=${goodsId}&goodsSkuId=${goodsSkuId}`
+				})
 			},
 			//删除
 			deleteCartItem(id, index){

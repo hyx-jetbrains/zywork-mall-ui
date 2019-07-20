@@ -226,13 +226,13 @@
 				categorySpec: [], // 商品的组合属性（规格属性），按属性正序排列
 				// 选择的sku
 				selectSku: {
-					goodsId: null,
-					skuId: null,
-					title: null,
-					picUrl: null,
-					price: null,
-					salePrice: null,
-					storeCount: null
+					goodsId: 0,
+					skuId: 0,
+					title: '',
+					picUrl: '',
+					price: 0,
+					salePrice: 0,
+					storeCount: 0
 				},
 				selectSkuQuantity: 1,
 				specClass: 'none',
@@ -243,6 +243,7 @@
 				skuSpecs: {}, // {"1":"7#黄色-9#S-","2":"7#白色-9#M-"}用于存储所有SKU的可选规格的字符串，key为sku的id, 并判断用户选择的规格是否有对应的SKU
 				favorite: true,
 				shareList: [],
+				fromSku: false,
 				hasUserInfo: false
 			}
 		},
@@ -259,6 +260,7 @@
 			// #endif
 			let goodsInfoId = options.goodsInfoId
 			if (options.goodsSkuId) {
+				this.fromSku = true
 				this.selectSku.skuId = options.goodsSkuId
 			}
 			this.loadGoodsPic(goodsInfoId)
@@ -308,7 +310,9 @@
 						let firstSkuInfo = this.goodsInfo.goodsSkuVOList[0]
 						this.getCategoryAttrGroup(firstSkuInfo.goodsSkuAttrVOList)
 					} else {
-						showInfoToast('没有商品信息')
+						showInfoToast('商品不存在')
+						uni.navigateBack({
+						})
 					}
 				}).catch(error => {
 					console.log(error)
@@ -316,14 +320,14 @@
 			},
 			// 设置被选中的SKU信息
 			setSelectSku() {
-				if (this.selectSku.skuId == null) {
+				if (!this.selectSku.skuId) {
 					// 如果不是由某个具体的SKU进来的，则显示商品的第一个SKU信息
 					let skuInfo = this.goodsInfo.goodsSkuVOList[0]
 					this.setSkuInfo(skuInfo)
 				} else {
 					// 否则显示指定的SKU的信息
 					for (let skuInfo of this.goodsInfo.goodsSkuVOList) {
-						if (skuInfo.goodsSkuId === this.selectSku.skuId) {
+						if (skuInfo.goodsSkuId == this.selectSku.skuId) {
 							this.setSkuInfo(skuInfo)
 							break
 						}
@@ -400,17 +404,37 @@
 			},
 			// 设置选中的sku的规格
 			setSelectSkuSpec() {
-				this.specList.forEach(item=>{
-					// specChildList中，每个规格属性的第一个规格值就是第一个SKU的规格 
-					for(let cItem of this.specChildList){
-						if(cItem.pid === item.id){
-							this.$set(cItem, 'selected', true)
-							this.specSelected.push(cItem)
-							this.specSelectedStr += cItem.pid + '#' + cItem.name + '-'
-							break
+				if (!this.fromSku) {
+					this.specList.forEach(item=>{
+						// specChildList中，每个规格属性的第一个规格值就是第一个SKU的规格 
+						for(let cItem of this.specChildList){
+							if(cItem.pid === item.id){
+								this.$set(cItem, 'selected', true)
+								this.specSelected.push(cItem)
+								this.specSelectedStr += cItem.pid + '#' + cItem.name + '-'
+								break
+							}
 						}
-					}
-				})
+					})
+				} else {
+					// 从sku中设置已经选择的规格
+					let skuSpecValue = this.skuSpecs[this.selectSku.skuId]
+					let skuSpecValArray = skuSpecValue.split('-')
+					skuSpecValArray.forEach((skuSpecVal, index) => {
+						// 分别获取SKU规格值的父id和规格具体值
+						let theVal = skuSpecVal.split('#')[1]
+						if (theVal) {
+							for(let cItem of this.specChildList){
+								if(cItem.name == theVal){
+									this.$set(cItem, 'selected', true)
+									this.specSelected.push(cItem)
+									this.specSelectedStr += cItem.pid + '#' + cItem.name + '-'
+									break
+								}
+							}
+						}
+					})
+				}
 			},
 			//选择规格
 			selectSpec(index, pid){

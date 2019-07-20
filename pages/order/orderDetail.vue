@@ -20,7 +20,7 @@
 		<view v-for="(item, index) in orderInfo.userGoodsOrderItemVOList" :key="index">
 			<view class="goods-section" >
 				<!-- 商品列表 -->
-				<view class="zy-item">
+				<view class="zy-item" @click="navToGoodsSku(item.goodsOrderItemGoodsId, item.goodsOrderItemGoodsSkuId)">
 					<image :src="imgBaseUrl + '/' + item.goodsPicPicUrl"></image>
 					<view class="right">
 						<text class="title clamp">{{item.goodsOrderItemSkuTitle}}</text>
@@ -208,6 +208,11 @@
 					timeTip
 				};
 			},
+			navToGoodsSku(goodsId, goodsSkuId) {
+				uni.navigateTo({
+					url: `/pages/product/product?goodsInfoId=${goodsId}&goodsSkuId=${goodsSkuId}`
+				})
+			}
 		}
 
 	}
