@@ -16,51 +16,49 @@
 					<!-- 订单列表 -->
 					<view v-for="(item,index) in tabItem.orderList" :key="index" class="order-item">
 						<view class="i-top b-b">
-							<text class="time">{{item.time}}</text>
+							<text class="time">{{item.timeTip}}:{{item.time}}</text>
 							<text class="state" :style="{color: item.stateTipColor}">{{item.stateTip}}</text>
 							<!-- 已取消的订单可以删除 -->
-							<text v-if="item.state===6" class="del-btn iconfont iconguanbi" @click="deleteOrder(index)"></text>
+							<text v-if="item.goodsOrderOrderStatus===6" class="del-btn iconfont iconguanbi" @click="deleteOrder(item.goodsOrderId)"></text>
 						</view>
 
-						<scroll-view v-if="item.goodsList.length > 1" class="goods-box" scroll-x>
-							<view v-for="(goodsItem, goodsIndex) in item.goodsList" :key="goodsIndex" class="goods-item">
-								<image class="goods-img" :src="goodsItem.image" mode="aspectFill"></image>
+						<scroll-view v-if="item.userGoodsOrderItemVOList.length > 1" class="goods-box" scroll-x>
+							<view v-for="(goodsItem, goodsIndex) in item.userGoodsOrderItemVOList" :key="goodsIndex" class="goods-item">
+								<image class="goods-img" :src="imgBaseUrl + '/' + goodsItem.goodsPicPicUrl" mode="aspectFill"></image>
 							</view>
 						</scroll-view>
-						<view v-if="item.goodsList.length === 1" class="goods-box-single" v-for="(goodsItem, goodsIndex) in item.goodsList"
+						<view v-if="item.userGoodsOrderItemVOList.length === 1" class="goods-box-single" v-for="(goodsItem, goodsIndex) in item.userGoodsOrderItemVOList"
 						 :key="goodsIndex">
-							<image class="goods-img" :src="goodsItem.image" mode="aspectFill"></image>
+							<image class="goods-img" :src="imgBaseUrl + '/' + goodsItem.goodsPicPicUrl" mode="aspectFill"></image>
 							<view class="right">
-								<text class="title clamp">{{goodsItem.title}}</text>
-								<text class="attr-box">{{goodsItem.attr}} x {{goodsItem.number}}</text>
-								<text class="price">{{goodsItem.price}}</text>
+								<text class="title clamp">{{goodsItem.goodsOrderItemSkuTitle}}</text>
+								<text class="attr-box">{{goodsItem.goodsOrderItemSkuInfo}} x {{goodsItem.goodsOrderItemQuantity}}</text>
+								<text class="price">{{goodsItem.goodsOrderItemPayAmount}}</text>
 							</view>
 						</view>
 
 						<view class="price-box">
 							共
-							<text class="num">7</text>
-							件商品 实付款
-							<text class="price">143.7</text>
+							<text class="num">{{item.userGoodsOrderItemVOList.length}}</text>
+							件商品 
+							实付款
+							<text class="price">{{item.goodsOrderPayAmount}}</text>
 						</view>
 						<!-- 待付款 -->
-						<view class="action-box b-t" v-if="item.state === 1">
+						<view class="action-box b-t" v-if="item.goodsOrderOrderStatus === 0">
 							<button class="action-btn" @click="cancelOrder(item)">取消订单</button>
-							<button class="action-btn recom">立即支付</button>
+							<button class="action-btn recom" @click="toPayPage(item.goodsOrderId, item.goodsOrderPayAmount)">立即支付</button>
 						</view>
 						<!-- 待收货 -->
-						<view class="action-box b-t" v-else-if="item.state === 2">
-							<button class="action-btn">查看物流</button>
-							<button class="action-btn recom">确认收货</button>
+						<view class="action-box b-t" v-else-if="item.goodsOrderOrderStatus === 4">
+							<button class="action-btn" @click="toLogisticsPage">查看物流</button>
+							<button class="action-btn recom" @click="confirmReceipt(item.goodsOrderId)">确认收货</button>
 						</view>
-						<!-- 待评价 -->
-						<view class="action-box b-t" v-else-if="item.state === 3">
-							<button class="action-btn">查看物流</button>
+						<!-- 已确认收货 -->
+						<view class="action-box b-t" v-else-if="item.goodsOrderOrderStatus === 5">
+							<button class="action-btn recom" @click="applyAfter">申请售后</button>
+							<button class="action-btn" @click="toLogisticsPage">查看物流</button>
 							<button class="action-btn recom" @click="toAddEvaluatePage">立即评价</button>
-						</view>
-						<!-- 售后 -->
-						<view class="action-box b-t" v-else-if="item.state === 4">
-							<button class="action-btn recom">申请售后</button>
 						</view>
 					</view>
 
@@ -81,8 +79,11 @@
 	} from '@/common/page-url.js'
 	import {
 		doPostJson,
+		doGet,
 		showInfoToast,
-		nullToStr
+		showSuccessToast,
+		nullToStr,
+		IMAGE_BASE_URL
 	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
@@ -92,6 +93,7 @@
 		},
 		data() {
 			return {
+				imgBaseUrl: IMAGE_BASE_URL,
 				tabCurrentIndex: 0,
 				navList: [{
 						state: 0,
@@ -125,7 +127,9 @@
 					}
 				],
 				urls: {
-					searchUrl: '/user-goods-order-item/user/pager-cond'
+					searchUrl: '/user-goods-order/user/pager-cond',
+					updateUrl: '/goods-order/user/update',
+					removeUrl: '/goods-order/user/remove/'
 				},
 				pager: {
 					pageNo: 1,
@@ -165,15 +169,13 @@
 					let [error, res] = response;
 					if (res.data.code === ResponseStatus.OK) {
 						// 判断是否还有数据， 有改为 more， 没有改为noMore 
-						navItem.loadingType = 'more';
-						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
-							navItem.loadingType = 'nomore';
-						}
-						const rows = nullToStr(res.data.data.rows);
-						rows = Json.rows.filter(item => {
+						navItem.loadingType = this.pager.pageNo * this.pager.pageSize >= res.data.data.total ? 'nomore' : 'more'
+						let tempRows = nullToStr(res.data.data.rows);
+						let rows = []
+						tempRows.forEach(item => {
 							//添加不同状态下订单的表现形式
 							item = Object.assign(item, this.orderStateExp(item));
-							return item;
+							rows.push(item);
 						});
 						if (type === 'init') {
 							navItem.orderList = rows;
@@ -223,96 +225,123 @@
 				}
 			},
 			//删除订单
-			deleteOrder(index) {
+			deleteOrder(id) {
 				uni.showLoading({
 					title: '请稍后'
 				})
-				setTimeout(() => {
-					this.navList[this.tabCurrentIndex].orderList.splice(index, 1);
+				doGet(this.urls.removeUrl + id, {}, false).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						showSuccessToast("删除成功");
+					} else {
+						showInfoToast(res.data.message);
+					}
+					this.loadData('init');
 					uni.hideLoading();
-				}, 600)
+				}).catch(err => {
+					console.log(err);
+				})
 			},
 			//取消订单
 			cancelOrder(item) {
+				this.updateOrderStatus(item.goodsOrderId, 6);
+			},
+			/**
+			 * 更新订单状态
+			 * @param {Object} status 订单状态
+			 */
+			updateOrderStatus(id, status) {
 				uni.showLoading({
 					title: '请稍后'
 				})
-				setTimeout(() => {
-					let {
-						stateTip,
-						stateTipColor
-					} = this.orderStateExp(9);
-					item = Object.assign(item, {
-						state: 9,
-						stateTip,
-						stateTipColor
-					})
-
-					//取消订单后删除待付款中该项
-					let list = this.navList[1].orderList;
-					let index = list.findIndex(val => val.id === item.id);
-					index !== -1 && list.splice(index, 1);
-
+				const data = {
+					id: id,
+					orderStatus: status
+				}
+				doPostJson(this.urls.updateUrl, data, {}, true).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						showSuccessToast("更新成功");
+					} else {
+						showInfoToast(res.data.message);
+					}
+					this.loadData('init');
 					uni.hideLoading();
-				}, 600)
+				}).catch(err => {
+					console.log(err);
+				})
 			},
 
 			//订单状态文字和颜色
 			orderStateExp(item) {
 				const state = item.goodsOrderOrderStatus;
 				let stateTip = '',
-					stateTipColor = '#fa436a';
+					stateTipColor = '#fa436a',
+					time = '',
+					timeTip = '';
 				switch (+state) {
 					case 0:
 						stateTip = '待付款';
 						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
 						break;
 					case 1:
 						stateTip = '已付款';
 						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
 						break;
 					case 2:
 						stateTip = '支付失败';
 						time = item.goodsOrderPayTime;
+						timeTip = '支付时间';
 						break;
 					case 3:
 						stateTip = '待发货';
 						time = item.goodsOrderPayTime;
+						timeTip = '支付时间';
 						break;
 					case 4:
 						stateTip = '待收货';
 						time = item.goodsOrderDeliverTime;
+						timeTip = '发货时间';
 						break;
 					case 5:
 						stateTip = '已确认收货';
 						time = item.goodsOrderDealTime;
+						timeTip = '交易时间';
 						break;
 					case 6:
 						stateTip = '已取消';
 						stateTipColor = '#909399';
 						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
 						break;
 					case 7:
 						stateTip = '已申请退货';
 						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
 						break;
 					case 8:
 						stateTip: '拒绝退货';
 						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
 						break;
 					case 9:
 						stateTip: '退货中';
 						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
 						break;
 					case 10:
 						stateTip: '已退货';
 						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
 						break;
 				}
 				return {
 					stateTip,
 					stateTipColor,
-					time
+					time,
+					timeTip
 				};
 			},
 			/**
@@ -322,6 +351,35 @@
 				uni.navigateTo({
 					url: ADD_EVALUATE_PAGE
 				})
+			},
+			/**
+			 * 查看物流
+			 */
+			toLogisticsPage() {
+				showInfoToast('暂未实现')
+			},
+			/**
+			 * 申请售后
+			 */
+			applyAfter() {
+				showInfoToast('暂未实现')
+			},
+			/**
+			 * 立即支付
+			 * @param {Object} orderId 订单id
+			 * @param {Object} actualPay 支付金额
+			 */
+			toPayPage(orderId, actualPay) {
+				uni.redirectTo({
+					url: `/pages/money/pay?orderId=${orderId}&totalPay=${actualPay}`
+				})
+			},
+			/**
+			 * 确认收货
+			 * @param {Object} orderId 订单id
+			 */
+			confirmReceipt(orderId) {
+				this.updateOrderStatus(orderId, 5);
 			}
 		}
 
