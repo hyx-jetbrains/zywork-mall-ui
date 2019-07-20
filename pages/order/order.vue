@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
 		<view class="navbar">
-			<view v-for="(item, index) in navList" :key="index" class="nav-item" :class="{current: tabCurrentIndex === index}"
+			<view v-for="(item, index) in navList" :key="index" class="nav-item" :class="{current: tabCurrentIndex == index}"
 			 @click="tabClick(index)">
 				{{item.text}}
 			</view>
@@ -146,7 +146,12 @@
 		},
 
 		onLoad(options) {
-			this.loadData('init');
+			const type = options.state;
+			if (type) {
+				this.tabClick(type);
+			} else {
+				this.loadData('init');
+			}
 		},
 		//下拉刷新
 		onPullDownRefresh() {
@@ -206,21 +211,21 @@
 			},
 			//顶部tab点击
 			tabClick(index) {
-				if (this.tabCurrentIndex !== index) {
+				if (this.tabCurrentIndex != index) {
 					this.tabCurrentIndex = index;
-					if (index === 0) {
+					if (index == 0) {
 						// 全部订单
 						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = '';
-					} else if (index === 1) {
+					} else if (index == 1) {
 						// 待付款订单
 						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = 0;
-					} else if (index === 2) {
+					} else if (index == 2) {
 						// 待收货订单
 						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = 4;
-					} else if (index === 3) {
+					} else if (index == 3) {
 						// 待评价订单
 						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = 5;
-					} else if (index === 4) {
+					} else if (index == 4) {
 						// 售后订单
 						this.pager.goodsOrderOrderStatusMin = 7
 						this.pager.goodsOrderOrderStatusMax = 10;
