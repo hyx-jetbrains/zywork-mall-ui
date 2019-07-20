@@ -10,7 +10,7 @@
 
 		<swiper :current="tabCurrentIndex" class="swiper-box" duration="300" @change="changeTab">
 			<swiper-item class="tab-content" v-for="(tabItem,tabIndex) in navList" :key="tabIndex">
-				<scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData">
+				<scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData('reachBottom')">
 					<!-- 空白页 -->
 					<empty v-if="tabItem.teamList.length === 0"></empty>
 
@@ -75,7 +75,7 @@
 				pager: {
 					pageNo: 1,
 					pageSize: 10,
-					levels: [1]
+					levels: [2]
 				}
 			};
 		},
@@ -104,11 +104,26 @@
 					//防止重复加载
 					return;
 				}
+				if (navItem.loadingType === 'nomore') {
+					return
+				}
+				if (type === 'reachBottom') {
+					this.pager.pageNo += 1
+				}
 				navItem.loadingType = 'loading';
-				this.pager.levels[0] = this.tabCurrentIndex + 1;
+				let levelText = ''
+				if (this.tabCurrentIndex === 0) {
+					this.pager.levels[0] = 2
+					levelText = '一级'
+				}
+				if (this.tabCurrentIndex === 1) {
+					this.pager.levels[0] = 3
+					levelText = '二级'
+				}
 				doPostForm(this.urls.belowUrl, this.pager, {}, true).then(response => {
 					let [error, res] = response;
 					if (res.data.code === ResponseStatus.OK) {
+						navItem.text = levelText + '(' + res.data.data.total + ')'
 						// 判断是否还有数据， 有改为 more， 没有改为noMore 
 						navItem.loadingType = 'more';
 						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
@@ -140,7 +155,9 @@
 			//顶部tab点击
 			tabClick(index) {
 				if (this.tabCurrentIndex !== index) {
-					this.tabCurrentIndex = index;
+					this.tabCurrentIndex = index
+					this.pager.pageNo = 1
+					this.navList[index].loadingType = 'more'
 					this.loadData('init');
 				}
 			}
