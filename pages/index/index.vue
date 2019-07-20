@@ -15,7 +15,7 @@
 			<!-- 背景色区域 -->
 			<view class="titleNview-background" :style="{backgroundColor:titleNViewBackground}"></view>
 			<swiper class="carousel" circular @change="swiperChange">
-				<swiper-item v-for="(item, index) in carouselList" :key="index" class="carousel-item" @click="navToCarouselDetail(item)">
+				<swiper-item v-for="(item, index) in carouselList" :key="index" class="carousel-item" @click="navToAdDetail(item)">
 					<image :src="item.advertisementPicUrl" />
 				</swiper-item>
 			</swiper>
@@ -350,6 +350,13 @@
 					console.log(error)
 				})
 			},
+			navToAdDetail(item) {
+                let linkPageUrl = item.advertisementLinkPageUrl
+                let linkId = item.advertisementLinkId
+                uni.navigateTo({
+                    url: `${linkPageUrl}?id=${linkId}`
+                })
+            },
 			navToProductList(fid) {
 				uni.navigateTo({
 					url: `/pages/product/list?fid=${fid}`

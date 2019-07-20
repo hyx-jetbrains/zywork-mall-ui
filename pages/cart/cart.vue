@@ -123,9 +123,12 @@
 				// 公众号授权登录成功返回的openid和token
 				uni.setStorageSync(USER_OPENID, openid)
 				uni.setStorageSync(USER_TOKEN_KEY, token)
+				uni.setStorageSync(HAS_USER_INFO, true)
 			}
 			// #endif
-			this.loadCart()
+			if (uni.getStorageSync(HAS_USER_INFO)) {
+				this.loadCart()
+			}
 		},
 		onShow() {
 			if (uni.getStorageSync(HAS_USER_INFO)) {

@@ -246,7 +246,6 @@
 			}
 		},
 		async onLoad(options){
-			console.log('aa')
 			// #ifdef H5
 			let openid = options.openid
 			let token = options.token
@@ -254,6 +253,7 @@
 				// 公众号授权登录成功返回的openid和token
 				uni.setStorageSync(USER_OPENID, openid)
 				uni.setStorageSync(USER_TOKEN_KEY, token)
+				uni.setStorageSync(HAS_USER_INFO, true)
 			}
 			// #endif
 			let goodsInfoId = options.goodsInfoId
