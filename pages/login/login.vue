@@ -77,7 +77,8 @@
 		doPostForm,
 		doGetForm,
 		SHARE_CODE,
-		HAS_USER_INFO
+		HAS_USER_INFO,
+		REFRESH_CART
 	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default{
@@ -91,16 +92,6 @@
 		},
 		onLoad(options){
 			this.fromUrl = options.fromUrl
-			// #ifdef H5
-			let openid = options.openid
-			let token = options.token
-			if (openid && token) {
-				// 公众号授权登录成功返回的openid和token
-				uni.setStorageSync(USER_OPENID, openid)
-				uni.setStorageSync(USER_TOKEN_KEY, token)
-				uni.setStorageSync(HAS_USER_INFO, true)
-			}
-			// #endif
 			this.judgeLogin()
 		},
 		methods: {
@@ -168,13 +159,14 @@
 					gender: e.detail.userInfo.gender
 				};
 				uni.showLoading({
-					title: '登录中'
+					title: '登录中...'
 				})
 				doPostForm('/wx-auth/xcx-userdetail', data, {}, false).then(response => {
 					let [error, res] = response;
 					if (res.data.code === ResponseStatus.OK) {
 						// 设置已登录并且获取用户信息
 						uni.setStorageSync(HAS_USER_INFO, true)
+						uni.setStorageSync(REFRESH_CART, true)
 						uni.navigateBack({
 						})
 					} else {
