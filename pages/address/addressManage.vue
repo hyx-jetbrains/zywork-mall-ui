@@ -38,7 +38,7 @@
 
 <script>
 	import zyworkIcon from '@/components/zywork-icon/zywork-icon.vue'
-	import { showInfoToast } from '@/common/util.js'
+	import { showInfoToast,USER_PHONE } from '@/common/util.js'
 	export default {
 		components: {
 			zyworkIcon
@@ -60,6 +60,11 @@
 			if(option.type==='edit'){
 				title = '编辑收货地址'
 				this.addressData = JSON.parse(option.data)
+			} else if (option.type === 'add') {
+				const userPhone = uni.getStorageSync(USER_PHONE);
+				if (userPhone) {
+					this.addressData.phone = userPhone;
+				}
 			}
 			this.manageType = option.type;
 			uni.setNavigationBarTitle({
