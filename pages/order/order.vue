@@ -48,13 +48,13 @@
 						</view>
 						<!-- 待付款 -->
 						<view class="action-box b-t" v-if="item.goodsOrderOrderStatus === 0">
-							<button class="action-btn" @click="cancelOrder(item)">取消订单</button>
+							<button class="action-btn" @click="cancelOrder(item, index)">取消订单</button>
 							<button class="action-btn recom" @click="toPayPage(item.goodsOrderId, item.goodsOrderPayAmount)">立即支付</button>
 						</view>
 						<!-- 待收货 -->
 						<view class="action-box b-t" v-else-if="item.goodsOrderOrderStatus === 4">
 							<button class="action-btn" @click="toLogisticsPage">查看物流</button>
-							<button class="action-btn recom" @click="confirmReceipt(item.goodsOrderId)">确认收货</button>
+							<button class="action-btn recom" @click="confirmReceipt(item.goodsOrderId, index)">确认收货</button>
 						</view>
 						<!-- 已确认收货 -->
 						<view class="action-box b-t" v-else-if="item.goodsOrderOrderStatus === 5">
@@ -243,11 +243,11 @@
 			//删除订单
 			deleteOrder(id) {
 				uni.showModal({
-					title: '确定要删除订单吗？',
+					title: '确定删除订单？',
 					success: (res) => {
 						if (res.confirm) {
 							uni.showLoading({
-								title: '请稍后'
+								title: '请稍后...'
 							})
 							doGet(this.urls.removeUrl + id, {}, false).then(response => {
 								let [error, res] = response;
@@ -267,16 +267,23 @@
 
 			},
 			//取消订单
-			cancelOrder(item) {
-				this.updateOrderStatus(item.goodsOrderId, 6);
+			cancelOrder(item, index) {
+				uni.showModal({
+					title: '确定取消订单？',
+					success: (res) => {
+						if (res.confirm) {
+							this.updateOrderStatus(item.goodsOrderId, 6, index)
+						}
+					}
+				})
 			},
 			/**
 			 * 更新订单状态
 			 * @param {Object} status 订单状态
 			 */
-			updateOrderStatus(id, status) {
+			updateOrderStatus(id, status, index) {
 				uni.showLoading({
-					title: '请稍后'
+					title: '请稍后...'
 				})
 				const data = {
 					id: id,
@@ -285,7 +292,15 @@
 				doPostJson(this.urls.updateUrl, data, {}, true).then(response => {
 					let [error, res] = response;
 					if (res.data.code === ResponseStatus.OK) {
-						showSuccessToast("更新成功");
+						let msg = '订单已取消'
+						if (this.tabCurrentIndex === 1) {
+							this.navList[this.tabCurrentIndex].orderList.splice(index, 1)
+						}
+						if (this.tabCurrentIndex === 2) {
+							msg = '已确认收货'
+							this.navList[this.tabCurrentIndex].orderList.splice(index, 1)
+						}
+						showInfoToast(msg)
 					} else {
 						showInfoToast(res.data.message);
 					}
@@ -402,8 +417,15 @@
 			 * 确认收货
 			 * @param {Object} orderId 订单id
 			 */
-			confirmReceipt(orderId) {
-				this.updateOrderStatus(orderId, 5);
+			confirmReceipt(orderId, index) {
+				uni.showModal({
+					title: '确定取消订单？',
+					success: (res) => {
+						if (res.confirm) {
+							this.updateOrderStatus(orderId, 5, index)
+						}
+					}
+				})
 			},
 			/**
 			 * 前往订单详情
