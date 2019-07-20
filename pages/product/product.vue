@@ -209,6 +209,7 @@
 	import share from '@/components/share'
 	import uniNumberBox from '@/components/uni-number-box.vue'
 	import {doPostJson, showInfoToast, REFRESH_CART, REFRESH_PRODUCT, HAS_USER_INFO} from '@/common/util.js'
+	import {setProductHistory} from '@/common/storage.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
 		EVALUATE_PAGE
@@ -263,6 +264,8 @@
 			this.loadGoodsPic(goodsInfoId)
 			this.loadGoodsInfoById(goodsInfoId)
 			this.shareList = await this.$api.json('shareList');
+			// 保存浏览历史
+			setProductHistory(goodsInfoId, this.goodsPics[0].picUrl)
 		},
 		onShow() {
 			this.hasUserInfo = uni.getStorageSync(HAS_USER_INFO)

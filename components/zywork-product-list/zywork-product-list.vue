@@ -19,9 +19,6 @@
 
 <script>
 	import empty from "@/components/empty"
-	import {
-		setBrowseHistory
-	} from '@/common/storage.js'
 	export default {
 		components: {
 			empty
@@ -40,9 +37,7 @@
 		methods: {
 			//详情
 			navToDetailPage(item) {
-				let goodsInfoId = item.goodsInfoId;
-				// 保存浏览历史
-				setBrowseHistory(goodsInfoId, item.goodsPicPicUrl);
+				let goodsInfoId = item.goodsInfoId
 				uni.navigateTo({
 					url: `/pages/product/product?goodsInfoId=${goodsInfoId}`
 				})

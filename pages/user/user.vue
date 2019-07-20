@@ -130,8 +130,8 @@
 					<text class="iconfont iconhistory" style="color:#F06C7A"></text>
 					<text>浏览历史</text>
 				</view>
-				<scroll-view v-if="browserHistoryArray.length > 0" scroll-x class="h-list">
-					<image v-for="(item, index) in browserHistoryArray" :key="index" @click="navTo('/pages/product/product')" :src="item"
+				<scroll-view v-if="productHistoryArray.length > 0" scroll-x class="h-list">
+					<image v-for="(item, index) in productHistoryArray" :key="index" @click="navToProduct(item.id)" :src="item"
 					 mode="aspectFill"></image>
 				</scroll-view>
 				<view v-else class="zy-not-browser-history">暂无浏览记录</view>
@@ -178,7 +178,7 @@
 		SHARE_CODE
 	} from '@/common/util.js'
 	import {
-		getBrowseHistory
+		getProductHistory
 	} from '@/common/storage.js'
 	import {
 		mapState
@@ -207,7 +207,7 @@
 				coverTransform: 'translateY(0px)',
 				coverTransition: '0s',
 				moving: false,
-				browserHistoryArray: [],
+				productHistoryArray: [],
 			}
 		},
 		onLoad(options) {
@@ -448,14 +448,15 @@
 			 */
 			loadHistoryData() {
 				// 加载浏览历史
-				var browserHistory = getBrowseHistory();
-				var _this = this;
-				if (browserHistory.length > 0) {
-					browserHistory.forEach(item => {
-						var imgSrc = item.split('#')[1];
-						_this.browserHistoryArray.push(imgSrc);
-					})
+				var productHistory = getProductHistory()
+				if (productHistory.length > 0) {
+					this.productHistoryArray = productHistory
 				}
+			},
+			navToProduct(goodsId) {
+				uni.navigateTo({
+					url: `/pages/product/product?goodsInfoId=${goodsId}`
+				})
 			},
 			/**
 			 * 统一跳转接口,拦截未登录路由
