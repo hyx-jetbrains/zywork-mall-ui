@@ -282,6 +282,7 @@
 			},
 			// 计算实付金额
 			calculateActualPay() {
+				this.totalPay = 0
 				this.skuList.forEach((item, index) => {
 					this.totalPay += (item.salePrice * item.quantity)
 				})
@@ -366,6 +367,7 @@
 			numberChange(data) {
 				this.number = data.number;
 				this.skuList[data.index].quantity = data.number
+				this.calculateActualPay()
 			},
 			stopPrevent(){}
 		}
