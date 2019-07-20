@@ -1,9 +1,9 @@
 <template>
 	<view class="content">
 		<view class="zy-top">
-			<view class="zy-text-bold zy-status">完成</view>
-			<view>
-				<Button type="default" class="zy-btn">再次购买</Button>
+			<view class="zy-text-bold zy-status">{{orderInfo.stateTip}}</view>
+			<view style="margin: 20upx;">
+				<Button type="default" class="zy-btn" @click="repurchase">再次购买</Button>
 			</view>
 			<view class="zy-memo zy-display-flex">
 				<view>
@@ -11,22 +11,23 @@
 					<text>本单购物返积分</text>
 				</view>
 				<view class="zy-display-flex-right">
-					<text>100</text>
+					<text>{{orderInfo.goodsOrderIntegralAmount}}</text>
 					<text class="iconfont iconxiangyou"></text>
 				</view>
 			</view>
 		</view>
-		<view class="goods-section">
-			<view v-for="(item, index) in skuList" :key="index">
+		<view style="margin-top: -40upx;">
+		<view v-for="(item, index) in orderInfo.userGoodsOrderItemVOList" :key="index">
+			<view class="goods-section" >
 				<!-- 商品列表 -->
 				<view class="zy-item">
-					<image :src="item.goodsSkuPicUrl"></image>
+					<image :src="imgBaseUrl + '/' + item.goodsPicPicUrl"></image>
 					<view class="right">
-						<text class="title clamp">{{item.title}}</text>
-						<text class="spec">{{item.skuSpecStr}}</text>
+						<text class="title clamp">{{item.goodsOrderItemSkuTitle}}</text>
+						<text class="spec">{{item.goodsOrderItemSkuInfo}}</text>
 						<view class="price-box">
-							<text class="price">￥{{item.salePrice}}</text>
-							<text class="number">x {{item.quantity}}</text>
+							<text class="price">￥{{item.goodsOrderItemPayAmount}}</text>
+							<text class="number">x {{item.goodsOrderItemQuantity}}</text>
 						</view>
 					</view>
 				</view>
@@ -37,71 +38,176 @@
 				</view>
 			</view>
 		</view>
+		</view>
 		<!-- 商品信息 -->
 		<view class="yt-list">
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">订单编号:</text>
-				<text class="cell-tip">23423423423423</text>
+				<text class="cell-tip">{{orderInfo.goodsOrderId}}</text>
 			</view>
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">下单时间:</text>
-				<text class="cell-tip">2019-07-24 22:33:33</text>
+				<text class="cell-tip">{{orderInfo.goodsOrderCreateTime}}</text>
 			</view>
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">支付方式:</text>
-				<text class="cell-tip">微信支付</text>
+				<text class="cell-tip">{{orderInfo.goodsOrderPayType}}</text>
 			</view>
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">备注:</text>
-				<text class="cell-tip">微信支付</text>
+				<text class="cell-tip">{{orderInfo.goodsOrderRemark}}</text>
 			</view>
 		</view>
 		<!-- 金额信息 -->
 		<view class="yt-list">
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">订单金额:</text>
-				<text class="cell-tip">¥ 100</text>
+				<text class="cell-tip">¥ {{orderInfo.goodsOrderTotalAmount}}</text>
 			</view>
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">优惠金额:</text>
-				<text class="cell-tip">¥ 20</text>
+				<text class="cell-tip">¥ {{orderInfo.goodsOrderDiscountAmount}}</text>
 			</view>
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">实付金额:</text>
-				<text class="cell-tip red">¥ 80</text>
+				<text class="cell-tip red">¥ {{orderInfo.goodsOrderPayAmount}}</text>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
+	import {
+		doPostJson,
+		showInfoToast,
+		nullToStr,
+		IMAGE_BASE_URL
+	} from '@/common/util.js'
+	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
 		components: {},
 		data() {
 			return {
-				skuList: [{
-					goodsSkuPicUrl: 'http://duoduo.qibukj.cn/./Upload/Images/20190321/201903211727515.png',
-					title: '商品标题',
-					skuSpecStr: 'S 黄色',
-					salePrice: 88,
-					quantity: 1
-				}]
+				imgBaseUrl: IMAGE_BASE_URL,
+				orderInfo: {},
+				urls: {
+					searchUrl: '/user-goods-order/user/pager-cond'
+				},
+				pager: {
+					pageNo: 1,
+					pageSize: 10,
+					isActive: 0,
+					goodsOrderId: 0
+				}
 			};
 		},
 
 		onLoad(options) {
-
-		},
-		//下拉刷新
-		onPullDownRefresh() {
-
-		},
-		//加载更多
-		onReachBottom() {
-
+			this.loadData(options.orderId);
 		},
 		methods: {
-
+			loadData(orderId) {
+				uni.showLoading({
+					title: '加载中...'
+				})
+				this.pager.goodsOrderId = orderId;
+				doPostJson(this.urls.searchUrl, this.pager, {}, true).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						let tempRows = nullToStr(res.data.data.rows);
+						let rows = []
+						tempRows.forEach(item => {
+							//添加不同状态下订单的表现形式
+							item = Object.assign(item, this.orderStateExp(item));
+							rows.push(item);
+						});
+						this.orderInfo = rows[0];
+					} else {
+						showInfoToast(res.data.message);
+					}
+					uni.hideLoading();
+				}).catch(err => {
+					console.log(err);
+				})
+			},
+			/**
+			 * 再次购买
+			 */
+			repurchase() {
+				showInfoToast('再次购买')
+			},
+			//订单状态文字和颜色
+			orderStateExp(item) {
+				const state = item.goodsOrderOrderStatus;
+				let stateTip = '',
+					stateTipColor = '#fa436a',
+					time = '',
+					timeTip = '';
+				switch (+state) {
+					case 0:
+						stateTip = '待付款';
+						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
+						break;
+					case 1:
+						stateTip = '已付款';
+						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
+						break;
+					case 2:
+						stateTip = '支付失败';
+						time = item.goodsOrderPayTime;
+						timeTip = '支付时间';
+						break;
+					case 3:
+						stateTip = '待发货';
+						time = item.goodsOrderPayTime;
+						timeTip = '支付时间';
+						break;
+					case 4:
+						stateTip = '待收货';
+						time = item.goodsOrderDeliverTime;
+						timeTip = '发货时间';
+						break;
+					case 5:
+						stateTip = '已确认收货';
+						time = item.goodsOrderDealTime;
+						timeTip = '交易时间';
+						break;
+					case 6:
+						stateTip = '已取消';
+						stateTipColor = '#909399';
+						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
+						break;
+					case 7:
+						stateTip = '已申请退货';
+						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
+						break;
+					case 8:
+						stateTip: '拒绝退货';
+						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
+						break;
+					case 9:
+						stateTip: '退货中';
+						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
+						break;
+					case 10:
+						stateTip: '已退货';
+						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
+						break;
+				}
+				return {
+					stateTip,
+					stateTipColor,
+					time,
+					timeTip
+				};
+			},
 		}
 
 	}
@@ -130,15 +236,15 @@
 		.zy-btn {
 			width: 200upx;
 			height: 60upx;
+			line-height: 60upx;
 			background: #fff;
 			border: none;
 			border-radius: 30upx;
-			margin: 20upx;
 			color: #fa436a;
 		}
 
 		.zy-memo {
-			margin: 20upx;
+			margin: 40upx;
 			padding: 20upx;
 			border-radius: 30upx;
 			background-color: rgba(255, 255, 255, 0.2);
@@ -149,9 +255,8 @@
 			margin-left: 10upx;
 		}
 	}
-
 	.goods-section {
-		margin-top: -40upx;
+		margin-bootom: 20upx;
 		background: #fff;
 		padding-bottom: 1px;
 		border-radius: 20upx;
@@ -230,6 +335,7 @@
 			}
 		}
 	}
+
 	.yt-list {
 		margin-top: 20upx;
 		background: #fff;
@@ -298,7 +404,8 @@
 			&.active {
 				color: $base-color;
 			}
-			&.red{
+
+			&.red {
 				color: $base-color;
 			}
 		}

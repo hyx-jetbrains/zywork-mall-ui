@@ -15,6 +15,7 @@
 
 					<!-- 订单列表 -->
 					<view v-for="(item,index) in tabItem.orderList" :key="index" class="order-item">
+						<view @click="toOrderDetail(item.goodsOrderId)">
 						<view class="i-top b-b">
 							<text class="time">{{item.timeTip}}:{{item.time}}</text>
 							<text class="state" :style="{color: item.stateTipColor}">{{item.stateTip}}</text>
@@ -43,6 +44,7 @@
 							件商品 
 							实付款
 							<text class="price">{{item.goodsOrderPayAmount}}</text>
+						</view>
 						</view>
 						<!-- 待付款 -->
 						<view class="action-box b-t" v-if="item.goodsOrderOrderStatus === 0">
@@ -135,6 +137,8 @@
 					pageNo: 1,
 					pageSize: 10,
 					isActive: 0,
+					sortColumn: 'goodsOrderCreateTime',
+					sortOrder: 'desc',
 					goodsOrderOrderStatusMin: '',
 					goodsOrderOrderStatusMax: ''
 				}
@@ -370,7 +374,7 @@
 			 * @param {Object} actualPay 支付金额
 			 */
 			toPayPage(orderId, actualPay) {
-				uni.redirectTo({
+				uni.navigateTo({
 					url: `/pages/money/pay?orderId=${orderId}&totalPay=${actualPay}`
 				})
 			},
@@ -380,7 +384,16 @@
 			 */
 			confirmReceipt(orderId) {
 				this.updateOrderStatus(orderId, 5);
-			}
+			},
+			/**
+			 * 前往订单详情
+			 * @param {Object} orderId 订单id
+			 */
+			toOrderDetail(orderId) {
+				uni.redirectTo({
+					url: `/pages/order/orderDetail?orderId=${orderId}`
+				})
+			},
 		}
 
 	}
