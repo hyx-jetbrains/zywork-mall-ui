@@ -9,7 +9,7 @@
 
 		<swiper :current="tabCurrentIndex" class="swiper-box" duration="300" @change="changeTab">
 			<swiper-item class="tab-content" v-for="(tabItem,tabIndex) in navList" :key="tabIndex">
-				<scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData">
+				<scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadData('reachBottom')">
 					<!-- 空白页 -->
 					<empty v-if="tabItem.orderList.length === 0"></empty>
 
@@ -85,7 +85,7 @@
 		showInfoToast,
 		showSuccessToast,
 		nullToStr,
-		IMAGE_BASE_URL
+		FRONT_BASE_URL
 	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
@@ -95,7 +95,7 @@
 		},
 		data() {
 			return {
-				imgBaseUrl: IMAGE_BASE_URL,
+				imgBaseUrl: FRONT_BASE_URL,
 				tabCurrentIndex: -1,
 				navList: [{
 						state: 0,
@@ -144,7 +144,6 @@
 				}
 			};
 		},
-
 		onLoad(options) {
 			const type = options.state;
 			if (type) {
@@ -155,8 +154,8 @@
 		},
 		//下拉刷新
 		onPullDownRefresh() {
-			this.pager.pageNo = 1;
-			this.loadData('pullDown');
+			this.pager.pageNo = 1
+			this.loadData('pullDown')
 		},
 		//加载更多
 		onReachBottom() {
@@ -171,7 +170,13 @@
 				let navItem = this.navList[index];
 				if (navItem.loadingType === 'loading') {
 					//防止重复加载
-					return;
+					return
+				}
+				if (navItem.loadingType === 'nomore') {
+					return
+				}
+				if (type === 'reachBottom') {
+					this.pager.pageNo += 1
 				}
 				navItem.loadingType = 'loading';
 				doPostJson(this.urls.searchUrl, this.pager, {}, true).then(response => {
@@ -212,7 +217,9 @@
 			//顶部tab点击
 			tabClick(index) {
 				if (this.tabCurrentIndex != index) {
-					this.tabCurrentIndex = index;
+					this.pager.pageNo = 1
+					this.tabCurrentIndex = index
+					this.navList[index].loadingType = 'more'
 					if (index == 0) {
 						// 全部订单
 						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = '';

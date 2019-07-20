@@ -43,7 +43,7 @@
 		<view class="yt-list">
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">订单编号:</text>
-				<text class="cell-tip">{{orderInfo.goodsOrderId}}</text>
+				<text class="cell-tip">{{orderInfo.goodsOrderOrderNo}}</text>
 			</view>
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">下单时间:</text>
@@ -51,7 +51,7 @@
 			</view>
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">支付方式:</text>
-				<text class="cell-tip">{{orderInfo.goodsOrderPayType}}</text>
+				<text class="cell-tip">{{orderInfo.goodsOrderPayType || orderInfo.stateTip}}</text>
 			</view>
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">备注:</text>

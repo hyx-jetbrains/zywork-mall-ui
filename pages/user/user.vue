@@ -462,7 +462,6 @@
 			 * navigator标签现在默认没有转场动画，所以用view
 			 */
 			navTo(url) {
-				console.log(uni.getStorageSync(HAS_USER_INFO))
 				if (!uni.getStorageSync(HAS_USER_INFO)) {
 					console.log('test')
 					// #ifdef MP-WEIXIN
@@ -472,7 +471,6 @@
 					this.gzhLogin()
 					// #endif
 				} else {
-					console.log('bb')
 					uni.navigateTo({
 						url
 					})
