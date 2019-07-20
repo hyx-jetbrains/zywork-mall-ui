@@ -319,9 +319,10 @@
 			 */
 			getUserDetail() {
 				uni.showLoading({
-					title: '登录中'
+					title: '登录中...'
 				})
 				doGet(this.urls.getUserDetailUrl, {}, true).then(response => {
+					uni.hideLoading()
 					let [error, res] = response;
 					if (res.data.code === ResponseStatus.OK) {
 						if (res.data.data.total > 0) {
@@ -331,9 +332,9 @@
 							}
 							if (userInfo.userDetailHeadicon) {
 								this.userInfo.headicon = userInfo.userDetailHeadicon;
-							}
-							if (this.userInfo.headicon !== '' && this.userInfo.headicon.indexOf('http') < 0) {
-								this.userInfo.headicon = FRONT_BASE_URL + '/' + this.userInfo.headicon;
+								if (this.userInfo.headicon !== '' && this.userInfo.headicon.indexOf('http') < 0) {
+									this.userInfo.headicon = FRONT_BASE_URL + '/' + this.userInfo.headicon;
+								}
 							}
 							if (userInfo.userDetailGender) {
 								this.userInfo.gender = userInfo.userDetailGender;
@@ -363,7 +364,6 @@
 					} else {
 						showInfoToast(res.data.message);
 					}
-					uni.hideLoading()
 				}).catch(err => {
 					console.log(err);
 				})
@@ -400,7 +400,7 @@
 					gender: e.detail.userInfo.gender
 				};
 				uni.showLoading({
-					title: '登录中'
+					title: '登录中...'
 				})
 				doPostForm(this.urls.xcxSaveUserInfoUrl, data, {}, false).then(response => {
 					let [error, res] = response;
@@ -462,6 +462,7 @@
 			 * navigator标签现在默认没有转场动画，所以用view
 			 */
 			navTo(url) {
+				console.log(uni.getStorageSync(HAS_USER_INFO))
 				if (!uni.getStorageSync(HAS_USER_INFO)) {
 					console.log('test')
 					// #ifdef MP-WEIXIN
@@ -471,6 +472,7 @@
 					this.gzhLogin()
 					// #endif
 				} else {
+					console.log('bb')
 					uni.navigateTo({
 						url
 					})

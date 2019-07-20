@@ -108,7 +108,7 @@
 		data() {
 			return {
 				hasUserInfo: false,
-				empty: false, //空白页现实  true|false
+				empty: true, //空白页现实  true|false
 				cartList: [],
 				total: 0, //总价格
 				discount: 0,
