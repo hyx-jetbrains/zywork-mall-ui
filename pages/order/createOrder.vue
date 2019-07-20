@@ -594,6 +594,7 @@
 			flex: 1;
 			font-size: $font-base;
 			color: $font-color-dark;
+			text-align: right;
 		}
 	}
 	
