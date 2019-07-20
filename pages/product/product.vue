@@ -208,7 +208,7 @@
 <script>
 	import share from '@/components/share'
 	import uniNumberBox from '@/components/uni-number-box.vue'
-	import {doPostJson, showInfoToast, REFRESH_CART, REFRESH_PRODUCT} from '@/common/util.js'
+	import {doPostJson, showInfoToast, REFRESH_CART, REFRESH_PRODUCT, HAS_USER_INFO} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
 		EVALUATE_PAGE
@@ -242,9 +242,20 @@
 				skuSpecs: {}, // {"1":"7#黄色-9#S-","2":"7#白色-9#M-"}用于存储所有SKU的可选规格的字符串，key为sku的id, 并判断用户选择的规格是否有对应的SKU
 				favorite: true,
 				shareList: [],
+				hasUserInfo: false
 			}
 		},
 		async onLoad(options){
+			console.log('aa')
+			// #ifdef H5
+			let openid = options.openid
+			let token = options.token
+			if (openid && token) {
+				// 公众号授权登录成功返回的openid和token
+				uni.setStorageSync(USER_OPENID, openid)
+				uni.setStorageSync(USER_TOKEN_KEY, token)
+			}
+			// #endif
 			let goodsInfoId = options.goodsInfoId
 			if (options.goodsSkuId) {
 				this.selectSku.skuId = options.goodsSkuId
@@ -254,6 +265,7 @@
 			this.shareList = await this.$api.json('shareList');
 		},
 		onShow() {
+			this.hasUserInfo = uni.getStorageSync(HAS_USER_INFO)
 			if (uni.getStorageSync(REFRESH_PRODUCT)) {
 				this.loadGoodsInfoById(this.goodsInfo.goodsInfoId)
 				uni.setStorageSync(REFRESH_PRODUCT, false)
@@ -512,38 +524,58 @@
 				}
 			},
 			addCart() {
-				if (this.selectSku.skuId === null) {
-					showInfoToast('请选择商品规格')
+				if (this.hasUserInfo) {
+					if (this.selectSku.skuId === null) {
+						showInfoToast('请选择商品规格')
+						return
+					}
+					doPostJson('/goods-cart/user/save', {
+						goodsId: this.goodsInfo.goodsInfoId,
+						goodsSkuId: this.selectSku.skuId,
+						quantity: this.selectSkuQuantity
+					}, {}, true).then(response => {
+						let [error, res] = response
+						if (res.data.code === ResponseStatus.OK) {
+							uni.setStorageSync(REFRESH_CART, true)
+							showInfoToast('已加入购物车')
+						} else if (res.data.code === ResponseStatus.AUTHENTICATION_TOKEN_ERROR) {
+							showInfoToast('您好像还未登录哦')
+						} else if (res.data.code === ResponseStatus.DATA_ERROR) {
+							showInfoToast('购物车中的该商品数量已达最大库存量')
+						} else {
+							showInfoToast('请稍候再加入购物车')
+						}
+					}).catch(error => {
+						console.log(error)
+					})
 					return
 				}
-				doPostJson('/goods-cart/user/save', {
-					goodsId: this.goodsInfo.goodsInfoId,
-					goodsSkuId: this.selectSku.skuId,
-					quantity: this.selectSkuQuantity
-				}, {}, true).then(response => {
-					let [error, res] = response
-					if (res.data.code === ResponseStatus.OK) {
-						uni.setStorageSync(REFRESH_CART, true)
-						showInfoToast('已加入购物车')
-					} else if (res.data.code === ResponseStatus.AUTHENTICATION_TOKEN_ERROR) {
-						showInfoToast('您好像还未登录哦')
-					} else if (res.data.code === ResponseStatus.DATA_ERROR) {
-						showInfoToast('购物车中的该商品数量已达最大库存量')
-					} else {
-						showInfoToast('请稍候再加入购物车')
-					}
-				}).catch(error => {
-					console.log(error)
+				let url = '/pages/login/login'
+				// #ifdef H5
+				url += '?fromUrl=/pages/product/product?goodsInfoId=' + this.goodsInfo.goodsInfoId
+				// #endif
+				uni.navigateTo({
+					url: url
 				})
 			},
 			buy(){
-				if (this.selectSku.storeCount == 0) {
-					showInfoToast('商品库存不足')
-					return
+				if (this.hasUserInfo) {
+					if (this.selectSku.storeCount == 0) {
+						showInfoToast('商品库存不足')
+						return
+					}
+					uni.navigateTo({
+						url: `/pages/order/createOrder?skuIds=${this.selectSku.skuId}&quantity=${this.selectSkuQuantity}`
+					})
+				} else {
+					let url = '/pages/login/login'
+					// #ifdef H5
+					url += '?fromUrl=/pages/product/product?goodsInfoId=' + this.goodsInfo.goodsInfoId
+					// #endif
+					uni.navigateTo({
+						url: url
+					})
 				}
-				uni.navigateTo({
-					url: `/pages/order/createOrder?skuIds=${this.selectSku.skuId}&quantity=${this.selectSkuQuantity}`
-				})
 			},
 			//分享
 			share(){

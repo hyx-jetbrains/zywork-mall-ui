@@ -35,9 +35,16 @@
 				</view>
 				<view class="info-box">
 					<view class="zy-display-flex">
+						<!-- #ifdef MP-WEIXIN -->
 						<button class="zy-wx-btn" open-type="getUserInfo" lang="zh_CN" @getuserinfo="bindGetUserInfo">
 							<view class="zy-text-big zy-text-bold" style="padding-top: 30upx;">点击登录</view>
 						</button>
+						<!-- #endif -->
+						<!-- #ifdef H5 -->
+						<button class="zy-wx-btn" @click="gzhLogin">
+							<view class="zy-text-big zy-text-bold" style="padding-top: 30upx;">点击登录</view>
+						</button>
+						<!-- #endif -->
 						<text class="iconfont iconicon-test zy-vip-icon"></text>
 					</view>
 					<view>
@@ -153,7 +160,7 @@
 	} from '@/common/page-url.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
-		navTo,
+		BASE_URL,
 		doPostForm,
 		showInfoToast,
 		doGet,
@@ -167,7 +174,7 @@
 		USER_ROLES,
 		USER_PHONE,
 		HAS_USER_INFO,
-		IMAGE_BASE_URL,
+		FRONT_BASE_URL,
 		SHARE_CODE
 	} from '@/common/util.js'
 	import {
@@ -189,7 +196,7 @@
 				defaultHeadIcon: DEFAULT_HEADICON,
 				showUserInfo: false,
 				urls: {
-					xcxGetUserInfoUrl: '/wx-auth/xcx-userdetail',
+					xcxSaveUserInfoUrl: '/wx-auth/xcx-userdetail',
 					xcxSavePhoneUrl: '/wx-auth/xcx-phone',
 					xcxLoginUrl: '/wx-auth/xcx',
 					getUserDetailUrl: '/user-userdetail/user/get',
@@ -203,8 +210,21 @@
 				browserHistoryArray: [],
 			}
 		},
-		onLoad() {
-			this.loadData('init');
+		onLoad(options) {
+			// #ifdef H5
+			let openid = options.openid
+			let token = options.token
+			if (openid && token) {
+				// 公众号授权登录成功返回的openid和token
+				uni.setStorageSync(USER_OPENID, openid)
+				uni.setStorageSync(USER_TOKEN_KEY, token)
+			}
+			// #endif
+			this.judgeLogin()
+			this.loadHistoryData()
+		},
+		onPullDownRefresh() {
+			
 		},
 		// #ifndef MP
 		onNavigationBarButtonTap(e) {
@@ -227,81 +247,6 @@
 		computed: {},
 		methods: {
 			/**
-			 * 获取用户信息
-			 * @param {Object} e
-			 */
-			bindGetUserInfo(e) {
-				const openId = uni.getStorageSync(USER_OPENID);
-				const data = {
-					openid: openId,
-					nickname: e.detail.userInfo.nickName,
-					headicon: e.detail.userInfo.avatarUrl,
-					gender: e.detail.userInfo.gender
-				};
-				uni.showLoading({
-					title: '登录中'
-				})
-				doPostForm(this.urls.xcxGetUserInfoUrl, data, {}, false).then(response => {
-					let [error, res] = response;
-					if (res.data.code === ResponseStatus.OK) {
-						this.showUserInfo = true;
-						this.userInfo.nickname = data.nickname;
-						this.userInfo.headicon = data.headicon;
-					} else {
-						showInfoToast(res.data.message);
-					}
-					uni.hideLoading()
-				}).catch(err => {
-					console.log(err)
-				})
-			},
-			/**
-			 * 小程序获取用户手机
-			 * @param {Object} e
-			 */
-			bindGetPhoneNumber(e) {
-				if (e.detail.errMsg === 'getPhoneNumber:ok') {
-					const openId = uni.getStorageSync(USER_OPENID);
-					const data = {
-						openid: openId,
-						encryptedData: e.detail.encryptedData,
-						iv: e.detail.iv
-					};
-					doPostForm(this.urls.xcxSavePhoneUrl, data, {}, false).then(response => {
-						let [error, res] = response;
-						if (res.data.code === ResponseStatus.OK) {
-							this.userInfo.phone = res.data.data.phoneNumber
-						} else {
-							showInfoToast(res.data.message);
-						}
-						uni.hideLoading()
-					}).catch(err => {
-						console.log(err)
-					})
-				}
-			},
-			/**
-			 * 加载数据
-			 */
-			loadData(type) {
-				this.loadHistoryData();
-				this.judgeLogin(type);
-			},
-			/**
-			 * 加载浏览历史
-			 */
-			loadHistoryData() {
-				// 加载浏览历史
-				var browserHistory = getBrowseHistory();
-				var _this = this;
-				if (browserHistory.length > 0) {
-					browserHistory.forEach(item => {
-						var imgSrc = item.split('#')[1];
-						_this.browserHistoryArray.push(imgSrc);
-					})
-				}
-			},
-			/**
 			 * 检查登录
 			 * @param {Object} type
 			 */
@@ -312,12 +257,62 @@
 					this.getUserDetail();
 				} else {
 					// #ifdef MP-WEIXIN
-					this.xcxLogin(self)
+					this.xcxLogin()
+					// #endif
+					// #ifdef H5
+					this.gzhLogin()
 					// #endif
 				}
 				if (type === 'pullDown') {
 					uni.stopPullDownRefresh();
 				}
+			},
+			/**
+			 * 小程序登入
+			 */
+			xcxLogin() {
+				var myThis = this;
+				uni.login({
+					provider: 'weixin',
+					success: function(wxRes) {
+						let theShareCode = uni.getStorageSync(SHARE_CODE)
+						if (!theShareCode) {
+							theShareCode = null
+						}
+						const data = {
+							code: wxRes.code,
+							shareCode: theShareCode
+						}
+						doGetForm(myThis.urls.xcxLoginUrl, data, {}, false).then(response => {
+							let [error, res] = response;
+							if (res.data.code === ResponseStatus.OK) {
+								// 保存用户的openid和token
+								uni.setStorageSync(USER_OPENID, res.data.data[1]);
+								uni.setStorageSync(USER_TOKEN_KEY, res.data.data[2]);
+								if (res.data.data[0] === 'firstLogin') {
+									// 第一次小程序登录，需要点击登录按钮，才能获取用户信息再保存用户信息
+									uni.removeStorageSync(SHARE_CODE);
+								} else {
+									// 第二次开始不需要点击登录按钮，而是直接从后台获取用户信息
+									myThis.getUserDetail();
+								}
+							} else {
+								showInfoToast(res.data.message);
+							}
+						}).catch(err => {
+							console.log(err);
+						})
+					}
+				})
+			},
+			gzhLogin() {
+				const shareCode = uni.getStorageSync(SHARE_CODE);
+				const data = {
+					extraParams : FRONT_BASE_URL + '/#/pages/user/user__' + FRONT_BASE_URL + '/#/pages/user/user__' + (shareCode ? shareCode : 'shareCode')
+				}
+				doGetForm('/wx-auth/to-gzh', data, {}, false).then(response => {}).catch(err => {
+					console.log(err);
+				})
 			},
 			/**
 			 * 获取用户详情
@@ -338,7 +333,7 @@
 								this.userInfo.headicon = userInfo.userDetailHeadicon;
 							}
 							if (this.userInfo.headicon !== '' && this.userInfo.headicon.indexOf('http') < 0) {
-								this.userInfo.headicon = IMAGE_BASE_URL + '/' + this.userInfo.headicon;
+								this.userInfo.headicon = FRONT_BASE_URL + '/' + this.userInfo.headicon;
 							}
 							if (userInfo.userDetailGender) {
 								this.userInfo.gender = userInfo.userDetailGender;
@@ -347,7 +342,7 @@
 								this.userInfo.phone = userInfo.userPhone;
 							}
 							if (this.userInfo.nickname && this.userInfo.headicon) {
-								// 认为已经获取到了用户信息
+								// 已经获取到了用户信息
 								this.showUserInfo = true;
 								uni.setStorageSync(USER_ID, userInfo.userId);
 								uni.setStorageSync(HAS_USER_INFO, true);
@@ -393,56 +388,95 @@
 				})
 			},
 			/**
-			 * 小程序登入
+			 * 获取用户信息
+			 * @param {Object} e
 			 */
-			xcxLogin() {
-				var myThis = this;
-				uni.login({
-					provider: 'weixin',
-					success: function(wxRes) {
-						let theShareCode = uni.getStorageSync(SHARE_CODE)
-						if (!theShareCode) {
-							theShareCode = null
-						}
-						const data = {
-							code: wxRes.code,
-							shareCode: theShareCode
-						}
-						doGetForm(myThis.urls.xcxLoginUrl, data, {}, false).then(response => {
-							let [error, res] = response;
-							if (res.data.code === ResponseStatus.OK) {
-								// 保存用户的openid和token
-								uni.setStorageSync(USER_OPENID, res.data.data[1]);
-								uni.setStorageSync(USER_TOKEN_KEY, res.data.data[2]);
-								if (res.data.data[0] === 'firstLogin') {
-									// 第一次小程序登录，需要点击登录按钮，才能获取用户信息再保存用户信息
-									uni.removeStorageSync(SHARE_CODE);
-								} else {
-									// 第二次开始不需要点击登录按钮，而是直接从后台获取用户信息
-									myThis.getUserDetail();
-								}
-							} else {
-								showInfoToast(res.data.message);
-							}
-						}).catch(err => {
-							console.log(err);
-						})
+			bindGetUserInfo(e) {
+				const openId = uni.getStorageSync(USER_OPENID);
+				const data = {
+					openid: openId,
+					nickname: e.detail.userInfo.nickName,
+					headicon: e.detail.userInfo.avatarUrl,
+					gender: e.detail.userInfo.gender
+				};
+				uni.showLoading({
+					title: '登录中'
+				})
+				doPostForm(this.urls.xcxSaveUserInfoUrl, data, {}, false).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						this.showUserInfo = true;
+						this.userInfo.nickname = data.nickname;
+						this.userInfo.headicon = data.headicon;
+						// 设置已登录并且获取用户信息
+						uni.setStorageSync(HAS_USER_INFO, true)
+					} else {
+						showInfoToast(res.data.message);
 					}
+					uni.hideLoading()
+				}).catch(err => {
+					console.log(err)
 				})
 			},
-
-
+			/**
+			 * 小程序获取用户手机
+			 * @param {Object} e
+			 */
+			bindGetPhoneNumber(e) {
+				if (e.detail.errMsg === 'getPhoneNumber:ok') {
+					const openId = uni.getStorageSync(USER_OPENID);
+					const data = {
+						openid: openId,
+						encryptedData: e.detail.encryptedData,
+						iv: e.detail.iv
+					};
+					doPostForm(this.urls.xcxSavePhoneUrl, data, {}, false).then(response => {
+						let [error, res] = response;
+						if (res.data.code === ResponseStatus.OK) {
+							this.userInfo.phone = res.data.data.phoneNumber
+						} else {
+							showInfoToast(res.data.message);
+						}
+						uni.hideLoading()
+					}).catch(err => {
+						console.log(err)
+					})
+				}
+			},
+			/**
+			 * 加载浏览历史
+			 */
+			loadHistoryData() {
+				// 加载浏览历史
+				var browserHistory = getBrowseHistory();
+				var _this = this;
+				if (browserHistory.length > 0) {
+					browserHistory.forEach(item => {
+						var imgSrc = item.split('#')[1];
+						_this.browserHistoryArray.push(imgSrc);
+					})
+				}
+			},
 			/**
 			 * 统一跳转接口,拦截未登录路由
 			 * navigator标签现在默认没有转场动画，所以用view
 			 */
 			navTo(url) {
-				if (!this.hasLogin) {
-					url = '/pages/public/login';
+				console.log(uni.getStorageSync(HAS_USER_INFO))
+				if (!uni.getStorageSync(HAS_USER_INFO)) {
+					console.log('test')
+					// #ifdef MP-WEIXIN
+					showInfoToast('请点击登录')
+					// #endif
+					// #ifdef H5
+					this.gzhLogin()
+					// #endif
+				} else {
+					console.log('bb')
+					uni.navigateTo({
+						url
+					})
 				}
-				uni.navigateTo({
-					url
-				})
 			},
 
 			/**
@@ -487,55 +521,55 @@
 			 * 前往通知页面
 			 */
 			toNoticePage() {
-				navTo(NOTICE_PAGE, true);
+				this.navTo(NOTICE_PAGE);
 			},
 			/**
 			 * 前往我的优惠券
 			 */
 			toCouponPage() {
-				navTo(COUPON_PAGE, true);
+				this.navTo(COUPON_PAGE);
 			},
 			/**
 			 * 前往分享
 			 */
 			toSharePage() {
-				navTo(SHARE_PAGE, true);
+				this.navTo(SHARE_PAGE);
 			},
 			/**
 			 * 前往设置
 			 */
 			toSetPage() {
-				navTo(SET_PAGE, true);
+				this.navTo(SET_PAGE);
 			},
 			/**
 			 * 前往地址设置
 			 */
 			toAddressPage() {
-				navTo(ADDRESS_PAGE, true);
+				this.navTo(ADDRESS_PAGE);
 			},
 			/**
 			 * 前往订单页面
 			 */
 			toOrderPage(type) {
-				navTo(ORDER_PAGE + '?state=' + type, true);
+				this.navTo(ORDER_PAGE + '?state=' + type);
 			},
 			/**
 			 * 前往成为代理商商品列表页面
 			 */
 			toAgentPage() {
-				navTo("/pages/agent/agent", true);
+				this.navTo("/pages/agent/agent");
 			},
 			/**
 			 * 前往佣金页面
 			 */
 			toCommissionPage() {
-				navTo(COMMISSION_PAGE, true);
+				this.navTo(COMMISSION_PAGE);
 			},
 			/**
 			 * 前往我的团队页面
 			 */
 			toTeamPage() {
-				navTo(TEAM_PAGE, true);
+				this.navTo(TEAM_PAGE);
 			}
 		}
 	}

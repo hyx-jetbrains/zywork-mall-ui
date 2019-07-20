@@ -231,10 +231,6 @@
 					data: options.shareCode
 				});
 			}
-			// #ifdef H5
-			this.gzhLogin();
-			
-			// #endif
 		},
 		// #ifdef MP-WEIXIN
 		onShareAppMessage(res) {
@@ -247,17 +243,6 @@
 		},
 		// #endif
 		methods: {
-			// #ifdef H5
-			gzhLogin() {
-				const shareCode = uni.getStorageSync(SHARE_CODE);
-				const data = {
-					extraParams : 'pages/index/index__pages/index/index__' + shareCode
-				}
-				doGetForm('/wx-auth/to-gzh', data, {}, false).then(response => {}).catch(err => {
-					console.log(err);
-				})
-			},
-			// #endif
 			async loadData() {
 				this.loadCarouselList()
 				this.loadHotCategoryList()

@@ -116,6 +116,15 @@
 			};
 		},
 		onLoad() {
+			// #ifdef H5
+			let openid = options.openid
+			let token = options.token
+			if (openid && token) {
+				// 公众号授权登录成功返回的openid和token
+				uni.setStorageSync(USER_OPENID, openid)
+				uni.setStorageSync(USER_TOKEN_KEY, token)
+			}
+			// #endif
 			this.loadCart()
 		},
 		onShow() {
@@ -226,7 +235,13 @@
 			 * 前往登录页面
 			 */
 			navToLogin(){
-				navTo(LOGIN_PAGE, false);
+				let url = LOGIN_PAGE
+				// #ifdef H5
+				url += '?fromUrl=/pages/cart/cart'
+				// #endif
+				uni.navigateTo({
+					url: url
+				})
 			},
 			 //选中状态处理
 			check(type, index){

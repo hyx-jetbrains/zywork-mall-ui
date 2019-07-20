@@ -4,11 +4,9 @@
 		<view class="back-btn iconfont iconicon-arrow-left4" @click="navBack"></view>
 		<view class="right-top-sign"></view>
 		<!-- 设置白色背景防止软键盘把下部绝对定位元素顶上来盖住输入框等 -->
+		<!-- #ifdef APP-PLUS -->
 		<view class="wrapper">
 			<view class="left-top-sign">LOGIN</view>
-			<view class="welcome">
-				欢迎回来！
-			</view>
 			<view class="input-content">
 				<view class="input-item">
 					<text class="tit">手机号码</text>
@@ -45,34 +43,148 @@
 			还没有账号?
 			<text @click="toRegisterPage">马上注册</text>
 		</view>
+		<!-- #endif -->
+		<!-- #ifdef MP-WEIXIN -->
+		<view class="wrapper">
+			<view class="left-top-sign">LOGIN</view>
+			<button class="confirm-btn" open-type="getUserInfo" lang="zh_CN" @getuserinfo="bindGetUserInfo">
+				<view class="zy-text-big zy-text-bold" style="color: #fff;">微信登录</view>
+			</button>
+		</view>
+		<!-- #endif -->
+		<!-- #ifdef H5 -->
+		<view class="wrapper">
+			<view class="left-top-sign">LOGIN</view>
+			<button class="confirm-btn" @click="gzhLogin" :disabled="logining">
+				<view class="zy-text-big zy-text-bold" style="color: #fff;">微信登录</view>
+			</button>
+		</view>
+		<!-- #endif -->
 	</view>
 </template>
 
 <script>
-	import {  
-        mapMutations  
-    } from 'vuex';
 	import {
 		REGISTER_PAGE,
 		FORGET_PAGE
 	} from '@/common/page-url.js'
 	import {
+		FRONT_BASE_URL,
+		USER_OPENID,
+		USER_TOKEN_KEY,
 		navTo,
-		redTo
+		redTo,
+		doPostForm,
+		doGetForm,
+		SHARE_CODE,
+		HAS_USER_INFO
 	} from '@/common/util.js'
+	import * as ResponseStatus from '@/common/response-status.js'
 	export default{
 		data(){
 			return {
 				mobile: '',
 				password: '',
-				logining: false
+				logining: false,
+				fromUrl: '/pages/index/index'
 			}
 		},
-		onLoad(){
-			
+		onLoad(options){
+			this.fromUrl = options.fromUrl
+			// #ifdef H5
+			let openid = options.openid
+			let token = options.token
+			if (openid && token) {
+				// 公众号授权登录成功返回的openid和token
+				uni.setStorageSync(USER_OPENID, openid)
+				uni.setStorageSync(USER_TOKEN_KEY, token)
+				uni.setStorageSync(HAS_USER_INFO, true)
+			}
+			// #endif
+			this.judgeLogin()
 		},
 		methods: {
-			...mapMutations(['login']),
+			judgeLogin(type) {
+				if (!uni.getStorageSync(USER_TOKEN_KEY)){
+					// #ifdef MP-WEIXIN
+					this.xcxLogin()
+					// #endif
+					// #ifdef H5
+					this.gzhLogin()
+					// #endif
+				}
+			},
+			/**
+			 * 小程序登入
+			 */
+			xcxLogin() {
+				var myThis = this;
+				uni.login({
+					provider: 'weixin',
+					success: function(wxRes) {
+						let theShareCode = uni.getStorageSync(SHARE_CODE)
+						if (!theShareCode) {
+							theShareCode = null
+						}
+						const data = {
+							code: wxRes.code,
+							shareCode: theShareCode
+						}
+						doGetForm('/wx-auth/xcx', data, {}, false).then(response => {
+							let [error, res] = response;
+							if (res.data.code === ResponseStatus.OK) {
+								// 保存用户的openid和token
+								uni.setStorageSync(USER_OPENID, res.data.data[1]);
+								uni.setStorageSync(USER_TOKEN_KEY, res.data.data[2]);
+								if (res.data.data[0] === 'firstLogin') {
+									// 第一次小程序登录，需要点击登录按钮，才能获取用户信息再保存用户信息
+									uni.removeStorageSync(SHARE_CODE);
+								}
+							} else {
+								showInfoToast(res.data.message);
+							}
+						}).catch(err => {
+							console.log(err);
+						})
+					}
+				})
+			},
+			gzhLogin() {
+				const shareCode = uni.getStorageSync(SHARE_CODE);
+				let fromUrl = this.fromUrl ? this.fromUrl : '/pages/index/index'
+				const data = {
+					extraParams : FRONT_BASE_URL + '/#' + fromUrl + '__' + FRONT_BASE_URL + '/#' + fromUrl + '__' + (shareCode ? shareCode : 'shareCode')
+				}
+				doGetForm('/wx-auth/to-gzh', data, {}, false).then(response => {}).catch(err => {
+					console.log(err);
+				})
+			},
+			bindGetUserInfo(e) {
+				const openId = uni.getStorageSync(USER_OPENID);
+				const data = {
+					openid: openId,
+					nickname: e.detail.userInfo.nickName,
+					headicon: e.detail.userInfo.avatarUrl,
+					gender: e.detail.userInfo.gender
+				};
+				uni.showLoading({
+					title: '登录中'
+				})
+				doPostForm('/wx-auth/xcx-userdetail', data, {}, false).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						// 设置已登录并且获取用户信息
+						uni.setStorageSync(HAS_USER_INFO, true)
+						uni.navigateBack({
+						})
+					} else {
+						showInfoToast(res.data.message);
+					}
+					uni.hideLoading()
+				}).catch(err => {
+					console.log(err)
+				})
+			},
 			inputChange(e){
 				const key = e.currentTarget.dataset.key;
 				this[key] = e.detail.value;
@@ -95,27 +207,6 @@
 			async toLogin(){
 				this.logining = true;
 				const {mobile, password} = this;
-				/* 数据验证模块
-				if(!this.$api.match({
-					mobile,
-					password
-				})){
-					this.logining = false;
-					return;
-				}
-				*/
-				const sendData = {
-					mobile,
-					password
-				};
-				const result = await this.$api.json('userInfo');
-				if(result.status === 1){
-					this.login(result.data);
-                    uni.navigateBack();  
-				}else{
-					this.$api.msg(result.msg);
-					this.logining = false;
-				}
 			}
 		},
 
@@ -123,6 +214,7 @@
 </script>
 
 <style lang='scss'>
+	@import '@/common/zywork-main.scss';
 	page{
 		background: #fff;
 	}
@@ -257,5 +349,11 @@
 			color: $font-color-spec;
 			margin-left: 10upx;
 		}
+	}
+	
+	.zy-wx-btn {
+		line-height: 1;
+		display: inline;
+		padding: 0;
 	}
 </style>
