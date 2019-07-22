@@ -43,7 +43,7 @@
 			-->
 		</view>
 		
-		<text class="mix-btn" @click="confirm">确认支付</text>
+		<button class="mix-btn" @click="confirm" :disabled="payDisabled">确认支付</button>
 	</view>
 </template>
 
@@ -55,7 +55,8 @@
 			return {
 				payType: 0, // 0 微信， 1 支付宝，2、银联支付， 3 余额
 				orderId: null,
-				totalPay: null
+				totalPay: null,
+				payDisabled: false
 			};
 		},
 		computed: {
@@ -73,6 +74,7 @@
 			},
 			//确认支付
 			confirm: async function() {
+				this.payDisabled = true
 				let payUrl = ''
 				// #ifdef H5
 				payUrl = '/wx-pay/goods-order/gzh-pay-request/'
@@ -94,13 +96,15 @@
 							signType: 'MD5',
 							paySign: payData.paySign,
 							success: () => {
+								this.payDisabled = true
 								uni.redirectTo({
 									url: '/pages/money/paySuccess'
 								})
 							},
 							fail: (e) => {
+								this.payDisabled = false
 								uni.showModal({
-									content: "支付失败：" + e.errMsg,
+									content: "支付失败，请联系客服",
 									showCancel: false
 								})
 							}
