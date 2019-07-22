@@ -90,15 +90,15 @@
 							appId: payData.appId,
 							timeStamp: payData.timeStamp,
 							nonceStr: payData.nonceStr,
-							package: payData.package,
-							signType: payData.signType,
+							package: payData.packages,
+							signType: 'MD5',
 							paySign: payData.paySign,
 							success: () => {
 								uni.redirectTo({
 									url: '/pages/money/paySuccess'
 								})
 							},
-							fail: () => {
+							fail: (e) => {
 								uni.showModal({
 									content: "支付失败：" + e.errMsg,
 									showCancel: false
