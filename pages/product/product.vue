@@ -272,6 +272,12 @@
 		onShow() {
 			this.hasUserInfo = uni.getStorageSync(HAS_USER_INFO)
 			if (uni.getStorageSync(REFRESH_PRODUCT)) {
+				this.goodsPics = []
+				this.categorySpec = []
+				this.specSelected = []
+				this.specSelectedStr = ''
+				this.specList = []
+				this.specChildList = []
 				this.loadGoodsInfoById(this.goodsInfo.goodsInfoId)
 				uni.setStorageSync(REFRESH_PRODUCT, false)
 			}
