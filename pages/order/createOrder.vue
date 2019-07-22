@@ -291,6 +291,9 @@
 			},
 			// 保存订单并跳转到支付页面
 			submitOrder(){
+				if (!this.selectedAddress.id) {
+					showInfoToast('请先选择收货地址')
+				}
 				uni.showLoading({
 					title:'提交订单...'
 				})

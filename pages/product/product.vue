@@ -311,8 +311,6 @@
 						this.getCategoryAttrGroup(firstSkuInfo.goodsSkuAttrVOList)
 					} else {
 						showInfoToast('商品不存在')
-						uni.navigateBack({
-						})
 					}
 				}).catch(error => {
 					console.log(error)
