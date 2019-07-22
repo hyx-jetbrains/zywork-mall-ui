@@ -82,7 +82,9 @@
 			}
 		},
 		onLoad() {
-			this.loadData();
+			// #ifdef H5
+			this.loadData()
+			// #endif
 		},
 		// #ifdef MP-WEIXIN
 		onShareAppMessage(res) {
@@ -238,7 +240,7 @@
 	}
 
 	.btn {
-		width: 260upx;
+		width: 520upx;
 		height: 60upx;
 		line-height: 60upx;
 		margin: 0 auto;
