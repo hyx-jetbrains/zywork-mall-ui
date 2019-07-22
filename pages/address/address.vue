@@ -55,7 +55,6 @@
 			}
 		},
 		onLoad(option) {
-			console.log(option.source);
 			this.source = option.source;
 			this.loadData('init');
 		},
