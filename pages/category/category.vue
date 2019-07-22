@@ -6,13 +6,19 @@
 			</view>
 		</scroll-view>
 		<scroll-view scroll-with-animation scroll-y class="right-aside">
-			<view v-for="item in slist" :key="item.id" class="s-list" :id="'main-'+item.id">
+			<view v-if="slist.length > 0" v-for="item in slist" :key="item.id" class="s-list" :id="'main-'+item.id">
 				<text class="s-item">{{item.title}}</text>
 				<view class="t-list">
 					<view @click="navToProductList(item.id, titem.id)" v-if="titem.parentId === item.id" class="t-item" v-for="titem in tlist" :key="titem.id">
 						<image :src="titem.picUrl"></image>
 						<text>{{titem.title}}</text>
 					</view>
+				</view>
+			</view>
+			<view v-else class="t-list">
+				<view @click="navToProductList(item.id, titem.id)" v-if="titem.parentId === item.id" class="t-item" v-for="titem in tlist" :key="titem.id">
+					<image :src="titem.picUrl"></image>
+					<text>{{titem.title}}</text>
 				</view>
 			</view>
 		</scroll-view>
