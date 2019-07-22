@@ -7,6 +7,9 @@
 		<!-- #ifdef APP-PLUS -->
 		<view class="wrapper">
 			<view class="left-top-sign">LOGIN</view>
+			<view class="welcome">
+				欢迎登录
+			</view>
 			<view class="input-content">
 				<view class="input-item">
 					<text class="tit">手机号码</text>
@@ -47,6 +50,9 @@
 		<!-- #ifdef MP-WEIXIN -->
 		<view class="wrapper">
 			<view class="left-top-sign">LOGIN</view>
+			<view class="welcome">
+				欢迎登录
+			</view>
 			<button class="confirm-btn" open-type="getUserInfo" lang="zh_CN" @getuserinfo="bindGetUserInfo">
 				<view class="zy-text-big zy-text-bold" style="color: #fff;">微信登录</view>
 			</button>
@@ -55,6 +61,9 @@
 		<!-- #ifdef H5 -->
 		<view class="wrapper">
 			<view class="left-top-sign">LOGIN</view>
+			<view class="welcome">
+				欢迎登录
+			</view>
 			<button class="confirm-btn" @click="gzhLogin" :disabled="logining">
 				<view class="zy-text-big zy-text-bold" style="color: #fff;">微信登录</view>
 			</button>
