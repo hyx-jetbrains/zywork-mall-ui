@@ -293,6 +293,7 @@
 			submitOrder(){
 				if (!this.selectedAddress.id) {
 					showInfoToast('请先选择收货地址')
+					return
 				}
 				uni.showLoading({
 					title:'提交订单...'
