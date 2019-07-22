@@ -56,9 +56,9 @@
     "mp-weixin" : {
         /* 小程序特有相关 */
         "usingComponents" : true,
-        "appid" : "wx5dc16068e8e0882f",
+        "appid" : "wx9d32dcc9ca78aa04",
         "setting" : {
-            "urlCheck" : true,
+            "urlCheck" : false,
             "es6" : false
         }
     }
