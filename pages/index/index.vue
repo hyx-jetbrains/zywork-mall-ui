@@ -14,7 +14,7 @@
 			<view class="titleNview-placing"></view>
 			<!-- 背景色区域 -->
 			<view class="titleNview-background" :style="{backgroundColor:titleNViewBackground}"></view>
-			<swiper class="carousel" circular @change="swiperChange">
+			<swiper class="carousel" circular @change="swiperChange" autoplay="true">
 				<swiper-item v-for="(item, index) in carouselList" :key="index" class="carousel-item" @click="navToAdDetail(item)">
 					<image :src="localFileStorage ? frontBaseUrl + item.advertisementPicUrl : item.advertisementPicUrl" />
 				</swiper-item>
