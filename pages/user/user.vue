@@ -119,7 +119,7 @@
 					<zywork-icon type="icongroup" color="#fa436a" size="24" style="margin-right: 20upx;"/>
 					<view class="order-item" @click="toTeamPage" hover-class="common-hover" :hover-stay-time="50">
 						<text>我的团队</text>
-						<text>0/人</text>
+						<text>{{teamTotal}}/人</text>
 					</view>
 				</view>
 
@@ -207,6 +207,8 @@
 				coverTransform: 'translateY(0px)',
 				coverTransition: '0s',
 				moving: false,
+				teamCount: [],
+				teamTotal: 0,
 				productHistoryArray: [],
 			}
 		},
@@ -256,7 +258,7 @@
 				const userToken = uni.getStorageSync(USER_TOKEN_KEY);
 				if (userToken) {
 					// 用户token存在,直接获取用户信息
-					this.getUserDetail();
+					this.getUserDetail()
 				} else {
 					// #ifdef MP-WEIXIN
 					this.xcxLogin()
@@ -349,6 +351,8 @@
 								this.showUserInfo = true;
 								uni.setStorageSync(USER_ID, userInfo.userId);
 								uni.setStorageSync(HAS_USER_INFO, true);
+								// 加载其他用户数据
+								this.loadOtherUserData()
 							} else {
 								uni.setStorageSync(HAS_USER_INFO, false);
 							}
@@ -412,6 +416,8 @@
 						this.userInfo.headicon = data.headicon;
 						// 设置已登录并且获取用户信息
 						uni.setStorageSync(HAS_USER_INFO, true)
+						// 加载其他用户数据
+						this.loadOtherUserData()
 					} else {
 						showInfoToast(res.data.message);
 					}
@@ -444,6 +450,24 @@
 						console.log(err)
 					})
 				}
+			},
+			loadOtherUserData() {
+				this.loadTeamCount()
+			},
+			loadTeamCount() {
+				doPostForm('/distribution/user/below-users-per-level', {levels: [2, 3]}, {}, true).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						this.teamCount = res.data.data
+						if (this.teamCount.length > 0) {
+							this.teamCount.forEach((item, index) => {
+								this.teamTotal += item
+							})
+						}
+					}
+				}).catch(error => {
+					console.log(error)
+				})
 			},
 			/**
 			 * 加载浏览历史
@@ -570,7 +594,7 @@
 			 * 前往我的团队页面
 			 */
 			toTeamPage() {
-				this.navTo(TEAM_PAGE);
+				this.navTo(TEAM_PAGE + '?teamCount=' + JSON.stringify(this.teamCount));
 			}
 		}
 	}

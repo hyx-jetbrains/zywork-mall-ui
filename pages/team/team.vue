@@ -69,6 +69,7 @@
 						teamList: []
 					}
 				],
+				teamCount: [],
 				urls: {
 					belowUrl: '/distribution/user/below'
 				},
@@ -81,8 +82,10 @@
 		},
 
 		onLoad(options) {
+			this.teamCount = JSON.parse(options.teamCount)
+			this.navList[0].text = '一级(' + this.teamCount[0] + ')'
+			this.navList[1].text = '二级(' + (this.teamCount[1] || 0) + ')'
 			this.loadData('init');
-
 		},
 		//下拉刷新
 		onPullDownRefresh() {
@@ -111,19 +114,15 @@
 					this.pager.pageNo += 1
 				}
 				navItem.loadingType = 'loading';
-				let levelText = ''
 				if (this.tabCurrentIndex === 0) {
 					this.pager.levels[0] = 2
-					levelText = '一级'
 				}
 				if (this.tabCurrentIndex === 1) {
 					this.pager.levels[0] = 3
-					levelText = '二级'
 				}
 				doPostForm(this.urls.belowUrl, this.pager, {}, true).then(response => {
 					let [error, res] = response;
 					if (res.data.code === ResponseStatus.OK) {
-						navItem.text = levelText + '(' + res.data.data.total + ')'
 						// 判断是否还有数据， 有改为 more， 没有改为noMore 
 						navItem.loadingType = 'more';
 						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
