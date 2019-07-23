@@ -2,11 +2,11 @@
 	<view class="container">
 		<view class="zy-list-cell b-b m-t" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">昵称</text>
-			<text class="cell-tip">危锦辉</text>
+			<text class="cell-tip">{{user.nickname}}</text>
 		</view>
 		<view class="zy-list-cell b-b" @click="toUpdatePhonePage" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">修改手机号</text>
-			<text class="cell-tip">18279700225</text>
+			<text class="cell-tip">{{user.phone}}</text>
 			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
 		<view class="zy-list-cell b-b" @click="toForgetPage" hover-class="cell-hover" :hover-stay-time="50">
@@ -22,7 +22,14 @@
 		UPDATE_PHONE_PAGE,
 		FORGET_PAGE
 	} from '@/common/page-url.js'
-	import * as utils from '@/common/util.js'
+	import {
+		USER_TOKEN_KEY,
+		showSuccessToast,
+		showInfoToast,
+		doGet,
+		navTo
+	} from '@/common/util.js'
+	import * as ResponseStatus from '@/common/response-status.js'
 	import {  
 	    mapMutations  
 	} from 'vuex';
@@ -32,22 +39,48 @@
 		},
 		data() {
 			return {
-				
+				user: {},
+				urls: {
+					infoUrl: '/user-detail/user/get-info',
+				}
 			};
 		},
+		onLoad() {
+			this.loadData();
+		},
 		methods:{
-			
+			/**
+			 * 加载数据
+			 */
+			loadData() {
+				uni.showLoading({
+					title: '加载中...'
+				})
+				doGet(this.urls.infoUrl, {}, true).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						this.user = res.data.data;
+					} else {
+						showInfoToast(res.data.message);
+					}
+					uni.hideLoading()
+				}).catch(err => {
+					console.log(err);
+				})
+			},
 			/**
 			 * 前往修改手机号的页面
 			 */
 			toUpdatePhonePage() {
-				utils.navTo(UPDATE_PHONE_PAGE, true);
+				showInfoToast('修改手机号')
+				// navTo(UPDATE_PHONE_PAGE, true);
 			},
 			/**
 			 * 前往修改密码页面
 			 */
 			toForgetPage() {
-				utils.navTo(FORGET_PAGE, true);
+				showInfoToast('修改密码')
+				// navTo(FORGET_PAGE, true);
 			}
 		}
 	}
