@@ -228,7 +228,8 @@
 						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = 0;
 					} else if (index == 2) {
 						// 待收货订单
-						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = 4;
+						this.pager.goodsOrderOrderStatusMin = 3
+						this.pager.goodsOrderOrderStatusMax = 4;
 					} else if (index == 3) {
 						// 待评价订单
 						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = 5;
