@@ -18,7 +18,7 @@
 				<block v-for="(item, index) in cartList" :key="index">
 					<view class="cart-item" :class="{'b-b': index!==cartList.length-1}">
 						<view class="image-wrapper">
-							<image :src="item.goodsSkuPicUrl" 
+							<image :src="localFileStorage ? frontBaseUrl + item.goodsSkuPicUrl : item.goodsSkuPicUrl" 
 								:class="[item.loaded]"
 								mode="aspectFill" 
 								lazy-load 
@@ -91,7 +91,7 @@
 
 <script>
 	import uniNumberBox from '@/components/uni-number-box.vue'
-	import {doPostJson, doGet, showInfoToast, REFRESH_CART} from '@/common/util.js'
+	import {doPostJson, doGet, showInfoToast, REFRESH_CART, FRONT_BASE_URL, LOCAL_FILE_STORAGE} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
 		LOGIN_PAGE
@@ -111,7 +111,9 @@
 				cartList: [],
 				total: 0, //总价格
 				discount: 0,
-				allChecked: false //全选状态  true|false
+				allChecked: false, //全选状态  true|false
+				frontBaseUrl: FRONT_BASE_URL,
+				localFileStorage: LOCAL_FILE_STORAGE
 			};
 		},
 		onLoad() {

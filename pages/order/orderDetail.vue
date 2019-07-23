@@ -21,7 +21,7 @@
 			<view class="goods-section" >
 				<!-- 商品列表 -->
 				<view class="zy-item" @click="navToGoodsSku(item.goodsOrderItemGoodsId, item.goodsOrderItemGoodsSkuId)">
-					<image :src="imgBaseUrl + '/' + item.goodsPicPicUrl"></image>
+					<image :src="localFileStorage ? frontBaseUrl + item.goodsPicPicUrl : item.goodsPicPicUrl"></image>
 					<view class="right">
 						<text class="title clamp">{{item.goodsOrderItemSkuTitle}}</text>
 						<text class="spec">{{item.goodsOrderItemSkuInfo}}</text>
@@ -81,14 +81,14 @@
 		doPostJson,
 		showInfoToast,
 		nullToStr,
-		IMAGE_BASE_URL
+		FRONT_BASE_URL,
+		LOCAL_FILE_STORAGE
 	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
 		components: {},
 		data() {
 			return {
-				imgBaseUrl: IMAGE_BASE_URL,
 				orderInfo: {},
 				urls: {
 					searchUrl: '/user-goods-order/user/pager-cond'
@@ -98,7 +98,9 @@
 					pageSize: 10,
 					isActive: 0,
 					goodsOrderId: 0
-				}
+				},
+				frontBaseUrl: FRONT_BASE_URL,
+				localFileStorage: LOCAL_FILE_STORAGE
 			};
 		},
 

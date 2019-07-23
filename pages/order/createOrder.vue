@@ -26,7 +26,7 @@
 			</view>
 			<!-- 商品列表 -->
 			<view class="g-item" v-for="(item, index) in skuList" :key="index">
-				<image :src="item.goodsSkuPicUrl"></image>
+				<image :src="localFileStorage ? frontBaseUrl + item.goodsSkuPicUrl : item.goodsSkuPicUrl"></image>
 				<view class="right">
 					<text class="title clamp">{{item.title}}</text>
 					<text class="spec">{{item.skuSpecStr}}</text>
@@ -137,7 +137,7 @@
 
 <script>
 	import uniNumberBox from '@/components/uni-number-box.vue'
-	import {doPostJson, showInfoToast, REFRESH_PRODUCT, REFRESH_CART} from '@/common/util.js'
+	import {doPostJson, showInfoToast, REFRESH_PRODUCT, REFRESH_CART, FRONT_BASE_URL, LOCAL_FILE_STORAGE} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
 		components: {
@@ -168,7 +168,9 @@
 						title: '优惠券优惠券优惠券优惠券',
 						price: 15,
 					}
-				]
+				],
+				frontBaseUrl: FRONT_BASE_URL,
+				localFileStorage: LOCAL_FILE_STORAGE
 			}
 		},
 		onLoad(option){

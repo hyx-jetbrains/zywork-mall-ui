@@ -4,7 +4,7 @@
 			<swiper indicator-dots circular=true duration="400">
 				<swiper-item class="swiper-item" v-for="(item,index) in goodsPics" :key="index">
 					<view class="image-wrapper">
-						<image :src="item.goodsPicPicUrl" class="loaded" mode="aspectFill"></image>
+						<image :src="localFileStorage ? frontBaseUrl + item.picUrl : item.picUrl" class="loaded" mode="aspectFill"></image>
 					</view>
 				</swiper-item>
 			</swiper>
@@ -143,7 +143,7 @@
 			<view class="mask"></view>
 			<view class="layer attr-content" @click.stop="stopPrevent">
 				<view class="a-t">
-					<image :src="selectSku.picUrl" mode="aspectFill"></image>
+					<image :src="localFileStorage ? frontBaseUrl + selectSku.picUrl : selectSku.picUrl" mode="aspectFill"></image>
 					<view class="right">
 						<text class="price">¥{{selectSku.salePrice}}</text>
 						<text class="stock">库存：{{selectSku.storeCount}}</text>
@@ -208,7 +208,7 @@
 <script>
 	import share from '@/components/share'
 	import uniNumberBox from '@/components/uni-number-box.vue'
-	import {doPostJson, showInfoToast, REFRESH_CART, REFRESH_PRODUCT, HAS_USER_INFO} from '@/common/util.js'
+	import {doPostJson, showInfoToast, REFRESH_CART, REFRESH_PRODUCT, HAS_USER_INFO, FRONT_BASE_URL, LOCAL_FILE_STORAGE} from '@/common/util.js'
 	import {setProductHistory} from '@/common/storage.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
@@ -244,7 +244,9 @@
 				favorite: true,
 				shareList: [],
 				fromSku: false,
-				hasUserInfo: false
+				hasUserInfo: false,
+				frontBaseUrl: FRONT_BASE_URL,
+				localFileStorage: LOCAL_FILE_STORAGE
 			}
 		},
 		async onLoad(options){

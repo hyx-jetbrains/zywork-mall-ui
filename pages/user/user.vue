@@ -131,7 +131,7 @@
 					<text>浏览历史</text>
 				</view>
 				<scroll-view v-if="productHistoryArray.length > 0" scroll-x class="h-list">
-					<image v-for="(item, index) in productHistoryArray" :key="index" @click="navToProduct(item.goodsId)" :src="item.src"
+					<image v-for="(item, index) in productHistoryArray" :key="index" @click="navToProduct(item.goodsId)" :src="localFileStorage ? frontBaseUrl + item.imgSrc : item.imgSrc"
 					 mode="aspectFill"></image>
 				</scroll-view>
 				<view v-else class="zy-not-browser-history">暂无浏览记录</view>
@@ -156,7 +156,7 @@
 		NOTICE_PAGE,
 		ORDER_PAGE,
 		COMMISSION_PAGE,
-		TEAM_PAGE
+		TEAM_PAGE,
 	} from '@/common/page-url.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
@@ -175,6 +175,7 @@
 		USER_PHONE,
 		HAS_USER_INFO,
 		FRONT_BASE_URL,
+		LOCAL_FILE_STORAGE,
 		SHARE_CODE
 	} from '@/common/util.js'
 	import {
@@ -210,6 +211,8 @@
 				teamCount: [],
 				teamTotal: 0,
 				productHistoryArray: [],
+				frontBaseUrl: FRONT_BASE_URL,
+				localFileStorage: LOCAL_FILE_STORAGE
 			}
 		},
 		onLoad(options) {
@@ -312,7 +315,7 @@
 			gzhLogin() {
 				const shareCode = uni.getStorageSync(SHARE_CODE);
 				const data = {
-					extraParams : FRONT_BASE_URL + '/#/pages/user/user__' + FRONT_BASE_URL + '/#/pages/user/user__' + (shareCode ? shareCode : 'shareCode')
+					extraParams : FRONT_BASE_URL + '#/pages/user/user__' + FRONT_BASE_URL + '#/pages/user/user__' + (shareCode ? shareCode : 'shareCode')
 				}
 				doGetForm('/wx-auth/to-gzh', data, {}, false).then(response => {}).catch(err => {
 					console.log(err);

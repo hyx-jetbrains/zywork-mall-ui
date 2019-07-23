@@ -5,7 +5,7 @@
 		<view v-else class="goods-list">
 			<view v-for="(item, index) in list" :key="index" class="goods-item" @click="navToDetailPage(item)">
 				<view class="image-wrapper">
-					<image :src="item.goodsPicPicUrl" mode="aspectFill"></image>
+					<image :src="localFileStorage ? frontBaseUrl + item.goodsPicPicUrl : item.goodsPicPicUrl" mode="aspectFill"></image>
 				</view>
 				<text class="title clamp">{{item.goodsInfoTitle}}</text>
 				<view class="price-box">
@@ -19,6 +19,7 @@
 
 <script>
 	import empty from "@/components/empty"
+	import {FRONT_BASE_URL, LOCAL_FILE_STORAGE} from '@/common/util.js'
 	export default {
 		components: {
 			empty
@@ -30,7 +31,10 @@
 			}
 		},
 		data() {
-			return {};
+			return {
+				frontBaseUrl: FRONT_BASE_URL,
+				localFileStorage: LOCAL_FILE_STORAGE
+			};
 		},
 		onLoad() {
 		},

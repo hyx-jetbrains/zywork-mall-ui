@@ -16,7 +16,7 @@
 			<view class="titleNview-background" :style="{backgroundColor:titleNViewBackground}"></view>
 			<swiper class="carousel" circular @change="swiperChange">
 				<swiper-item v-for="(item, index) in carouselList" :key="index" class="carousel-item" @click="navToAdDetail(item)">
-					<image :src="item.advertisementPicUrl" />
+					<image :src="localFileStorage ? frontBaseUrl + item.advertisementPicUrl : item.advertisementPicUrl" />
 				</swiper-item>
 			</swiper>
 			<!-- 自定义swiper指示器 -->
@@ -29,13 +29,13 @@
 		<!-- 分类 -->
 		<view class="cate-section">
 			<view class="cate-item" v-for="(item, index) in hotCategoryList" :key="index" @click="navToProductList(item.id)">
-				<image :src="item.picUrl"></image>
+				<image :src="localFileStorage ? frontBaseUrl + item.picUrl : item.picUrl"></image>
 				<text>{{item.title}}</text>
 			</view>
 		</view>
 		
 		<view class="ad-1">
-			<image :src="activityAdvertisement.advertisementPicUrl" mode="scaleToFill" @click="navToAdDetail(activityAdvertisement)"></image>
+			<image :src="localFileStorage ? frontBaseUrl + activityAdvertisement.advertisementPicUrl : activityAdvertisement.advertisementPicUrl" mode="scaleToFill" @click="navToAdDetail(activityAdvertisement)"></image>
 		</view>
 		
 		<!-- 秒杀楼层 -->
@@ -142,7 +142,7 @@
 								class="floor-item"
 								@click="navToDetailPage(goods.goodsInfoId)"
 							>
-								<image :src="goods.goodsPicPicUrl" mode="aspectFill"></image>
+								<image :src="localFileStorage ? frontBaseUrl + goods.goodsPicPicUrl : goods.goodsPicPicUrl" mode="aspectFill"></image>
 								<text class="title clamp">{{goods.goodsInfoTitle}}</text>
 								<text class="price">￥{{goods.goodsAttributeValueAttrValue}}</text>
 							</view>
@@ -198,7 +198,9 @@
 		MY_SHARE_CODE,
 		SHARE_CODE_PAGE_IMG,
 		SHARE_TITLE,
-		SHARE_CODE
+		SHARE_CODE,
+		FRONT_BASE_URL,
+		LOCAL_FILE_STORAGE
 	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {advertisement} from '@/common/advertisement.js'
@@ -219,7 +221,9 @@
 				hotCategoryList:[],
 				activityAdvertisement: {},
 				hotCategoryGoodsList: [],
-				hotGoodsList: []
+				hotGoodsList: [],
+				frontBaseUrl: FRONT_BASE_URL,
+				localFileStorage: LOCAL_FILE_STORAGE
 			}
 		},
 
@@ -280,9 +284,11 @@
 			navToAdDetail(item) {
 				let linkPageUrl = item.advertisementLinkPageUrl
 				let linkId = item.advertisementLinkId
-				uni.navigateTo({
-					url: `${linkPageUrl}?id=${linkId}`
-				})
+				if (linkPageUrl) {
+					uni.navigateTo({
+						url: `${linkPageUrl}?id=${linkId}`
+					})
+				}
 			},
 			loadHotCategoryList() {
 				doPostJson('/goods-category/any/pager-cond', {
@@ -350,13 +356,6 @@
 					console.log(error)
 				})
 			},
-			navToAdDetail(item) {
-                let linkPageUrl = item.advertisementLinkPageUrl
-                let linkId = item.advertisementLinkId
-                uni.navigateTo({
-                    url: `${linkPageUrl}?id=${linkId}`
-                })
-            },
 			navToProductList(fid) {
 				uni.navigateTo({
 					url: `/pages/product/list?fid=${fid}`

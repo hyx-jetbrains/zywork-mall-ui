@@ -25,12 +25,12 @@
 						<view @click="toOrderDetail(item.goodsOrderId)">
 							<scroll-view v-if="item.userGoodsOrderItemVOList.length > 1" class="goods-box" scroll-x>
 								<view v-for="(goodsItem, goodsIndex) in item.userGoodsOrderItemVOList" :key="goodsIndex" class="goods-item">
-									<image class="goods-img" :src="imgBaseUrl + '/' + goodsItem.goodsPicPicUrl" mode="aspectFill"></image>
+									<image class="goods-img" :src="localFileStorage ? frontBaseUrl + goodsItem.goodsPicPicUrl : goodsItem.goodsPicPicUrl" mode="aspectFill"></image>
 								</view>
 							</scroll-view>
 							<view v-if="item.userGoodsOrderItemVOList.length === 1" class="goods-box-single" v-for="(goodsItem, goodsIndex) in item.userGoodsOrderItemVOList"
 							 :key="goodsIndex">
-								<image class="goods-img" :src="imgBaseUrl + '/' + goodsItem.goodsPicPicUrl" mode="aspectFill"></image>
+								<image class="goods-img" :src="localFileStorage ? frontBaseUrl + goodsItem.goodsPicPicUrl : goodsItem.goodsPicPicUrl" mode="aspectFill"></image>
 								<view class="right">
 									<text class="title clamp">{{goodsItem.goodsOrderItemSkuTitle}}</text>
 									<text class="attr-box">{{goodsItem.goodsOrderItemSkuInfo}} x {{goodsItem.goodsOrderItemQuantity}}</text>
@@ -85,7 +85,8 @@
 		showInfoToast,
 		showSuccessToast,
 		nullToStr,
-		FRONT_BASE_URL
+		FRONT_BASE_URL,
+		LOCAL_FILE_STORAGE
 	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
@@ -95,7 +96,6 @@
 		},
 		data() {
 			return {
-				imgBaseUrl: FRONT_BASE_URL,
 				tabCurrentIndex: -1,
 				navList: [{
 						state: 0,
@@ -141,7 +141,9 @@
 					sortOrder: 'desc',
 					goodsOrderOrderStatusMin: '',
 					goodsOrderOrderStatusMax: ''
-				}
+				},
+				frontBaseUrl: FRONT_BASE_URL,
+				localFileStorage: LOCAL_FILE_STORAGE
 			};
 		},
 		onLoad(options) {

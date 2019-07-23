@@ -10,7 +10,7 @@
 				<text class="s-item">{{item.title}}</text>
 				<view class="t-list">
 					<view @click="navToProductList(item.id, titem.id)" v-if="titem.parentId === item.id" class="t-item" v-for="titem in tlist" :key="titem.id">
-						<image :src="titem.picUrl"></image>
+						<image :src="localFileStorage ? frontBaseUrl + titem.picUrl : titem.picUrl"></image>
 						<text>{{titem.title}}</text>
 					</view>
 				</view>
@@ -26,7 +26,9 @@
 		showInfoToast,
 		MY_SHARE_CODE,
 		SHARE_CODE_PAGE_IMG,
-		SHARE_TITLE
+		SHARE_TITLE,
+		FRONT_BASE_URL,
+		LOCAL_FILE_STORAGE
 	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
@@ -38,6 +40,8 @@
 				flist: [],
 				slist: [],
 				tlist: [],
+				frontBaseUrl: FRONT_BASE_URL,
+				localFileStorage: LOCAL_FILE_STORAGE
 			}
 		},
 		onLoad(){
