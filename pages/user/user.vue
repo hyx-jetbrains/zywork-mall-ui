@@ -131,7 +131,7 @@
 					<text>浏览历史</text>
 				</view>
 				<scroll-view v-if="productHistoryArray.length > 0" scroll-x class="h-list">
-					<image v-for="(item, index) in productHistoryArray" :key="index" @click="navToProduct(item.id)" :src="item"
+					<image v-for="(item, index) in productHistoryArray" :key="index" @click="navToProduct(item.goodsId)" :src="item.src"
 					 mode="aspectFill"></image>
 				</scroll-view>
 				<view v-else class="zy-not-browser-history">暂无浏览记录</view>
@@ -457,7 +457,7 @@
 			},
 			navToProduct(goodsId) {
 				uni.navigateTo({
-					url: `/pages/product/product?goodsInfoId=${goodsId}`
+					url: `/pages/product/product?goodsInfoId=${goodsId}&fromPage=his`
 				})
 			},
 			/**

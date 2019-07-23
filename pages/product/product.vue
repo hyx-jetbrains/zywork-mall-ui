@@ -266,8 +266,10 @@
 			this.loadGoodsPic(goodsInfoId)
 			this.loadGoodsInfoById(goodsInfoId)
 			this.shareList = await this.$api.json('shareList');
-			// 保存浏览历史
-			setProductHistory(goodsInfoId, this.goodsPics[0].picUrl)
+			if (!options.fromPage) {
+				// 保存浏览历史
+				setProductHistory(goodsInfoId, this.goodsPics[0].picUrl)
+			}
 		},
 		onShow() {
 			this.hasUserInfo = uni.getStorageSync(HAS_USER_INFO)
@@ -316,7 +318,11 @@
 						let firstSkuInfo = this.goodsInfo.goodsSkuVOList[0]
 						this.getCategoryAttrGroup(firstSkuInfo.goodsSkuAttrVOList)
 					} else {
-						showInfoToast('商品不存在')
+						showInfoToast('商品不存在哦')
+						setTimeout(function() {
+							uni.navigateBack({
+							})
+						}, 3000)
 					}
 				}).catch(error => {
 					console.log(error)

@@ -8,30 +8,40 @@ export const PRODUCT_HISTORY = 'productHistory'
  * 保存浏览历史
  */
 export const setProductHistory = (goodsId, imgSrc) => {
-	let product = goodsId + '#' + imgSrc;
+	let product = {
+		goodsId: goodsId,
+		imgSrc: imgSrc
+	}
 	uni.getStorage({
 		key: PRODUCT_HISTORY,
 		success: (res) => {
-			let OldProduct = JSON.parse(res.data);
-			let findIndex = OldProduct.indexOf(product);
-			if (findIndex == -1) {
-				OldProduct.unshift(product);
-			} else {
-				OldProduct.splice(findIndex, 1);
-				OldProduct.unshift(product);
+			let productList = res.data
+			let hasFlag = false
+			let index = 0
+			for (let pro of productList) {
+				if (pro.goodsId === goodsId) {
+					productList.splice(index, 1)
+					productList.unshift(product)
+					hasFlag = true
+					break
+				}
+				index++
+			}
+			if (!hasFlag) {
+				productList.unshift(product)
 			}
 			//最多10个纪录
-			OldProduct.length > 10 && OldProduct.pop();
+			productList.length > 10 && productList.pop();
 			uni.setStorage({
 				key: PRODUCT_HISTORY,
-				data: JSON.stringify(OldProduct)
+				data: productList
 			});
 		},
 		fail: (e) => {
-			let OldProduct = [product];
+			let productList = [product];
 			uni.setStorage({
 				key: PRODUCT_HISTORY,
-				data: JSON.stringify(OldProduct)
+				data: productList
 			});
 		}
 	});
@@ -41,5 +51,5 @@ export const setProductHistory = (goodsId, imgSrc) => {
  */
 export const getProductHistory = () => {
 	let productHis = uni.getStorageSync(PRODUCT_HISTORY)
-	return  productHis ? JSON.parse(productHis) : []
+	return  productHis ? productHis : []
 }
