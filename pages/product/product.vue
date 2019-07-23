@@ -1,7 +1,7 @@
 <template>
 	<view class="container">
 		<view class="carousel">
-			<swiper indicator-dots circular=true duration="400" autoplay="true">
+			<swiper indicator-dots circular=true duration="400">
 				<swiper-item class="swiper-item" v-for="(item,index) in goodsPics" :key="index">
 					<view class="image-wrapper">
 						<image :src="localFileStorage ? frontBaseUrl + item.picUrl : item.picUrl" class="loaded" mode="aspectFill"></image>
@@ -312,6 +312,7 @@
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
 						this.goodsInfo = res.data.data
+						this.goodsInfo.goodsInfoIntro = this.goodsInfo.goodsInfoIntro.replace(/\/upload/g, FRONT_BASE_URL + 'upload')
 						if (this.goodsInfo.goodsSkuVOList && this.goodsInfo.goodsSkuVOList.length > 0) {
 							// 设置被选中的sku信息
 							this.setSelectSku()
