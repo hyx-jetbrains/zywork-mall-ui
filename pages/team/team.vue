@@ -83,7 +83,7 @@
 
 		onLoad(options) {
 			this.teamCount = JSON.parse(options.teamCount)
-			this.navList[0].text = '一级(' + this.teamCount[0] + ')'
+			this.navList[0].text = '一级(' + (this.teamCount[0] || 0) + ')'
 			this.navList[1].text = '二级(' + (this.teamCount[1] || 0) + ')'
 			this.loadData('init');
 		},
