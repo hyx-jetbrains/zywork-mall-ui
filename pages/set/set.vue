@@ -26,12 +26,13 @@
 			<text class="cell-tit">关于商城</text>
 			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
+		<!-- #ifdef APP-PLUS -->
 		<view class="zy-list-cell">
 			<text class="cell-tit">检查更新</text>
 			<text class="cell-tip">当前版本 1.0.3</text>
 			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
-		<!-- #ifdef APP-PLUS -->
+		
 		<view class="zy-list-cell log-out-btn" @click="toLogout">
 			<text class="cell-tit">退出登录</text>
 		</view>

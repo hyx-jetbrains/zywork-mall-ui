@@ -44,7 +44,8 @@
 		doPostForm,
 		showInfoToast,
 		nullToStr,
-		DEFAULT_HEADICON
+		DEFAULT_HEADICON,
+		FRONT_BASE_URL
 	} from '@/common/util.js';
 	import * as ResponseStatus from '@/common/response-status.js';
 	export default {
@@ -128,7 +129,17 @@
 						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
 							navItem.loadingType = 'nomore';
 						}
-						const rows = nullToStr(res.data.data.rows);
+						let tempRows = nullToStr(res.data.data.rows);
+						let rows = []
+						tempRows.forEach(item => {
+							let headicon = item.headicon
+							if (headicon) {
+								if (headicon.indexOf('http') < 0) {
+									headicon = FRONT_BASE_URL = headicon
+								}
+							}
+							rows.push(item)
+						})
 						if (type === 'init') {
 							navItem.teamList = rows;
 						} else if (type === 'pullDown') {
