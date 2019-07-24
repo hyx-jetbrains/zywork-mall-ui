@@ -45,7 +45,11 @@
 			}
 		},
 		onLoad(){
-			this.loadCategory();
+			this.loadCategory('init');
+		},
+		//下拉刷新
+		onPullDownRefresh() {
+			this.loadCategory('pullDown');
 		},
 		// #ifdef MP-WEIXIN
 		onShareAppMessage(res) {
@@ -58,7 +62,7 @@
 		},
 		// #endif
 		methods: {
-			loadCategory(){
+			loadCategory(type){
 				uni.showLoading({
 					title: '加载中...'
 				})
@@ -67,6 +71,9 @@
 					sortOrder: 'asc',
 					parentId: 0
 				}, {}).then(response => {
+					if (type === 'pullDown') {
+						uni.stopPullDownRefresh();
+					}
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
 						if (res.data.data.rows.length > 0) {
