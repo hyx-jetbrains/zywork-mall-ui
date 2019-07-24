@@ -182,8 +182,11 @@
 			<text class="iconfont iconxiangyou" @click="navToHotProductList"></text>
 		</view>
 		
-		<view>
+		<view v-if="hotGoodsList.length > 0">
 			<zywork-product-list :list="hotGoodsList"></zywork-product-list>
+		</view>
+		<view else style="text-align: center; margin-top: 10upx;">
+			暂无热门商品
 		</view>
 
 	</view>
@@ -235,6 +238,12 @@
 					data: options.shareCode
 				});
 			}
+		},
+		onPullDownRefresh() {
+			this.loadData()
+			setTimeout(function() {
+				uni.stopPullDownRefresh()
+			}, 1000)
 		},
 		// #ifdef MP-WEIXIN
 		onShareAppMessage(res) {
