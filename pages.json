@@ -82,6 +82,7 @@
 		}, {
 			"path": "pages/user/user",
 			"style": {
+				"enablePullDownRefresh": true,
 				"navigationBarTitleText": "我的",
 				// #ifdef MP
 				"navigationStyle": "custom",
@@ -109,6 +110,18 @@
 						]
 					}
 				}
+			}
+		},
+		{
+			"path": "pages/wallet/wallet-balance",
+			"style": {
+				"navigationBarTitleText": "我的余额"
+			}
+		},
+		{
+			"path": "pages/wallet/wallet-integral",
+			"style": {
+				"navigationBarTitleText": "我的积分"
 			}
 		},
 		{

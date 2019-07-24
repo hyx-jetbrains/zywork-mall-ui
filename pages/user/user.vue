@@ -74,16 +74,16 @@
 			<image class="arc" src="/static/arc.png"></image>
 
 			<view class="tj-sction">
-				<view class="tj-item">
-					<text class="num">0</text>
+				<view class="tj-item" @click="toWalletBalancePage">
+					<text class="num">{{userWallet.usableRmbBalance}}</text>
 					<text>余额</text>
 				</view>
 				<view class="tj-item" @click="toCouponPage">
 					<text class="num">0</text>
 					<text>优惠券</text>
 				</view>
-				<view class="tj-item">
-					<text class="num">20</text>
+				<view class="tj-item" @click="toWalletIntegralPage">
+					<text class="num">{{userWallet.integral}}</text>
 					<text>积分</text>
 				</view>
 			</view>
@@ -157,6 +157,8 @@
 		ORDER_PAGE,
 		COMMISSION_PAGE,
 		TEAM_PAGE,
+		WALLET_BALANCE_PAGE,
+		WALLET_INTEGRAL_PAGE
 	} from '@/common/page-url.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
@@ -202,6 +204,7 @@
 					xcxLoginUrl: '/wx-auth/xcx',
 					getUserDetailUrl: '/user-userdetail/user/get',
 					getUserRolesUrl: '/user-role/user/list',
+					userWalletUrl: '/user-wallet/user/one'
 
 				},
 				userInfo: {},
@@ -212,7 +215,8 @@
 				teamTotal: 0,
 				productHistoryArray: [],
 				frontBaseUrl: FRONT_BASE_URL,
-				localFileStorage: LOCAL_FILE_STORAGE
+				localFileStorage: LOCAL_FILE_STORAGE,
+				userWallet: {}
 			}
 		},
 		onLoad(options) {
@@ -225,13 +229,15 @@
 				uni.setStorageSync(USER_TOKEN_KEY, token)
 			}
 			// #endif
-			this.judgeLogin()
+			this.loadData('init');
 		},
 		onShow() {
-			this.loadHistoryData()
+			this.loadHistoryData();
 		},
+		// 下拉刷新
 		onPullDownRefresh() {
-			
+			console.log('下拉刷新')
+			this.loadData('pullDown');
 		},
 		// #ifndef MP
 		onNavigationBarButtonTap(e) {
@@ -253,6 +259,14 @@
 		// #endif
 		computed: {},
 		methods: {
+			/**
+			 * 加载数据
+			 * @param {Object} type
+			 */
+			loadData(type) {
+				this.judgeLogin(type);
+				this.loadWalletInfo();
+			},
 			/**
 			 * 检查登录
 			 * @param {Object} type
@@ -454,6 +468,21 @@
 					})
 				}
 			},
+			/**
+			 * 获取钱包信息
+			 */
+			loadWalletInfo() {
+				doGet(this.urls.userWalletUrl, {}, true).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						this.userWallet = res.data.data;
+					} else {
+						showInfoToast(res.data.message);
+					}
+				}).catch(err => {
+					console.log(err)
+				})
+			},
 			loadOtherUserData() {
 				this.loadTeamCount()
 			},
@@ -598,6 +627,18 @@
 			 */
 			toTeamPage() {
 				this.navTo(TEAM_PAGE + '?teamCount=' + JSON.stringify(this.teamCount));
+			},
+			/**
+			 * 前往用户钱包余额页面
+			 */
+			toWalletBalancePage() {
+				this.navTo(WALLET_BALANCE_PAGE + '?userWallet=' + JSON.stringify(this.userWallet));
+			},
+			/**
+			 * 前往用户钱包积分页面
+			 */
+			toWalletIntegralPage() {
+				this.navTo(WALLET_INTEGRAL_PAGE + '?userWallet=' + JSON.stringify(this.userWallet));
 			}
 		}
 	}

@@ -47,6 +47,14 @@ export const TEAM_PAGE = '/pages/team/team'
  * 订单详情页面的url
  */
 export const ORDER_DETAIL_PAGE = '/pages/order/orderDetail'
+/**
+ * 我的余额
+ */
+export const WALLET_BALANCE_PAGE = '/pages/wallet/wallet-balance'
+/**
+ * 我的积分
+ */
+export const WALLET_INTEGRAL_PAGE = '/pages/wallet/wallet-integral'
 
 
 /**
