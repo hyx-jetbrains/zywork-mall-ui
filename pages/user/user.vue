@@ -112,7 +112,7 @@
 					<zywork-icon type="iconyongjin" color="#fa436a" size="24" style="margin-right: 20upx;"/>
 					<view class="order-item" @click="toCommissionPage" hover-class="common-hover" :hover-stay-time="50">
 						<text>分销佣金</text>
-						<text>0/元</text>
+						<text>{{distributionCount}}/元</text>
 					</view>
 				</view>
 				<view class="order-section-item">
@@ -204,7 +204,8 @@
 					xcxLoginUrl: '/wx-auth/xcx',
 					getUserDetailUrl: '/user-userdetail/user/get',
 					getUserRolesUrl: '/user-role/user/list',
-					userWalletUrl: '/user-wallet/user/one'
+					userWalletUrl: '/user-wallet/user/one',
+					distributionAmountUrl: '/account-detail/user/distribution-amount'
 
 				},
 				userInfo: {},
@@ -213,6 +214,7 @@
 				moving: false,
 				teamCount: [],
 				teamTotal: 0,
+				distributionCount: 0,
 				productHistoryArray: [],
 				frontBaseUrl: FRONT_BASE_URL,
 				localFileStorage: LOCAL_FILE_STORAGE,
@@ -488,7 +490,11 @@
 			loadOtherUserData() {
 				this.loadWalletInfo()
 				this.loadTeamCount()
+				this.loadDistribuionAmount()
 			},
+			/**
+			 * 加载团队人数
+			 */
 			loadTeamCount() {
 				doPostForm('/distribution/user/below-users-per-level', {levels: [2, 3]}, {}, true).then(response => {
 					let [error, res] = response
@@ -502,6 +508,19 @@
 					}
 				}).catch(error => {
 					console.log(error)
+				})
+			},
+			/**
+			 * 加载分销佣金
+			 */
+			loadDistribuionAmount() {
+				doGet(this.urls.distributionAmountUrl, {}, true).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						this.distributionCount = res.data.data
+					}
+				}).catch(err => {
+					console.log(err)
 				})
 			},
 			/**
@@ -623,7 +642,7 @@
 			 * 前往佣金页面
 			 */
 			toCommissionPage() {
-				this.navTo(COMMISSION_PAGE);
+				this.navTo(COMMISSION_PAGE + '?totalAmount=' + this.distributionCount);
 			},
 			/**
 			 * 前往我的团队页面
