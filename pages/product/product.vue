@@ -21,7 +21,7 @@
 			<view class="bot-row">
 				<text>销量: {{goodsInfo.goodsInfoSaleCount}}</text>
 				<text>库存: {{selectSku.storeCount}}</text>
-				<text>浏览量: {{goodsInfo.goodsInfoClickCount}}</text>
+				<text>浏览量: {{goodsInfo.goodsInfoClickCount + 1}}</text>
 			</view>
 		</view>
 		
@@ -208,7 +208,7 @@
 <script>
 	import share from '@/components/share'
 	import uniNumberBox from '@/components/uni-number-box.vue'
-	import {doPostJson, showInfoToast, REFRESH_CART, REFRESH_PRODUCT, HAS_USER_INFO, FRONT_BASE_URL, LOCAL_FILE_STORAGE} from '@/common/util.js'
+	import {doPostJson, doGet, showInfoToast, REFRESH_CART, REFRESH_PRODUCT, HAS_USER_INFO, FRONT_BASE_URL, LOCAL_FILE_STORAGE} from '@/common/util.js'
 	import {setProductHistory} from '@/common/storage.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
@@ -320,6 +320,7 @@
 						// 获取商品类目指定的组合属性（规格属性），按属性正序排列
 						let firstSkuInfo = this.goodsInfo.goodsSkuVOList[0]
 						this.getCategoryAttrGroup(firstSkuInfo.goodsSkuAttrVOList)
+						this.updateClickCount()
 					} else {
 						showInfoToast('商品不存在哦')
 						setTimeout(function() {
@@ -616,6 +617,11 @@
 						url: url
 					})
 				}
+			},
+			updateClickCount() {
+				doGet('/goods-info/any/goods/click-count/' + this.goodsInfo.goodsInfoId, {}).then(response => {}).catch(error => {
+					console.log(error)
+				})
 			},
 			//分享
 			share(){
