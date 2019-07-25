@@ -11,17 +11,17 @@
 		</view>
 		
 		<view class="introduce-section">
-			<text class="title">{{selectSku.title}}</text>
+			<text class="title">{{selectSku.title || ''}}</text>
 			<view class="price-box">
 				<text class="price-tip">¥</text>
-				<text class="price">{{selectSku.salePrice}}</text>
-				<text class="m-price">¥{{selectSku.price}}</text>
-				<text class="coupon-tip">{{(selectSku.salePrice / selectSku.price * 10).toFixed(1)}}折</text>
+				<text class="price">{{selectSku.salePrice || 0}}</text>
+				<text class="m-price">¥{{selectSku.price || 0}}</text>
+				<text class="coupon-tip">{{((selectSku.salePrice ? selectSku.salePrice : 0) / (selectSku.price ? selectSku.price : 1) * 10).toFixed(1)}}折</text>
 			</view>
 			<view class="bot-row">
-				<text>销量: {{goodsInfo.goodsInfoSaleCount}}</text>
-				<text>库存: {{selectSku.storeCount}}</text>
-				<text>浏览量: {{goodsInfo.goodsInfoClickCount + 1}}</text>
+				<text>销量: {{goodsInfo.goodsInfoSaleCount || 0}}</text>
+				<text>库存: {{selectSku.storeCount || 0}}</text>
+				<text>浏览量: {{goodsInfo.goodsInfoClickCount ? (goodsInfo.goodsInfoClickCount + 1) : 0}}</text>
 			</view>
 		</view>
 		
