@@ -185,7 +185,7 @@
 		<view v-if="hotGoodsList.length > 0">
 			<zywork-product-list :list="hotGoodsList"></zywork-product-list>
 		</view>
-		<view else style="text-align: center; margin-top: 10upx;">
+		<view v-else style="text-align: center; margin-top: 10upx;">
 			暂无热门商品
 		</view>
 
