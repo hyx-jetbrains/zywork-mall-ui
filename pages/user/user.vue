@@ -83,7 +83,7 @@
 					<text>优惠券</text>
 				</view>
 				<view class="tj-item" @click="toWalletIntegralPage">
-					<text class="num">{{userWallet.integral}}</text>
+					<text class="num">{{userWallet.usableIntegral}}</text>
 					<text>积分</text>
 				</view>
 			</view>
@@ -216,7 +216,10 @@
 				productHistoryArray: [],
 				frontBaseUrl: FRONT_BASE_URL,
 				localFileStorage: LOCAL_FILE_STORAGE,
-				userWallet: {}
+				userWallet: {
+					usableRmbBalance: 0,
+					usableIntegral: 0
+				}
 			}
 		},
 		onLoad(options) {
@@ -265,7 +268,6 @@
 			 */
 			loadData(type) {
 				this.judgeLogin(type);
-				this.loadWalletInfo();
 			},
 			/**
 			 * 检查登录
@@ -484,6 +486,7 @@
 				})
 			},
 			loadOtherUserData() {
+				this.loadWalletInfo()
 				this.loadTeamCount()
 			},
 			loadTeamCount() {
