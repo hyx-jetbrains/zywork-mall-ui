@@ -130,7 +130,6 @@
 				],
 				urls: {
 					searchUrl: '/user-goods-order/user/pager-cond',
-					updateUrl: '/goods-order/user/update',
 					removeUrl: '/goods-order/user/remove/'
 				},
 				pager: {
@@ -253,6 +252,7 @@
 								title: '请稍后...'
 							})
 							doGet(this.urls.removeUrl + id, {}, false).then(response => {
+								uni.hideLoading();
 								let [error, res] = response;
 								if (res.data.code === ResponseStatus.OK) {
 									showSuccessToast("删除成功");
@@ -260,7 +260,7 @@
 									showInfoToast(res.data.message);
 								}
 								this.loadData('init');
-								uni.hideLoading();
+								
 							}).catch(err => {
 								console.log(err);
 							})
@@ -275,45 +275,53 @@
 					title: '确定取消订单？',
 					success: (res) => {
 						if (res.confirm) {
-							this.updateOrderStatus(item.goodsOrderId, 6, index)
+							uni.showLoading({
+								title: '请稍后...'
+							})
+							doPostJson('/goods-order/user/cancel', item, {}, true).then(response => {
+								let [error, res] = response;
+								uni.hideLoading();
+								if (res.data.code === ResponseStatus.OK) {
+									if (this.tabCurrentIndex == 0) {
+										item.goodsOrderOrderStatus = 6
+										item = Object.assign(item, this.orderStateExp(item))
+									}
+									if (this.tabCurrentIndex == 1) {
+										this.navList[this.tabCurrentIndex].orderList.splice(index, 1)
+									}
+									showInfoToast('订单已取消')
+								} else {
+									showInfoToast(res.data.message);
+								}
+								this.loadData('init');
+								
+							}).catch(err => {
+								console.log(err);
+							})
 						}
 					}
 				})
 			},
-			/**
-			 * 更新订单状态
-			 * @param {Object} status 订单状态
-			 */
-			updateOrderStatus(id, status, index) {
+			confirmOrder() {
 				uni.showLoading({
 					title: '请稍后...'
 				})
 				const data = {
-					id: id,
-					orderStatus: status
+					id: item.goodsOrderId
 				}
-				doPostJson(this.urls.updateUrl, data, {}, true).then(response => {
-					let [error, res] = response;
-					if (res.data.code === ResponseStatus.OK) {
-						let msg = '订单已取消'
-						if (this.tabCurrentIndex === 1) {
-							this.navList[this.tabCurrentIndex].orderList.splice(index, 1)
-						}
-						if (this.tabCurrentIndex === 2) {
-							msg = '已确认收货'
-							this.navList[this.tabCurrentIndex].orderList.splice(index, 1)
-						}
-						showInfoToast(msg)
-					} else {
-						showInfoToast(res.data.message);
-					}
-					this.loadData('init');
+				doPostJson('/goods-order/user/confirm', data, {}, true).then(response => {
+					let [error, res] = response
 					uni.hideLoading();
+					if (res.data.code === ResponseStatus.OK) {
+						this.navList[this.tabCurrentIndex].orderList.splice(index, 1)
+						showInfoToast('已确认收货')
+					} else {
+						showInfoToast(res.data.message)
+					}
 				}).catch(err => {
-					console.log(err);
+					console.log(err)
 				})
 			},
-
 			//订单状态文字和颜色
 			orderStateExp(item) {
 				const state = item.goodsOrderOrderStatus;
