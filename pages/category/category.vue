@@ -67,7 +67,7 @@
 					title: '加载中...'
 				})
 				doPostJson('/goods-category/any/all-cond', {
-					sortColumn: 'id',
+					sortColumn: 'categoryOrder',
 					sortOrder: 'asc',
 					parentId: 0
 				}, {}).then(response => {
@@ -98,7 +98,9 @@
 					})
 				}
 				doPostForm('/goods-category/any/by-first-level-category', {
-					categoryId: this.currentId
+					categoryId: this.currentId,
+					sortColumn: 'categoryOrder',
+					sortOrder: 'asc'
 				}, {}).then(response => {
 					uni.hideLoading()
 					let [error, res] = response
@@ -107,10 +109,10 @@
 							this.slist = []
 							this.tlist = []
 							res.data.data.rows.forEach((item, index) => {
-								if(!item.picUrl){
-									this.slist.push(item); //没有图的是2级分类
-								}else{
-									this.tlist.push(item); //3级分类
+								if(item.categoryLevel === 2){
+									this.slist.push(item)
+								} else if (item.categoryLevel === 3){
+									this.tlist.push(item)
 								}
 							})
 						}
