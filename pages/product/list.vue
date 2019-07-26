@@ -44,9 +44,11 @@
 							<input class="price" v-model="salePriceMax" type="number" placeholder="最高价" placeholder-class="placeholder" />
 						</view>
 					</view>
-					<view class="action-btn-group">
-						<button type="primary" class=" action-btn no-border buy-now-btn" @click="cancelSearch">重置</button>
-						<button type="primary" class=" action-btn no-border add-cart-btn" @click="doSearch">确定</button>
+					<view class="action-btn-area">
+						<view class="action-btn-group">
+							<button type="primary" class=" action-btn no-border buy-now-btn" @click="cancelSearch">重置</button>
+							<button type="primary" class=" action-btn no-border add-cart-btn" @click="doSearch">确定</button>
+						</view>
 					</view>
 				</scroll-view>
 				
@@ -527,8 +529,15 @@
 		}
 	}
 	
+	.action-btn-area {
+		width: 100%;
+		display: flex;
+		justify-content: flex-end;
+	}
+	
 	.action-btn-group{
 		display: flex;
+		width: 70%;
 		height: 76upx;
 		border-radius: 100px;
 		overflow: hidden;
@@ -536,9 +545,9 @@
 		box-shadow: 1px 2px 5px rgba(219, 63, 96, 0.4);
 		background: linear-gradient(to right, #ffac30,#fa436a,#F56C6C);
 		margin-left: 20upx;
-		position:fixed;
-		right: 20upx;
-		bottom: 20upx;
+		margin-right: 20upx;
+		margin-top: 30upx;
+		margin-bottom: 30upx;
 		&:after{
 			content: '';
 			position:absolute;
