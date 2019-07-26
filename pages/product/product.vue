@@ -120,7 +120,7 @@
 				<text class="iconfont icongouwuche"></text>
 				<text>购物车</text>
 			</navigator>
-			<view class="p-b-btn" :class="{active: favorite}" @click="toFavorite">
+			<view class="p-b-btn" :class="{active: collectionFlag}" @click="toFavorite">
 				<text class="iconfont iconshoucang"></text>
 				<text>收藏</text>
 			</view>
@@ -246,7 +246,13 @@
 				fromSku: false,
 				hasUserInfo: false,
 				frontBaseUrl: FRONT_BASE_URL,
-				localFileStorage: LOCAL_FILE_STORAGE
+				localFileStorage: LOCAL_FILE_STORAGE,
+				collectionFlag: false,
+				collection: {
+					goodsId: null,
+					goodsSkuId: null,
+					shopId: null
+				}
 			}
 		},
 		async onLoad(options){
@@ -261,6 +267,7 @@
 			}
 			// #endif
 			let goodsInfoId = options.goodsInfoId
+			console.log(goodsInfoId)
 			if (options.goodsSkuId) {
 				this.fromSku = true
 				this.selectSku.skuId = options.goodsSkuId
@@ -321,6 +328,9 @@
 						let firstSkuInfo = this.goodsInfo.goodsSkuVOList[0]
 						this.getCategoryAttrGroup(firstSkuInfo.goodsSkuAttrVOList)
 						this.updateClickCount()
+						this.collection.goodsId = this.goodsInfo.goodsInfoId
+						this.collection.shopId = this.goodsInfo.goodsInfoShopId
+						this.isFavorite()
 					} else {
 						showInfoToast('商品不存在哦')
 						setTimeout(function() {
@@ -350,7 +360,7 @@
 			},
 			// 从SKU中获取selectSku需要的信息并赋值给selectSku
 			setSkuInfo(skuInfo) {
-				this.selectSku.skuId = skuInfo.goodsSkuId
+				this.collection.goodsSkuId = this.selectSku.skuId = skuInfo.goodsSkuId
 				this.selectSku.picUrl = skuInfo.goodsPicPicUrl
 				skuInfo.goodsSkuAttrVOList.forEach((skuAttr, index) => {
 					if (skuAttr.goodsAttributeAttrCode == 'title') {
@@ -363,6 +373,8 @@
 						this.selectSku.storeCount = skuAttr.goodsAttributeValueAttrValue
 					}
 				})
+				// 每个sku都需要判断当前的sku是否有被收藏
+				this.isFavorite()
 			},
 			// 获取类目的组合属性（规格属性）
 			getCategoryAttrGroup(goodsSkuAttrVOList) {
@@ -627,9 +639,55 @@
 			share(){
 				this.$refs.share.toggleMask();	
 			},
+			// 判断是否有收藏信息
+			isFavorite() {
+				doPostJson('/goods-collection/user/pager-cond', this.collection, {}, true).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						if (res.data.data.total > 0) {
+							this.collectionFlag = true
+						} else {
+							this.collectionFlag = false
+						}
+					} else if (res.data.code === ResponseStatus.AUTHENTICATION_TOKEN_ERROR) {
+						showInfoToast('您好像还未登录哦')
+					} else {
+						showInfoToast(res.data.message)
+					}
+				}).catch(error => {
+					console.log(error)
+				})
+			},
 			//收藏
 			toFavorite(){
-				this.favorite = !this.favorite;
+				let url = ''
+				let tip = ''
+				if (this.collectionFlag) {
+					// 取消收藏
+					url = '/goods-collection/user/cancel-collection'
+					tip = '取消收藏'
+				} else {
+					// 收藏
+					url = '/goods-collection/user/collection'
+					tip = '收藏'
+				}
+				doPostJson(url, this.collection, {}, true).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						if (tip === '收藏') {
+							this.collectionFlag = true
+						} else {
+							this.collectionFlag = false
+						}
+						showInfoToast(tip + '成功')
+					} else if (res.data.code === ResponseStatus.AUTHENTICATION_TOKEN_ERROR) {
+						showInfoToast('您好像还未登录哦')
+					} else {
+						showInfoToast('请稍候再操作' + tip)
+					}
+				}).catch(error => {
+					console.log(error)
+				})
 			},
 			stopPrevent(){},
 			/**

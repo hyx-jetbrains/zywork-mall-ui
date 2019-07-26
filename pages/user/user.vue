@@ -139,7 +139,7 @@
 				<list-cell icon="icondizhi" iconColor="#5fcda2" title="地址管理" @eventClick="toAddressPage"></list-cell>
 				<list-cell icon="iconfenxiang" iconColor="#9789f7" title="分享邀请" tips="邀请好友得佣金" @eventClick="toSharePage"></list-cell>
 				<!-- <list-cell icon="icon-pinglun-copy" iconColor="#ee883b" title="晒单" tips="晒单抢红包"></list-cell> -->
-				<list-cell icon="iconshoucang1" iconColor="#54b4ef" title="我的收藏"></list-cell>
+				<list-cell icon="iconshoucang1" iconColor="#54b4ef" title="我的收藏" @eventClick="toCollectionPage"></list-cell>
 				<list-cell icon="iconshezhi" iconColor="#e07472" title="设置" border="" @eventClick="toSetPage"></list-cell>
 			</view>
 		</view>
@@ -158,7 +158,8 @@
 		COMMISSION_PAGE,
 		TEAM_PAGE,
 		WALLET_BALANCE_PAGE,
-		WALLET_INTEGRAL_PAGE
+		WALLET_INTEGRAL_PAGE,
+		COLLECTION_PAGE
 	} from '@/common/page-url.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
@@ -606,7 +607,8 @@
 			 * 前往我的优惠券
 			 */
 			toCouponPage() {
-				this.navTo(COUPON_PAGE);
+				showInfoToast('优惠券')
+				// this.navTo(COUPON_PAGE);
 			},
 			/**
 			 * 前往分享
@@ -661,6 +663,12 @@
 			 */
 			toWalletIntegralPage() {
 				this.navTo(WALLET_INTEGRAL_PAGE + '?userWallet=' + JSON.stringify(this.userWallet));
+			},
+			/**
+			 * 前往我的收藏
+			 */
+			toCollectionPage() {
+				this.navTo(COLLECTION_PAGE)
 			}
 		}
 	}

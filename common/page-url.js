@@ -55,6 +55,10 @@ export const WALLET_BALANCE_PAGE = '/pages/wallet/wallet-balance'
  * 我的积分
  */
 export const WALLET_INTEGRAL_PAGE = '/pages/wallet/wallet-integral'
+/**
+ * 我的收藏
+ */
+export const COLLECTION_PAGE = '/pages/collection/collection'
 
 
 /**

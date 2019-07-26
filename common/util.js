@@ -1,4 +1,4 @@
-// export const BASE_URL = 'https://www.shudagroup.com/api'
+// export const BASE_URL = 'https://gnmymall.com/api'
 export const BASE_URL = 'http://127.0.0.1:8088'
 export const FRONT_BASE_URL = 'https://www.shudagroup.com'
 export const DOCUMENT_BASE_URL = 'https://www.shudagroup.com'
