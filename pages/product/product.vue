@@ -226,6 +226,7 @@
 				categorySpec: [], // 商品的组合属性（规格属性），按属性正序排列
 				// 选择的sku
 				selectSku: {
+					shopId: 0,
 					goodsId: 0,
 					skuId: 0,
 					title: '',
@@ -583,6 +584,7 @@
 						return
 					}
 					doPostJson('/goods-cart/user/save', {
+						shopId: this.goodsInfo.goodsInfoShopId,
 						goodsId: this.goodsInfo.goodsInfoId,
 						goodsSkuId: this.selectSku.skuId,
 						quantity: this.selectSkuQuantity
