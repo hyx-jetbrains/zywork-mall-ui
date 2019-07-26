@@ -36,7 +36,7 @@
 							</view>
 						</view>
 					</view>
-					<view>
+					<view style="margin-bottom: 20upx;">
 						<text class="cate-item b-b two">价格区间（元）</text>
 						<view class="price-input">
 							<input class="price" v-model="salePriceMin" type="number" placeholder="最低价" placeholder-class="placeholder" />
@@ -44,14 +44,11 @@
 							<input class="price" v-model="salePriceMax" type="number" placeholder="最高价" placeholder-class="placeholder" />
 						</view>
 					</view>
-					<view class="action-btn-area">
-						<view class="action-btn-group">
-							<button type="primary" class=" action-btn no-border buy-now-btn" @click="cancelSearch">重置</button>
-							<button type="primary" class=" action-btn no-border add-cart-btn" @click="doSearch">确定</button>
-						</view>
-					</view>
 				</scroll-view>
-				
+				<view class="action-btn-group">
+					<button type="primary" class=" action-btn no-border buy-now-btn" @click="cancelSearch">重置</button>
+					<button type="primary" class=" action-btn no-border add-cart-btn" @click="doSearch">确定</button>
+				</view>
 			</view>
 		</view>
 	</view>
@@ -482,7 +479,7 @@
 	.search-list{
 		display: flex;
 		flex-direction: column;
-		height: 100%;
+		height: calc(100% - 116upx);
 		.two {
 			height: 64upx;
 			color: #303133;
@@ -529,25 +526,19 @@
 		}
 	}
 	
-	.action-btn-area {
-		width: 100%;
-		display: flex;
-		justify-content: flex-end;
-	}
-	
 	.action-btn-group{
 		display: flex;
-		width: 70%;
 		height: 76upx;
 		border-radius: 100px;
 		overflow: hidden;
 		box-shadow: 0 20upx 40upx -16upx #fa436a;
 		box-shadow: 1px 2px 5px rgba(219, 63, 96, 0.4);
 		background: linear-gradient(to right, #ffac30,#fa436a,#F56C6C);
-		margin-left: 20upx;
-		margin-right: 20upx;
-		margin-top: 30upx;
-		margin-bottom: 30upx;
+		margin-top: 20upx;
+		position:fixed;
+		right: 20upx;
+		bottom: 20upx;
+		z-index: 99;
 		&:after{
 			content: '';
 			position:absolute;
