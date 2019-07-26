@@ -126,13 +126,13 @@
 		<!-- 分类推荐楼层 -->
 		<view v-for="(item, index) in hotCategoryGoodsList" :key="index">
 			<view v-if="item.goodsList.length > 0">
-				<view class="f-header m-t">
+				<view class="f-header m-t" @click="navToProductList(item.categoryId)">
 					<zywork-icon type="iconweibiaoti2fuzhi13" color="#fa436a" size="30"></zywork-icon>
 					<view class="tit-box">
 						<text class="tit">{{item.categoryTitle}}精选</text>
 						<text class="tit2">为您精选的{{item.categoryTitle}}</text>
 					</view>
-					<text class="iconfont iconxiangyou" @click="navToProductList(item.categoryId)"></text>
+					<text class="iconfont iconxiangyou"></text>
 				</view>
 				<view class="hot-floor">
 					<scroll-view class="floor-list" scroll-x>
@@ -175,11 +175,11 @@
 		<!-- 热门商品 -->
 		<view class="f-header m-t">
 			<zywork-icon type="iconremen" color="#fa436a" size="30"></zywork-icon>
-			<view class="tit-box">
+			<view class="tit-box" @click="navToHotProductList">
 				<text class="tit">热门商品</text>
 				<text class="tit2">最多人喜欢的商品</text>
 			</view>
-			<text class="iconfont iconxiangyou" @click="navToHotProductList"></text>
+			<text class="iconfont iconxiangyou"></text>
 		</view>
 		
 		<view v-if="hotGoodsList.length > 0">
@@ -309,7 +309,9 @@
 				}, {}).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
+						console.log(this.hotCategoryList)
 						this.hotCategoryList = res.data.data.rows
+						console.log(this.hotCategoryList)
 						this.loadHotCategoryGoods()
 					}
 				}).catch(error => {
@@ -339,6 +341,7 @@
 						let [error, res] = response
 						if (res.data.code === ResponseStatus.OK) {
 							let hotCategoryGoods = {}
+							this.hotCategoryGoodsList = []
 							hotCategoryGoods.categoryId = item.id
 							hotCategoryGoods.categoryTitle = item.title
 							hotCategoryGoods.goodsList = res.data.data.rows

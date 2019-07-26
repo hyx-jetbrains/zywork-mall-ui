@@ -4,7 +4,7 @@
 			"style": {
 				"enablePullDownRefresh": true,
 				// #ifdef MP || H5 
-				"navigationBarTitleText": "zywork商城",
+				"navigationBarTitleText": "赣南名优网",
 				//"navigationStyle": "custom",
 				// #endif 
 				"app-plus": {
