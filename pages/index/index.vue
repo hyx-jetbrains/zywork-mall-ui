@@ -309,9 +309,7 @@
 				}, {}).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
-						console.log(this.hotCategoryList)
 						this.hotCategoryList = res.data.data.rows
-						console.log(this.hotCategoryList)
 						this.loadHotCategoryGoods()
 					}
 				}).catch(error => {
