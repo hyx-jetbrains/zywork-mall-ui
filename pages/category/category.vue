@@ -117,6 +117,9 @@
 									this.tlist.push(item)
 								}
 							})
+						} else {
+							this.slist = []
+							this.tlist = []
 						}
 					} else {
 						showInfoToast('暂时无法获取商品分类，请稍候再试')
