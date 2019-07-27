@@ -605,13 +605,7 @@
 					})
 					return
 				}
-				let url = '/pages/login/login'
-				// #ifdef H5
-				url += '?fromUrl=/pages/product/product?goodsInfoId=' + this.goodsInfo.goodsInfoId
-				// #endif
-				uni.navigateTo({
-					url: url
-				})
+				this.toLogin()
 			},
 			buy(){
 				if (this.hasUserInfo) {
@@ -623,13 +617,7 @@
 						url: `/pages/order/createOrder?skuIds=${this.selectSku.skuId}&quantity=${this.selectSkuQuantity}`
 					})
 				} else {
-					let url = '/pages/login/login'
-					// #ifdef H5
-					url += '?fromUrl=/pages/product/product?goodsInfoId=' + this.goodsInfo.goodsInfoId
-					// #endif
-					uni.navigateTo({
-						url: url
-					})
+					this.toLogin()
 				}
 			},
 			updateClickCount() {
@@ -643,52 +631,63 @@
 			},
 			// 判断是否有收藏信息
 			isFavorite() {
-				doPostJson('/goods-collection/user/pager-cond', this.collection, {}, true).then(response => {
-					let [error, res] = response
-					if (res.data.code === ResponseStatus.OK) {
-						if (res.data.data.total > 0) {
-							this.collectionFlag = true
-						} else {
-							this.collectionFlag = false
+				if (this.hasUserInfo) {
+					doPostJson('/goods-collection/user/pager-cond', this.collection, {}, true).then(response => {
+						let [error, res] = response
+						if (res.data.code === ResponseStatus.OK) {
+							if (res.data.data.total > 0) {
+								this.collectionFlag = true
+							} else {
+								this.collectionFlag = false
+							}
 						}
-					} else if (res.data.code === ResponseStatus.AUTHENTICATION_TOKEN_ERROR) {
-						showInfoToast('您好像还未登录哦')
-					} else {
-						showInfoToast(res.data.message)
-					}
-				}).catch(error => {
-					console.log(error)
-				})
+					}).catch(error => {
+						console.log(error)
+					})
+				}
 			},
 			//收藏
 			toFavorite(){
-				let url = ''
-				let tip = ''
-				if (this.collectionFlag) {
-					// 取消收藏
-					url = '/goods-collection/user/cancel-collection'
-					tip = '取消收藏'
-				} else {
-					// 收藏
-					url = '/goods-collection/user/collection'
-					tip = '收藏'
-				}
-				doPostJson(url, this.collection, {}, true).then(response => {
-					let [error, res] = response
-					if (res.data.code === ResponseStatus.OK) {
-						if (tip === '收藏') {
-							this.collectionFlag = true
-						} else {
-							this.collectionFlag = false
-						}
-						showInfoToast(tip + '成功')
-					} else if (res.data.code === ResponseStatus.AUTHENTICATION_TOKEN_ERROR) {
-						showInfoToast('您好像还未登录哦')
+				if (this.hasUserInfo) {
+					let url = ''
+					let tip = ''
+					if (this.collectionFlag) {
+						// 取消收藏
+						url = '/goods-collection/user/cancel-collection'
+						tip = '取消收藏'
 					} else {
-						showInfoToast('请稍候再操作' + tip)
+						// 收藏
+						url = '/goods-collection/user/collection'
+						tip = '收藏'
 					}
-				}).catch(error => {
-					console.log(error)
+					doPostJson(url, this.collection, {}, true).then(response => {
+						let [error, res] = response
+						if (res.data.code === ResponseStatus.OK) {
+							if (tip === '收藏') {
+								this.collectionFlag = true
+							} else {
+								this.collectionFlag = false
+							}
+							showInfoToast(tip + '成功')
+						} else if (res.data.code === ResponseStatus.AUTHENTICATION_TOKEN_ERROR) {
+							showInfoToast('您好像还未登录哦')
+						} else {
+							showInfoToast('请稍候再操作' + tip)
+						}
+					}).catch(error => {
+						console.log(error)
+					})
+					return
+				}
+				this.toLogin()
+			},
+			toLogin() {
+				let url = '/pages/login/login'
+				// #ifdef H5
+				url += '?fromUrl=/pages/product/product?goodsInfoId=' + this.goodsInfo.goodsInfoId
+				// #endif
+				uni.navigateTo({
+					url: url
 				})
 			},
 			stopPrevent(){},
