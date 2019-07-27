@@ -71,17 +71,19 @@
 					sortOrder: 'asc',
 					parentId: 0
 				}, {}).then(response => {
+					uni.hideLoading()
 					if (type === 'pullDown') {
-						uni.stopPullDownRefresh();
+						uni.stopPullDownRefresh()
 					}
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
 						if (res.data.data.rows.length > 0) {
-							this.currentId = res.data.data.rows[0].id
+							if (type !== 'pullDown') {
+								this.currentId = res.data.data.rows[0].id
+							}
 							this.flist = res.data.data.rows
 							this.loadCategoryByFirstLevel(false)
 						} else {
-							uni.hideLoading()
 							showInfoToast('暂无商品分类')
 						}
 					} else {
