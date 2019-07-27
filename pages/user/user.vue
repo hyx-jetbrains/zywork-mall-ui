@@ -78,13 +78,13 @@
 					<text class="num">{{userWallet.usableRmbBalance}}</text>
 					<text>余额</text>
 				</view>
-				<view class="tj-item" @click="toCouponPage">
-					<text class="num">0</text>
-					<text>优惠券</text>
-				</view>
 				<view class="tj-item" @click="toWalletIntegralPage">
 					<text class="num">{{userWallet.usableIntegral}}</text>
 					<text>积分</text>
+				</view>
+				<view class="tj-item" @click="toCouponPage">
+					<text class="num">0</text>
+					<text>优惠券</text>
 				</view>
 			</view>
 			<!-- 订单 -->
@@ -502,6 +502,7 @@
 					if (res.data.code === ResponseStatus.OK) {
 						this.teamCount = res.data.data
 						if (this.teamCount.length > 0) {
+							this.teamTotal = 0
 							this.teamCount.forEach((item, index) => {
 								this.teamTotal += item
 							})
