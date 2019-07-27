@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<view class="zy-commission-card">
-			<view style="color: #7bc0f1">我的佣金</view>
+			<view style="color: #fa436a">总分销佣金</view>
 			<view class="zy-commission zy-text-bold">{{totalAmount}}</view>
 		</view>
 		<view class="zy-display-flex">
@@ -94,7 +94,6 @@
 			 * @param {Object} e
 			 */
 			changePageTotal(e) {
-				console.log(e.type)
 				this.pager.pageNo = e.current;
 				this.loadData();
 				// let type = e.type;
@@ -136,7 +135,7 @@
 	}
 	
 	.zy-commission {
-		color: #108EE9;
+		color: #fa436a;
 		font-size: 64upx;
 	}
 	
