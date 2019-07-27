@@ -26,6 +26,7 @@
 		</view>
 		
 		<!--  分享 -->
+		<!--
 		<view class="share-section" @click="share">
 			<view class="share-des">
 				<view class="share-icon">
@@ -39,8 +40,8 @@
 				立即分享
 				<text class="iconfont icon-you"></text>
 			</view>
-			
 		</view>
+		-->
 		
 		<view class="c-list">
 			<view class="c-row b-b" @click="toggleSpec">
@@ -59,6 +60,7 @@
 				</view>
 				<text class="iconfont iconxiangyou icon-more"></text>
 			</view>
+			<!--
 			<view class="c-row b-b">
 				<text class="tit">优惠券</text>
 				<text class="con t-r red">领取优惠券</text>
@@ -80,6 +82,7 @@
 					<text>假一赔十 ·</text>
 				</view>
 			</view>
+			-->
 		</view>
 		
 		<!-- 评价 -->
