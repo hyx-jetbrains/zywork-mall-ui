@@ -531,6 +531,7 @@
 			loadHistoryData() {
 				// 加载浏览历史
 				var productHistory = getProductHistory()
+				this.productHistoryArray = []
 				if (productHistory.length > 0) {
 					this.productHistoryArray = productHistory
 				}

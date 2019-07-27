@@ -17,7 +17,7 @@
 			<text class="cell-tit">消息推送</text>
 			<switch checked color="#fa436a" @change="switchChange" />
 		</view>
-		<view class="zy-list-cell m-t b-b" @click="navTo('清除缓存')" hover-class="cell-hover" :hover-stay-time="50">
+		<view class="zy-list-cell m-t b-b" @click="clearCache()" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">清除缓存</text>
 			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 			
@@ -48,6 +48,7 @@
 		ACCOUNT_SET_PAGE,
 		ABOUT_PAGE
 	} from '@/common/page-url.js'
+	import {PRODUCT_HISTORY} from '@/common/storage.js'
 	import * as utils from '@/common/util.js'
 	import {  
 	    mapMutations  
@@ -109,6 +110,19 @@
 			 */
 			toAbountPage() {
 				utils.navTo(ABOUT_PAGE, true);
+			},
+			clearCache() {
+				uni.showModal({
+					title: '确定清空缓存？',
+					success: (res) => {
+						uni.removeStorage({
+							key: PRODUCT_HISTORY,
+							success() {
+								utils.showInfoToast('已清除缓存')
+							}
+						})
+					}
+				})
 			}
 		}
 	}
