@@ -3,7 +3,7 @@
 
 		<view class="user-section">
 			<image class="bg" src="/static/user-bg.jpg"></image>
-			<view class="user-info-box" v-if="showUserInfo">
+			<view class="user-info-box" v-if="hasUserInfo">
 				<view class="portrait-box">
 					<image class="portrait" :src="userInfo.headicon || defaultHeadIcon"></image>
 				</view>
@@ -198,7 +198,7 @@
 		data() {
 			return {
 				defaultHeadIcon: DEFAULT_HEADICON,
-				showUserInfo: false,
+				hasUserInfo: false,
 				urls: {
 					xcxSaveUserInfoUrl: '/wx-auth/xcx-userdetail',
 					xcxSavePhoneUrl: '/wx-auth/xcx-phone',
@@ -238,12 +238,19 @@
 			this.loadData('init');
 		},
 		onShow() {
-			this.loadHistoryData();
+			this.loadHistoryData()
 		},
 		// 下拉刷新
 		onPullDownRefresh() {
-			console.log('下拉刷新')
-			this.loadData('pullDown');
+			if (this.hasUserInfo) {
+				this.loadOtherUserData()
+				setTimeout(function() {
+					uni.stopPullDownRefresh()
+				}, 500);
+				
+			} else {
+				this.loadData('pulldown')
+			}
 		},
 		// #ifndef MP
 		onNavigationBarButtonTap(e) {
@@ -370,7 +377,7 @@
 							}
 							if (this.userInfo.nickname && this.userInfo.headicon) {
 								// 已经获取到了用户信息
-								this.showUserInfo = true;
+								this.hasUserInfo = true;
 								uni.setStorageSync(USER_ID, userInfo.userId);
 								uni.setStorageSync(HAS_USER_INFO, true);
 								// 加载其他用户数据
@@ -433,7 +440,7 @@
 				doPostForm(this.urls.xcxSaveUserInfoUrl, data, {}, false).then(response => {
 					let [error, res] = response;
 					if (res.data.code === ResponseStatus.OK) {
-						this.showUserInfo = true;
+						this.hasUserInfo = true;
 						this.userInfo.nickname = data.nickname;
 						this.userInfo.headicon = data.headicon;
 						// 设置已登录并且获取用户信息
