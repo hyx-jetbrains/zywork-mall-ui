@@ -258,6 +258,7 @@
 			getSkuInfo(goodsInfo, quantity) {
 				let theSkuInfo = {}
 				let goodsSku = goodsInfo.goodsSkuVOList[0]
+				theSkuInfo.shopId = goodsInfo.goodsInfoShopId
 				theSkuInfo.goosInfoId = goodsInfo.goodsInfoId
 				theSkuInfo.goodsSkuId = goodsSku.goodsSkuId
 				theSkuInfo.goodsPicId = goodsSku.goodsPicId
@@ -341,13 +342,19 @@
 			},
 			getOrderInfo() {
 				let order = {}
+				order.shopId = 0
 				order.totalAmount = this.totalPay
 				order.payAmount = this.actualPay
 				order.discountAmount = this.discount
 				order.remark = this.remark
 				let orderItems = []
 				this.skuList.forEach((item, index) => {
+					console.log(item.shopId)
+					if (order.shopId === 0) {
+						order.shopId = item.shopId
+					}
 					let orderItem = {
+						shopId: item.shopId,
 						goodsId: item.goosInfoId,
 						goodsSkuId: item.goodsSkuId,
 						skuPicId: item.goodsPicId,

@@ -243,7 +243,6 @@
 		{
 			"path": "pages/commission/commission",
 			"style": {
-				"enablePullDownRefresh": true,
 				"navigationBarTitleText": "我的佣金"
 			}
 		},
