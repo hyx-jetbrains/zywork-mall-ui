@@ -173,9 +173,9 @@
 		-->
 
 		<!-- 热门商品 -->
-		<view class="f-header m-t">
+		<view class="f-header m-t" @click="navToHotProductList">
 			<zywork-icon type="iconremen" color="#fa436a" size="30"></zywork-icon>
-			<view class="tit-box" @click="navToHotProductList">
+			<view class="tit-box">
 				<text class="tit">热门商品</text>
 				<text class="tit2">最多人喜欢的商品</text>
 			</view>
