@@ -176,6 +176,7 @@
 			loadCartSku(skuIds, cartDataList) {
 				this.cartList = []
 				doPostJson('/goods-sku-attr-val/any/goods-goods-sku-attr/' + skuIds, {}, {}).then(response => {
+					uni.hideLoading()
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
 						let goodsList = res.data.data
@@ -221,7 +222,6 @@
 							})
 							this.calcTotal()
 						}
-						uni.hideLoading()
 					} 
 				}).catch(error => {
 					console.log(error)
