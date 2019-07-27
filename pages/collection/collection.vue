@@ -2,7 +2,7 @@
 	<view class="container">
 		<!-- 空白页 -->
 		<view v-if="!hasUserInfo || empty===true" class="empty">
-			<image src="/static/emptyCart.jpg" mode="aspectFit"></image>
+			<image src="/static/emptyPage.png" mode="aspectFit"></image>
 			<view v-if="hasUserInfo" class="empty-tips">
 				空空如也
 				<navigator class="navigator" v-if="hasUserInfo" url="../index/index" open-type="switchTab">随便逛逛></navigator>
@@ -28,13 +28,18 @@
 								<view>
 									<text class="price">¥{{item.salePrice}}</text>
 								</view>
-								
+								<view class="attr">
+									{{item.createTime}}
+								</view>
 							</view>
 						</view>
+						<text class="del-btn iconfont iconguanbi" @click="deleteCartItem(item.id, index)"></text>
 					</view>
 				</block>
 			</view>
 		</view>
+		
+		<view class="uni-loadmore" v-if="showLoadMore">{{loadMoreText}}</view>
 	</view>
 </template>
 
@@ -56,6 +61,8 @@
 		components: {},
 		data() {
 			return {
+				loadMoreText: "加载中...",
+				showLoadMore: false,
 				hasUserInfo: false,
 				empty: true, //空白页现实  true|false
 				cartList: [],
@@ -63,21 +70,36 @@
 				discount: 0,
 				allChecked: false, //全选状态  true|false
 				frontBaseUrl: FRONT_BASE_URL,
-				localFileStorage: LOCAL_FILE_STORAGE
-			}
-		},
-		onLoad() {
-			if (uni.getStorageSync(HAS_USER_INFO)) {
-				this.loadCollection()
+				localFileStorage: LOCAL_FILE_STORAGE,
+				pager: {
+					pageNo: 1,
+					pageSize: 10,
+					sortColumn: 'updateTime',
+					sortOrder: 'desc'
+				},
+				cartDataList: []
 			}
 		},
 		onShow() {
 			if (uni.getStorageSync(HAS_USER_INFO)) {
 				this.hasUserInfo = true
-				if (uni.getStorageSync(REFRESH_CART)) {
-					this.loadCollection()
-					uni.setStorageSync(REFRESH_CART, false)
-				}
+			}
+		},
+		onLoad() {
+			if (uni.getStorageSync(HAS_USER_INFO)) {
+				this.loadCollection('init')
+			}
+		},
+		onPullDownRefresh() {
+			if (uni.getStorageSync(HAS_USER_INFO)) {
+				this.pager.pageNo = 1;
+				this.loadCollection('refresh')
+			}
+		},
+		onReachBottom() {
+			if (uni.getStorageSync(HAS_USER_INFO)) {
+				this.pager.pageNo += 1;
+				this.loadCollection('reachBottom');
 			}
 		},
 		watch:{
@@ -94,22 +116,36 @@
 		},
 		methods: {
 			//请求收藏数据
-			async loadCollection(){
+			async loadCollection(type){
 				uni.showLoading({
 					title: '加载商品...'
 				})
-				doPostJson('/goods-collection/user/pager-cond', {
-					sortColumn: 'updateTime',
-					sortOrder: 'desc'
-				}, {}, true).then(response => {
+				doPostJson('/goods-collection/user/pager-cond', this.pager, {}, true).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
-						let cartDataList = res.data.data.rows
+						let rows = res.data.data.rows;
+						if (type === 'init') {
+							this.cartDataList = rows;
+						} else if (type === 'pullDown') {
+							this.cartDataList = rows;
+							uni.stopPullDownRefresh();
+							this.showLoadMore = false;
+							this.loadMoreText = '加载中...';
+						} else if (type === 'reachBottom') {
+							if (rows.length > 0) {
+								this.cartDataList = this.cartDataList.concat(rows);
+								this.loadMoreText = '加载更多';
+							} else {
+								this.loadMoreText = '已加载全部';
+							}
+						}
+						
+						
 						let skuIds = ''
-						cartDataList.forEach((item, index) => {
+						this.cartDataList.forEach((item, index) => {
 							skuIds += item.goodsSkuId + ','
 						})
-						this.loadCollectionSku(skuIds, cartDataList)
+						this.loadCollectionSku(skuIds, this.cartDataList)
 					}
 				}).catch(error => {
 					console.log(error)
@@ -119,9 +155,9 @@
 			loadCollectionSku(skuIds, cartDataList) {
 				this.cartList = []
 				doPostJson('/goods-sku-attr-val/any/goods-goods-sku-attr/' + skuIds, {}, {}).then(response => {
+					uni.hideLoading()
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
-						uni.hideLoading()
 						let goodsList = res.data.data
 						if (goodsList.length > 0) {
 							let list = []
@@ -160,10 +196,11 @@
 									if (cartItem.goodsSkuId === cartData.goodsSkuId) {
 										cartItem.id = cartData.id
 										cartItem.quantity = cartData.quantity
+										cartItem.createTime = cartData.createTime
 									}
 								})
 							})
-							this.calcTotal()
+							console.log(this.cartList)
 						}
 						
 					} 
@@ -191,9 +228,38 @@
 					url: url
 				})
 			},
+			/**
+			 * 查看商品详情
+			 * @param {Object} goodsId
+			 * @param {Object} goodsSkuId
+			 */
 			navToGoodsSku(goodsId, goodsSkuId) {
 				uni.navigateTo({
 					url: `/pages/product/product?goodsInfoId=${goodsId}&goodsSkuId=${goodsSkuId}`
+				})
+			},
+			//删除
+			deleteCartItem(id, index){
+				uni.showModal({
+					content: '取消商品收藏？',
+					success: (e)=>{
+						if(e.confirm){
+							uni.showLoading({
+								title: '正在取消...'
+							})
+							console.log(id)
+							doGet('/goods-collection/user/remove/' + id, {}, true).then(response => {
+								uni.hideLoading();
+								let [error, res] = response
+								if (res.data.code === ResponseStatus.OK) {
+									this.cartList.splice(index, 1);
+									this.calcTotal();
+								}
+							}).catch(error => {
+								console.log(error)
+							})
+						}
+					}
 				})
 			},
 		}
@@ -238,8 +304,8 @@
 		position:relative;
 		padding:30upx 40upx;
 		.image-wrapper{
-			width: 230upx;
-			height: 230upx;
+			width: 200upx;
+			height: 200upx;
 			flex-shrink: 0;
 			position:relative;
 			image{
