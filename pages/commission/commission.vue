@@ -26,6 +26,7 @@
 							{{commissionItem.amount > 0 ? '+' : ''}}{{commissionItem.amount}}
 						</view>
 					</view>
+					<view>{{commissionItem.remark}}</view>
 					<view>{{commissionItem.createTime}}</view>
 				</view>
 				<uni-pagination :current="pager.pageNo" :total="pager.pageTotal" title="标题文字" prev-text="前一页" next-text="后一页" @change="changePageTotal" />
