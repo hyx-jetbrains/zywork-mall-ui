@@ -335,6 +335,8 @@
 				}
 			},
 			checkPrice() {
+				this.salePriceMin = parseInt(this.salePriceMin);
+				this.salePriceMax = parseInt(this.salePriceMax);
 				if (this.salePriceMin && !this.salePriceMax && this.salePriceMin <= 0) {
 					showInfoToast('最低价必须大于0')
 					return false
