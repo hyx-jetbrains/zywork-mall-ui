@@ -246,10 +246,10 @@
 				this.loadOtherUserData()
 				setTimeout(function() {
 					uni.stopPullDownRefresh()
-				}, 500);
+				}, 500)
 				
 			} else {
-				this.loadData('pulldown')
+				this.loadData('pullDown')
 			}
 		},
 		// #ifndef MP
