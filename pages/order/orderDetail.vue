@@ -20,7 +20,7 @@
 		<view class="goods-section" >
 			<!-- 店铺信息 -->
 			<view class="zy-bottom">
-				<image class="logo" :src="orderInfo.goodsShopLogo"></image>
+				<image class="logo" :src="localFileStorage ? frontBaseUrl + orderInfo.goodsShopLogo : orderInfo.goodsShopLogo"></image>
 				<text class="name">{{orderInfo.goodsShopTitle}}</text>
 			</view>
 		</view>

@@ -23,7 +23,7 @@
 								:class="{checked: item.checked}"
 								@click="check('shop', shopIndex)"
 							></view>
-							<image :src="item.shopLogo" mode="aspectFill"></image>
+							<image :src="localFileStorage ? frontBaseUrl + item.shopLogo : item.shopLogo" mode="aspectFill"></image>
 							<view class="right">
 								{{item.shopTitle}}
 							</view>

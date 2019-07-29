@@ -22,7 +22,7 @@
 		<view class="goods-section">
 			<view v-for="(shopSkus, shopIndex) in shopSkuList" :key="shopIndex">
 				<view class="g-header b-b">
-					<image class="logo" :src="shopSkus.shopLogo"></image>
+					<image class="logo" :src="localFileStorage ? frontBaseUrl + shopSkus.shopLogo : shopSkus.shopLogo"></image>
 					<text class="name">{{shopSkus.shopTitle}}</text>
 				</view>
 				<!-- 商品列表 -->
