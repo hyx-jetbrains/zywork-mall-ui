@@ -87,9 +87,9 @@
 		
 		<!-- 店铺 --> 
 		<view class="shop-section">
-			<image :src="goodsInfo.goodsShopLogo" mode="aspectFill"></image>
+			<image :src="localFileStorage ? frontBaseUrl + goodsInfo.goodsShopLogo : goodsInfo.goodsShopLogo" mode="aspectFill"></image>
 		    <view class="right">
-				{{goodsInfo.goodsShopTitle}}
+				{{goodsInfo.goodsShopTitle || ''}}
 		    </view>
 		</view>
 		

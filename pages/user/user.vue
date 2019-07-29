@@ -366,7 +366,7 @@
 							if (userInfo.userDetailHeadicon) {
 								this.userInfo.headicon = userInfo.userDetailHeadicon;
 								if (this.userInfo.headicon !== '' && this.userInfo.headicon.indexOf('http') < 0) {
-									this.userInfo.headicon = FRONT_BASE_URL + '/' + this.userInfo.headicon;
+									this.userInfo.headicon = FRONT_BASE_URL + this.userInfo.headicon;
 								}
 							}
 							if (userInfo.userDetailGender) {

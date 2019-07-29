@@ -153,7 +153,7 @@
 				const shareCode = uni.getStorageSync(SHARE_CODE);
 				let fromUrl = this.fromUrl ? this.fromUrl : '/pages/index/index'
 				const data = {
-					extraParams : FRONT_BASE_URL + '/#' + fromUrl + '__' + FRONT_BASE_URL + '/#' + fromUrl + '__' + (shareCode ? shareCode : 'shareCode')
+					extraParams : FRONT_BASE_URL + '#' + fromUrl + '__' + FRONT_BASE_URL + '#' + fromUrl + '__' + (shareCode ? shareCode : 'shareCode')
 				}
 				doGetForm('/wx-auth/to-gzh', data, {}, false).then(response => {}).catch(err => {
 					console.log(err);
