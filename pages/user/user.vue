@@ -101,9 +101,9 @@
 					<zywork-icon type="icondaishouhuo" color="#fa436a" size="20" class="iconfont" />
 					<text>待收货</text>
 				</view>
-				<view class="order-item" @click="toOrderPage(4)" hover-class="common-hover" :hover-stay-time="50">
-					<zywork-icon type="icontuikuanshouhou" color="#fa436a" size="20" class="iconfont" />
-					<text>退款售后</text>
+				<view class="order-item" @click="toOrderPage(3)" hover-class="common-hover" :hover-stay-time="50">
+					<zywork-icon type="iconpingjia" color="#fa436a" size="20" class="iconfont" />
+					<text>待评价</text>
 				</view>
 			</view>
 			<!-- 分销 -->
