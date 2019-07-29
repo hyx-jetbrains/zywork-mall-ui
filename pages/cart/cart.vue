@@ -23,7 +23,7 @@
 								:class="{checked: item.checked}"
 								@click="check('shop', shopIndex)"
 							></view>
-							<image :src="item.shopLogo"></image>
+							<image :src="item.shopLogo" mode="aspectFill"></image>
 							<view class="right">
 								{{item.shopTitle}}
 							</view>
@@ -631,13 +631,13 @@
 		}
 		
 		image {
-			width: 100upx;
-			height: 100upx;
-			border-radius: 50upx;
+			width: 80upx;
+			height: 80upx;
+			border-radius: 80upx;
+			margin-left: 20upx;
 		}
 		
 		.right {
-			width: 100%;
 			color: $font-color-dark;
 			font-size: $font-base;
 			font-weight: bold;

@@ -87,7 +87,7 @@
 		
 		<!-- 店铺 --> 
 		<view class="shop-section">
-			<image :src="goodsInfo.goodsShopLogo"></image>
+			<image :src="goodsInfo.goodsShopLogo" mode="aspectFill"></image>
 		    <view class="right">
 				{{goodsInfo.goodsShopTitle}}
 		    </view>
@@ -1266,13 +1266,12 @@
 	  padding: 12upx 30upx;
 	  
 	  image {
-	   width: 100upx;
-	   height: 100upx;
-	   border-radius: 50upx;
+	   width: 80upx;
+	   height: 80upx;
+	   border-radius: 80upx;
 	  }
 	  
 	  .right {
-	   width: 100%;
 	   color: $font-color-dark;
 	   font-size: $font-base;
 	   padding-left: 26upx;
