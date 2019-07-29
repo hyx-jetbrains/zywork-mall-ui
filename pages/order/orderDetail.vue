@@ -3,6 +3,7 @@
 		<view class="zy-top">
 			<view class="zy-text-bold zy-status">{{orderInfo.stateTip}}</view>
 			<view style="margin: 20upx;">
+				<Button type="default" class="zy-btn" @click="toIndexPage">返回首页</Button>
 				<Button type="default" class="zy-btn" @click="repurchase">再次购买</Button>
 			</view>
 			<view class="zy-memo zy-display-flex">
@@ -137,6 +138,14 @@
 			 */
 			repurchase() {
 				showInfoToast('再次购买')
+			},
+			/**
+			 * 返回首页
+			 */
+			toIndexPage() {
+				uni.switchTab({
+					url: '/pages/index/index'
+				})
 			},
 			//订单状态文字和颜色
 			orderStateExp(item) {

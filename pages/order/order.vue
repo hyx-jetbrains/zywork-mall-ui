@@ -54,13 +54,13 @@
 						<!-- 待收货 -->
 						<view class="action-box b-t" v-else-if="item.goodsOrderOrderStatus === 4">
 							<button class="action-btn" @click="toLogisticsPage">查看物流</button>
-							<button class="action-btn recom" @click="confirmReceipt(item.goodsOrderId, index)">确认收货</button>
+							<button class="action-btn recom" @click="confirmReceipt(item)">确认收货</button>
 						</view>
 						<!-- 已确认收货 -->
-						<view class="action-box b-t" v-else-if="item.goodsOrderOrderStatus === 5">
+						<view class="action-box b-t" v-else-if="item.goodsOrderOrderStatus === 11">
 							<button class="action-btn recom" @click="applyAfter">申请售后</button>
 							<button class="action-btn" @click="toLogisticsPage">查看物流</button>
-							<button class="action-btn recom" @click="toAddEvaluatePage">立即评价</button>
+							<button class="action-btn recom" @click="toAddEvaluatePage(item)">立即评价</button>
 						</view>
 					</view>
 
@@ -130,7 +130,8 @@
 				],
 				urls: {
 					searchUrl: '/user-goods-order/user/pager-cond',
-					removeUrl: '/goods-order/user/remove/'
+					removeUrl: '/goods-order/user/remove/',
+					confirmUrl: '/goods-order/user/confirm'
 				},
 				pager: {
 					pageNo: 1,
@@ -233,7 +234,7 @@
 						this.pager.goodsOrderOrderStatusMax = 4;
 					} else if (index == 3) {
 						// 待评价订单
-						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = 5;
+						this.pager.goodsOrderOrderStatusMin = this.pager.goodsOrderOrderStatusMax = 11;
 					} else if (index == 4) {
 						// 售后订单
 						this.pager.goodsOrderOrderStatusMin = 7
@@ -386,6 +387,16 @@
 						time = item.goodsOrderCreateTime;
 						timeTip = '下单时间';
 						break;
+					case 11:
+						stateTip: '待评价';
+						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
+						break;
+					case 12:
+						stateTip: '已评价';
+						time = item.goodsOrderCreateTime;
+						timeTip = '下单时间';
+						break;
 				}
 				return {
 					stateTip,
@@ -397,22 +408,22 @@
 			/**
 			 * 前往发布商品评论页面
 			 */
-			toAddEvaluatePage() {
+			toAddEvaluatePage(item) {
 				uni.navigateTo({
-					url: ADD_EVALUATE_PAGE
+					url: ADD_EVALUATE_PAGE + '?goodsList=' + JSON.stringify(item.userGoodsOrderItemVOList) + '&orderId=' + item.goodsOrderId
 				})
 			},
 			/**
 			 * 查看物流
 			 */
 			toLogisticsPage() {
-				showInfoToast('暂未实现')
+				showInfoToast('查看物流')
 			},
 			/**
 			 * 申请售后
 			 */
 			applyAfter() {
-				showInfoToast('暂未实现')
+				showInfoToast('申请售后')
 			},
 			/**
 			 * 立即支付
@@ -428,14 +439,19 @@
 			 * 确认收货
 			 * @param {Object} orderId 订单id
 			 */
-			confirmReceipt(orderId, index) {
-				uni.showModal({
-					title: '确定取消订单？',
-					success: (res) => {
-						if (res.confirm) {
-							this.updateOrderStatus(orderId, 5, index)
-						}
+			confirmReceipt(item) {
+				const params = {
+					id: item.goodsOrderId
+				}
+				doPostJson(this.urls.confirmUrl, params, {}, true).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						uni.redirectTo({
+							url: '/pages/status-page/transaction-success?orderInfo=' + JSON.stringify(item)
+						})
 					}
+				}).catch(err => {
+					console.log(err)
 				})
 			},
 			/**

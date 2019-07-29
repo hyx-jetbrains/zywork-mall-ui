@@ -247,6 +247,18 @@
 			}
 		},
 		{
+			"path": "pages/status-page/comment-success",
+			"style": {
+				"navigationBarTitleText": "评价成功"
+			}
+		},
+		{
+			"path": "pages/status-page/transaction-success",
+			"style": {
+				"navigationBarTitleText": "交易成功"
+			}
+		},
+		{
 			"path": "pages/agent/agent",
 			"style": {
 				"enablePullDownRefresh": true,

@@ -1,28 +1,39 @@
 <template>
 	<view class='issue'>
-		<view class="issue-head zy-issue-head zy-display-flex">
-			<slot name="headPic"></slot>
-			<zywork-icon type="iconyunliankeji-" color="#8A8A8A" size="30" class="zy-icon" />
-			<view class="zy-display-flex zy-rate">
-				<view class="zy-display-flex" @click="switchRateType(0)">
-					<zywork-icon type="iconhaoping" :color="rateType == 0 ? '#dd524d' : '#8A8A8A'" size="24" class="zy-icon" />
-					<text :style="{color:(rateType == 0 ? '#dd524d' : '#8A8A8A')}">好评</text>
+		<view v-for="(item, index) in goodsList" :key="index">
+			<view class="zy-display-flex zy-head">
+				<view>
+					{{item.skuTitle}}
 				</view>
-				<view class="zy-display-flex" @click="switchRateType(1)">
-					<zywork-icon type="iconchaping1" :color="rateType == 1 ? '#dd524d' : '#8A8A8A'" size="24" class="zy-icon" />
-					<text :style="{color:(rateType == 1 ? '#dd524d' : '#8A8A8A')}">中评</text>
+				<view class="zy-display-flex-right zy-head-tip">
+					{{item.skuInfo}}
 				</view>
-				<view class="zy-display-flex" @click="switchRateType(2)">
-					<zywork-icon type="iconchaping1" :color="rateType == 2 ? '#dd524d' : '#8A8A8A'" size="24" class="zy-icon" />
-					<text :style="{color:(rateType == 2 ? '#dd524d' : '#8A8A8A')}">差评</text>
+			</view>
+			<view class="issue-head zy-issue-head zy-display-flex">
+				<slot name="headPic"></slot>
+				<!-- <zywork-icon type="iconyunliankeji-" color="#8A8A8A" size="30" class="zy-icon" /> -->
+				<image class="zy-goods-img" :src="localFileStorage ? frontBaseUrl + goodsItem.goodsPicPicUrl : goodsItem.goodsPicPicUrl" mode="aspectFill"></image>
+				<view class="zy-display-flex zy-rate">
+					<view class="zy-display-flex" @click="switchRateType(index, 0)">
+						<zywork-icon type="iconhaoping" :color="item.commentLevel == 0 ? '#dd524d' : '#8A8A8A'" size="24" class="zy-icon" />
+						<text :style="{color:(item.commentLevel == 0 ? '#dd524d' : '#8A8A8A')}">好评</text>
+					</view>
+					<view class="zy-display-flex" @click="switchRateType(index, 1)">
+						<zywork-icon type="iconchaping1" :color="item.commentLevel == 1 ? '#dd524d' : '#8A8A8A'" size="24" class="zy-icon" />
+						<text :style="{color:(item.commentLevel == 1 ? '#dd524d' : '#8A8A8A')}">中评</text>
+					</view>
+					<view class="zy-display-flex" @click="switchRateType(index, 2)">
+						<zywork-icon type="iconchaping1" :color="item.commentLevel == 2 ? '#dd524d' : '#8A8A8A'" size="24" class="zy-icon" />
+						<text :style="{color:(item.commentLevel == 2 ? '#dd524d' : '#8A8A8A')}">差评</text>
+					</view>
+					
 				</view>
-				
+			</view>
+			<textarea v-if="textareaShow" v-model="item.comments" :placeholder="textareaPlaceholder" />
+			<view class="zy-display-flex zy-issue-rate">
+				商品评分：<uni-rate :value="item.commentRate" v-model="item.commentRate" />
 			</view>
 		</view>
-		<textarea v-if="textareaShow" @blur="blur" :value="infoReceive.textareaValue" :placeholder="textareaPlaceholder" />
-		<view class="zy-display-flex zy-issue-rate">
-			 商品评分：<uni-rate />
-		 </view>
 		<view class="issue-btn-box">
 		 	<!-- <button v-if="submitShow" class="submit-btn" type="primary" @click="doSubmit">{{submitText}}</button> -->
 			<button v-if="submitShow" class="zy-add-btn" @click="doSubmit">{{submitText}}</button>
@@ -34,6 +45,10 @@
 <script>
 	import uniRate from '@/components/uni-rate/uni-rate.vue'
 	import zyworkIcon from '@/components/zywork-icon/zywork-icon.vue'
+	import {
+		FRONT_BASE_URL,
+		LOCAL_FILE_STORAGE
+	} from '@/common/util.js'
 	export default {
 		components: {
 			uniRate,
@@ -91,7 +106,9 @@
 		},
 		data() {
 			return {
-				rateType: 0
+				frontBaseUrl: FRONT_BASE_URL,
+				localFileStorage: LOCAL_FILE_STORAGE,
+				goodsList: [],
 			};
 		},
 		methods: {
@@ -99,24 +116,21 @@
 			 * 设置评价类型
 			 * @param {Object} type 评价类型
 			 */
-			switchRateType(type) {
-				if (this.rateType !== type) {
-					this.rateType = type
-				}
+			switchRateType(index, type) {
+				this.$set(this.goodsList[index], 'commentLevel', type);
 			},
 			/**
-			 * @name 获取textarea内容
+			 * 星星点击监听
 			 */
-			
-			blur(e){
-				this.infoReceive.textareaValue=e.detail.value
-			},
+			// rateChange(e) {
+			// 	this.commentRate = e.value
+			// },
 			
 			/**
 			 * @name 提交
 			 */
 			doSubmit(){
-				this.$emit('submit',this.infoReceive)
+				this.$emit('submit', this.goodsList)
 			}
 		},
 		created() {
@@ -171,7 +185,7 @@
 		}
 		textarea{
 			width: 100%;
-			height: 420upx;
+			height: 220upx;
 			background-color: $white;
 			font-size: $fontSize;
 			color: #898989;
@@ -210,6 +224,10 @@
 		flex-direction: row;
 		align-items: center;
 	}
+	.zy-display-flex-right {
+		margin-left: auto;
+		margin-right: 20upx;
+	}
 	
 	.zy-icon {
 		display: inline-block; 
@@ -222,6 +240,8 @@
 	.zy-issue-rate {
 		padding: 10upx 25upx;
 		background-color: #FFF;
+		font-size: 28upx;
+		margin-bottom: 20upx;
 	}
 	.zy-rate view {
 		margin: 0 10upx;
@@ -241,5 +261,18 @@
 		background-color: $base-color;
 		border-radius: 10upx;
 		box-shadow: 1px 2px 5px rgba(219, 63, 96, 0.4);
+	}
+	.zy-goods-img {
+		width: 60upx;
+		height: 60upx;
+		margin-right: 20upx;
+	}
+	.zy-head {
+		background-color: #FFF;
+		padding: 10upx;
+		font-size: 28upx;
+	}
+	.zy-head-tip {
+		color: #898989;
 	}
 </style>
