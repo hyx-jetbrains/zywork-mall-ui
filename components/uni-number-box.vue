@@ -28,6 +28,10 @@
 				type: Number,
 				default: 0
 			},
+			index_: {
+				type: Number,
+				default: 0
+			},
 			value: {
 				type: Number,
 				default: 0
@@ -71,7 +75,8 @@
 			inputValue(number) {
 				const data = {
 					number: number,
-					index: this.index
+					index: this.index,
+					index_: this.index_
 				}
 				this.$emit('eventChange', data)
 			},

@@ -20,40 +20,50 @@
 		</navigator>
 
 		<view class="goods-section">
-			<view class="g-header b-b">
-				<image class="logo" src="http://duoduo.qibukj.cn/./Upload/Images/20190321/201903211727515.png"></image>
-				<text class="name">智悦商城</text>
-			</view>
-			<!-- 商品列表 -->
-			<view class="g-item" v-for="(item, index) in skuList" :key="index">
-				<image :src="localFileStorage ? frontBaseUrl + item.goodsSkuPicUrl : item.goodsSkuPicUrl"></image>
-				<view class="right">
-					<text class="title clamp">{{item.title}}</text>
-					<text class="spec">{{item.skuSpecStr}}</text>
-					<view class="price-box">
-						<text class="price">￥{{item.salePrice}}</text>
-						<text style="color: #fa436a; font-size: 26upx;" v-if="item.overStoreCount">库存不足</text>
-						<!-- #ifdef MP || APP-PLUS -->
-						<uni-number-box
-							class="number-box"
-							:min="1" 
-							:max="item.storeCount"
-							:value="item.quantity"
-							:index="index"
-							@eventChange="numberChange"
-						></uni-number-box>
-						<!-- #endif -->
-						<!-- #ifdef H5 -->
-						<uni-number-box
-							class="number-box"
-							:min="1" 
-							:max="item.storeCount"
-							v-model="item.quantity"
-							:index="index"
-							:disabled="true"
-							@eventChange="numberChange"
-						></uni-number-box>
-						<!-- #endif -->
+			<view v-for="(shopSkus, shopIndex) in shopSkuList" :key="shopIndex">
+				<view class="g-header b-b">
+					<image class="logo" :src="shopSkus.shopLogo"></image>
+					<text class="name">{{shopSkus.shopTitle}}</text>
+				</view>
+				<!-- 商品列表 -->
+				<view class="g-item" v-for="(item, skuIndex) in shopSkus.skuList" :key="skuIndex">
+					<image :src="localFileStorage ? frontBaseUrl + item.goodsSkuPicUrl : item.goodsSkuPicUrl"></image>
+					<view class="right">
+						<text class="title clamp">{{item.title}}</text>
+						<text class="spec">{{item.skuSpecStr}}</text>
+						<view class="price-box">
+							<text class="price">￥{{item.salePrice}}</text>
+							<text style="color: #fa436a; font-size: 26upx;" v-if="item.overStoreCount">库存不足</text>
+							<!-- #ifdef MP || APP-PLUS -->
+							<uni-number-box
+								class="number-box"
+								:min="1" 
+								:max="item.storeCount"
+								:value="item.quantity"
+								:index="shopIndex"
+								:index_="skuIndex"
+								@eventChange="numberChange"
+							></uni-number-box>
+							<!-- #endif -->
+							<!-- #ifdef H5 -->
+							<uni-number-box
+								class="number-box"
+								:min="1" 
+								:max="item.storeCount"
+								v-model="item.quantity"
+								:index="shopIndex"
+								:index_="skuIndex"
+								:disabled="true"
+								@eventChange="numberChange"
+							></uni-number-box>
+							<!-- #endif -->
+						</view>
+					</view>
+				</view>
+				<view class="yt-list">
+					<view class="yt-list-cell">
+						<text class="cell-tit clamp">订单备注</text>
+						<input class="desc" type="text" v-model="shopSkus.remark" placeholder="请填写备注信息" placeholder-class="placeholder" />
 					</view>
 				</view>
 			</view>
@@ -92,10 +102,6 @@
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">运费</text>
 				<text class="cell-tip">免运费</text>
-			</view>
-			<view class="yt-list-cell desc-cell">
-				<text class="cell-tit clamp">备注</text>
-				<input class="desc" type="text" v-model="remark" placeholder="请填写备注信息" placeholder-class="placeholder" />
 			</view>
 		</view>
 		
@@ -149,7 +155,7 @@
 				quantity: null,
 				cartData: null,
 				selectedAddress: {},
-				skuList: [],
+				shopSkuList: [],
 				totalPay: 0,
 				discount: 0,
 				actualPay: 0,
@@ -215,7 +221,13 @@
 						let [error, res] = response
 						if (res.data.code === ResponseStatus.OK) {
 							let goodsInfo = res.data.data
-							this.skuList.push(this.getSkuInfo(goodsInfo, this.quantity))
+							let theSkuInfo = this.getSkuInfo(goodsInfo, this.quantity)
+							let shopSkus = {}
+							shopSkus.shopId = theSkuInfo.shopId
+							shopSkus.shopLogo = theSkuInfo.shopLogo
+							shopSkus.shopTitle = theSkuInfo.shopTitle
+							shopSkus.skuList = [theSkuInfo]
+							this.shopSkuList.push(shopSkus)
 							this.calculateActualPay()
 						}
 					}).catch(error => {
@@ -236,16 +248,18 @@
 							if (goodsList.length > 0) {
 								let list = []
 								goodsList.forEach((item, index) => {
-									this.skuList.push(this.getSkuInfo(item, 0))
+									list.push(this.getSkuInfo(item, 0))
 								})
+								this.calSkuQuantity(list)
 								// 获取每个sku的购买数量
-								this.skuList.forEach((skuInfo, index) => {
-									this.cartData.forEach((item, index) => {
-										if (skuInfo.goodsSkuId === item.goodsSkuId) {
-											skuInfo.quantity = item.quantity
-										}
-									})
-								})
+								// this.skuList.forEach((skuInfo, index) => {
+								// 	this.cartData.forEach((item, index) => {
+								// 		if (skuInfo.goodsSkuId === item.goodsSkuId) {
+								// 			skuInfo.quantity = item.quantity
+								// 		}
+								// 	})
+								// })
+								this.filterSkuListByShop(list)
 								this.calculateActualPay()
 							}
 							uni.hideLoading()
@@ -259,6 +273,8 @@
 				let theSkuInfo = {}
 				let goodsSku = goodsInfo.goodsSkuVOList[0]
 				theSkuInfo.shopId = goodsInfo.goodsInfoShopId
+				theSkuInfo.shopLogo = goodsInfo.goodsShopLogo
+				theSkuInfo.shopTitle = goodsInfo.goodsShopTitle
 				theSkuInfo.goosInfoId = goodsInfo.goodsInfoId
 				theSkuInfo.goodsSkuId = goodsSku.goodsSkuId
 				theSkuInfo.goodsPicId = goodsSku.goodsPicId
@@ -283,11 +299,43 @@
 				theSkuInfo.overStoreCount = false
 				return theSkuInfo
 			},
+			// 获取每个sku的购买数量
+			calSkuQuantity(shopSkuList) {
+				shopSkuList.forEach((shopSkus, index) => {
+					this.cartData.forEach((cartData, index) => {
+						if (shopSkus.goodsSkuId === cartData.goodsSkuId) {
+							shopSkus.id = cartData.id
+							shopSkus.quantity = cartData.quantity
+						}
+					})
+				})
+			},
+			// 对所有商品SKU列表进行过滤，把同一个店铺的商品SKU归类到同一个对象中
+			filterSkuListByShop(goodsSkuList) {
+				let shopIds = []
+				goodsSkuList.forEach((item, index) => {
+					if (shopIds.indexOf(item.shopId) < 0) {
+						shopIds.push(item.shopId)
+					}
+				})
+				shopIds.forEach((item, index) => {
+					let shopSkus = {}
+					shopSkus.skuList = []
+					shopSkus.skuList = goodsSkuList.filter(goodsSku => goodsSku.shopId == item)
+					shopSkus.shopId = shopSkus.skuList[0].shopId
+					shopSkus.shopLogo = shopSkus.skuList[0].shopLogo
+					shopSkus.shopTitle = shopSkus.skuList[0].shopTitle
+					this.shopSkuList.push(shopSkus)
+				})
+				console.log(this.shopSkuList)
+			},
 			// 计算实付金额
 			calculateActualPay() {
 				this.totalPay = 0
-				this.skuList.forEach((item, index) => {
-					this.totalPay += (item.salePrice * item.quantity)
+				this.shopSkuList.forEach((shopSkus, index) => {
+					shopSkus.skuList.forEach(sku => {
+						this.totalPay += (sku.salePrice * sku.quantity)
+					})
 				})
 				this.totalPay.toFixed(2)
 				this.actualPay = (this.totalPay - this.discount).toFixed(2)
@@ -378,7 +426,7 @@
 			},
 			numberChange(data) {
 				this.number = data.number;
-				this.skuList[data.index].quantity = data.number
+				this.shopSkuList[data.index].skuList[data.index_].quantity = data.number
 				this.calculateActualPay()
 			},
 			stopPrevent(){}
@@ -603,7 +651,7 @@
 		}
 
 		.desc {
-			flex: 1;
+			flex: 2;
 			font-size: $font-base;
 			color: $font-color-dark;
 			text-align: right;

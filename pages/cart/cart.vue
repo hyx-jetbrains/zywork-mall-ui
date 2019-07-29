@@ -15,51 +15,66 @@
 		<view v-else>
 			<!-- 列表 -->
 			<view class="cart-list">
-				<block v-for="(item, index) in cartList" :key="index">
-					<view class="cart-item" :class="{'b-b': index!==cartList.length-1}">
-						<view class="image-wrapper">
-							<image :src="localFileStorage ? frontBaseUrl + item.goodsSkuPicUrl : item.goodsSkuPicUrl" 
-								:class="[item.loaded]"
-								mode="aspectFill" 
-								lazy-load 
-								@load="onImageLoad('cartList', index)" 
-								@error="onImageError('cartList', index)"
-							></image>
+				<block v-for="(item, shopIndex) in shopSkuList" :key="shopIndex">
+					<view :class="{'b-b': shopIndex!==shopSkuList.length-1}">
+						<view class="shop-info">
 							<view 
-								class="iconfont iconxuanzhong checkbox"
+								class="iconfont iconxuanzhong shop-checkbox"
 								:class="{checked: item.checked}"
-								@click="check('item', index)"
+								@click="check('shop', shopIndex)"
 							></view>
-						</view>
-						<view class="item-right">
-							<view @click="navToGoodsSku(item.goodsInfoId, item.goodsSkuId)">
-								<text class="clamp title">{{item.title}}</text>
-								<text class="attr">{{item.skuSpecStr}}</text>
-								<text class="price">¥{{item.salePrice}}</text>
+							<image :src="item.shopLogo"></image>
+							<view class="right">
+								{{item.shopTitle}}
 							</view>
-							<!-- #ifdef MP || APP-PLUS -->
-							<uni-number-box
-								class="number-box"
-								:min="1" 
-								:max="item.storeCount"
-								:value="item.quantity"
-								:index="index"
-								@eventChange="numberChange"
-							></uni-number-box>
-							<!-- #endif -->
-							<!-- #ifdef H5 -->
-							<uni-number-box
-								class="number-box"
-								:min="1" 
-								:max="item.storeCount"
-								:value="item.quantity"
-								:index="index"
-								:disabled="true"
-								@eventChange="numberChange"
-							></uni-number-box>
-							<!-- #endif -->
 						</view>
-						<text class="del-btn iconfont iconguanbi" @click="deleteCartItem(item.id, index)"></text>
+						<view class="cart-item" v-for="(sku, skuIndex) in item.skuList" :key="skuIndex">
+							<view class="image-wrapper">
+								<image :src="localFileStorage ? frontBaseUrl + sku.goodsSkuPicUrl : sku.goodsSkuPicUrl" 
+									:class="[item.loaded]"
+									mode="aspectFill" 
+									lazy-load 
+									@load="onImageLoad('shopSkuList', shopIndex, skuIndex)" 
+									@error="onImageError('shopSkuList', shopIndex, skuIndex)"
+								></image>
+								<view 
+									class="iconfont iconxuanzhong checkbox"
+									:class="{checked: sku.checked}"
+									@click="check('item', shopIndex, skuIndex)"
+								></view>
+							</view>
+							<view class="item-right">
+								<view @click="navToGoodsSku(sku.goodsInfoId, sku.goodsSkuId)">
+									<view class="clamp title">{{sku.title}}</view>
+									<view class="attr">{{sku.skuSpecStr}}</view>
+									<view class="price">¥{{sku.salePrice}}</view>
+								</view>
+								<!-- #ifdef MP || APP-PLUS -->
+								<uni-number-box
+									class="number-box"
+									:min="1" 
+									:max="sku.storeCount"
+									:value="sku.quantity"
+									:index="shopIndex"
+									:index_="skuIndex"
+									@eventChange="numberChange"
+								></uni-number-box>
+								<!-- #endif -->
+								<!-- #ifdef H5 -->
+								<uni-number-box
+									class="number-box"
+									:min="1" 
+									:max="sku.storeCount"
+									:value="sku.quantity"
+									:index="shopIndex"
+									:index_="skuIndex"
+									:disabled="true"
+									@eventChange="numberChange"
+								></uni-number-box>
+								<!-- #endif -->
+							</view>
+							<text class="del-btn iconfont iconguanbi" @click="deleteCartItem(sku.id, shopIndex, skuIndex)"></text>
+						</view>
 					</view>
 				</block>
 			</view>
@@ -108,7 +123,7 @@
 			return {
 				hasUserInfo: false,
 				empty: true, //空白页现实  true|false
-				cartList: [],
+				shopSkuList: [],
 				total: 0, //总价格
 				discount: 0,
 				allChecked: false, //全选状态  true|false
@@ -142,7 +157,7 @@
 		},
 		watch:{
 			//显示空白页
-			cartList(e){
+			shopSkuList(e){
 				let empty = e.length === 0 ? true: false;
 				if(this.empty !== empty){
 					this.empty = empty;
@@ -166,15 +181,15 @@
 						cartDataList.forEach((item, index) => {
 							skuIds += item.goodsSkuId + ','
 						})
-						this.loadCartSku(skuIds, cartDataList)
+						this.loadShopSkuList(skuIds, cartDataList)
 					}
 				}).catch(error => {
 					console.log(error)
 				})
 			},
 			// 根据购物车中的skuid去获取sku所有的属性信息
-			loadCartSku(skuIds, cartDataList) {
-				this.cartList = []
+			loadShopSkuList(skuIds, cartDataList) {
+				this.shopSkuList = []
 				doPostJson('/goods-sku-attr-val/any/goods-goods-sku-attr/' + skuIds, {}, {}).then(response => {
 					uni.hideLoading()
 					let [error, res] = response
@@ -183,43 +198,11 @@
 						if (goodsList.length > 0) {
 							let list = []
 							goodsList.forEach((item, index) => {
-								let goodsSku = item.goodsSkuVOList[0]
-								let theSkuInfo = {}
-								theSkuInfo.goodsInfoId = item.goodsInfoId
-								theSkuInfo.goodsSkuId = goodsSku.goodsSkuId
-								theSkuInfo.goodsSkuPicUrl = goodsSku.goodsPicPicUrl
-								let skuSpecStr = ''
-								goodsSku.goodsSkuAttrVOList.forEach((goodsSkuAttr, index) => {
-									if (goodsSkuAttr.goodsAttributeAttrCode === 'title') {
-										theSkuInfo.title = goodsSkuAttr.goodsAttributeValueAttrValue
-									}
-									if (goodsSkuAttr.goodsAttributeAttrCode === 'salePrice') {
-										theSkuInfo.salePrice = goodsSkuAttr.goodsAttributeValueAttrValue
-									}
-									if (goodsSkuAttr.goodsAttributeAttrCode === 'storeCount') {
-										theSkuInfo.storeCount = goodsSkuAttr.goodsAttributeValueAttrValue
-									}
-									if (goodsSkuAttr.goodsCategoryAttributeIsAttrGroup === 1) {
-										skuSpecStr += goodsSkuAttr.goodsAttributeValueAttrValue + ' '
-									}
-								})
-								theSkuInfo.skuSpecStr = skuSpecStr
-								list.push(theSkuInfo)
+								list.push(this.getSkuInfo(item))
 							})
-							let cartList = list.map(item=>{
-								item.checked = true
-								return item
-							})
-							this.cartList = cartList
-							// 获取每个sku的购买数量
-							this.cartList.forEach((cartItem, index) => {
-								cartDataList.forEach((cartData, index) => {
-									if (cartItem.goodsSkuId === cartData.goodsSkuId) {
-										cartItem.id = cartData.id
-										cartItem.quantity = cartData.quantity
-									}
-								})
-							})
+							this.calSkuQuantity(list, cartDataList)
+							this.filterSkuListByShop(list)
+							this.checkAllSkus()
 							this.calcTotal()
 						}
 					} 
@@ -227,13 +210,78 @@
 					console.log(error)
 				})
 			},
+			// 根据商品信息获取到商品的SKU列表
+			getSkuInfo(goodsInfo) {
+				let goodsSku = goodsInfo.goodsSkuVOList[0]
+				let theSkuInfo = {}
+				theSkuInfo.shopId = goodsInfo.goodsInfoShopId
+				theSkuInfo.shopLogo = goodsInfo.goodsShopLogo
+				theSkuInfo.shopTitle = goodsInfo.goodsShopTitle
+				theSkuInfo.goodsInfoId = goodsInfo.goodsInfoId
+				theSkuInfo.goodsSkuId = goodsSku.goodsSkuId
+				theSkuInfo.goodsSkuPicUrl = goodsSku.goodsPicPicUrl
+				let skuSpecStr = ''
+				goodsSku.goodsSkuAttrVOList.forEach((goodsSkuAttr, index) => {
+					if (goodsSkuAttr.goodsAttributeAttrCode === 'title') {
+						theSkuInfo.title = goodsSkuAttr.goodsAttributeValueAttrValue
+					}
+					if (goodsSkuAttr.goodsAttributeAttrCode === 'salePrice') {
+						theSkuInfo.salePrice = goodsSkuAttr.goodsAttributeValueAttrValue
+					}
+					if (goodsSkuAttr.goodsAttributeAttrCode === 'storeCount') {
+						theSkuInfo.storeCount = goodsSkuAttr.goodsAttributeValueAttrValue
+					}
+					if (goodsSkuAttr.goodsCategoryAttributeIsAttrGroup === 1) {
+						skuSpecStr += goodsSkuAttr.goodsAttributeValueAttrValue + ' '
+					}
+				})
+				theSkuInfo.skuSpecStr = skuSpecStr
+				return theSkuInfo
+			},
+			// 获取每个sku的购买数量
+			calSkuQuantity(shopSkuList, cartDataList) {
+				shopSkuList.forEach((shopSkus, index) => {
+					cartDataList.forEach((cartData, index) => {
+						if (shopSkus.goodsSkuId === cartData.goodsSkuId) {
+							shopSkus.id = cartData.id
+							shopSkus.quantity = cartData.quantity
+						}
+					})
+				})
+			},
+			// 对所有商品SKU列表进行过滤，把同一个店铺的商品SKU归类到同一个对象中
+			filterSkuListByShop(goodsSkuList) {
+				let shopIds = []
+				goodsSkuList.forEach((item, index) => {
+					if (shopIds.indexOf(item.shopId) < 0) {
+						shopIds.push(item.shopId)
+					}
+				})
+				shopIds.forEach((item, index) => {
+					let shopSkus = {}
+					shopSkus.skuList = []
+					shopSkus.skuList = goodsSkuList.filter(goodsSku => goodsSku.shopId == item)
+					shopSkus.shopId = shopSkus.skuList[0].shopId
+					shopSkus.shopLogo = shopSkus.skuList[0].shopLogo
+					shopSkus.shopTitle = shopSkus.skuList[0].shopTitle
+					this.shopSkuList.push(shopSkus)
+				})
+			},
+			checkAllSkus() {
+				this.shopSkuList.forEach(shopSkus => {
+					shopSkus.checked = true
+					shopSkus.skuList.forEach(item => {
+						item.checked = true
+					})
+				})
+			},
 			//监听image加载完成
-			onImageLoad(key, index) {
-				this.$set(this[key][index], 'loaded', 'loaded');
+			onImageLoad(key, shopIndex, skuIndex) {
+				this.$set(this[key][shopIndex].skuList[skuIndex], 'loaded', 'loaded');
 			},
 			//监听image加载失败
-			onImageError(key, index) {
-				this[key][index].image = '/static/errorImage.jpg';
+			onImageError(key, shopIndex, skuIndex) {
+				this[key][shopIndex].skuList[skuIndex].image = '/static/errorImage.jpg';
 			},
 			/**
 			 * 前往登录页面
@@ -248,22 +296,38 @@
 				})
 			},
 			 //选中状态处理
-			check(type, index){
+			check(type, shopIndex, skuIndex){
 				if(type === 'item'){
-					this.cartList[index].checked = !this.cartList[index].checked;
-				}else{
-					const checked = !this.allChecked
-					const list = this.cartList;
-					list.forEach(item=>{
-						item.checked = checked;
+					this.shopSkuList[shopIndex].skuList[skuIndex].checked = !this.shopSkuList[shopIndex].skuList[skuIndex].checked
+					let shopChecked = true
+					for (let sku of this.shopSkuList[shopIndex].skuList) {
+						if (!sku.checked) {
+							shopChecked = false
+							break
+						}
+					}
+					this.shopSkuList[shopIndex].checked = shopChecked
+				} else if (type === 'shop') {
+					this.shopSkuList[shopIndex].checked = !this.shopSkuList[shopIndex].checked
+					this.shopSkuList[shopIndex].skuList.forEach(item => {
+						item.checked = this.shopSkuList[shopIndex].checked
 					})
-					this.allChecked = checked;
+				} else{
+					const checked = !this.allChecked
+					const list = this.shopSkuList
+					list.forEach(item=>{
+						item.checked = checked
+						item.skuList.forEach(sku => {
+							sku.checked = checked
+						})
+					})
+					this.allChecked = checked
 				}
-				this.calcTotal(type);
+				this.calcTotal(type)
 			},
 			//数量
 			numberChange(data){
-				this.cartList[data.index].quantity = data.number;
+				this.shopSkuList[data.index].skuList[data.index_].quantity = data.number;
 				this.calcTotal();
 			},
 			navToGoodsSku(goodsId, goodsSkuId) {
@@ -272,7 +336,7 @@
 				})
 			},
 			//删除
-			deleteCartItem(id, index){
+			deleteCartItem(id, shopIndex, skuIndex){
 				uni.showModal({
 					content: '删除商品？',
 					success: (e)=>{
@@ -280,11 +344,10 @@
 							uni.showLoading({
 								title: '删除中...'
 							})
-							console.log(id)
 							doGet('/goods-cart/user/remove/' + id, {}, true).then(response => {
 								let [error, res] = response
 								if (res.data.code === ResponseStatus.OK) {
-									this.cartList.splice(index, 1);
+									this.shopSkuList[shopIndex].skuList.splice(skuIndex, 1);
 									this.calcTotal();
 									uni.hideLoading();
 								}
@@ -305,13 +368,15 @@
 								title: '清空中...'
 							})
 							let ids = []
-							this.cartList.forEach((item, index) => {
-								ids.push(item.id)
+							this.shopSkuList.forEach((shopSku, index) => {
+								shopSku.skuList.forEach(item => {
+									ids.push(item.id)
+								})
 							})
 							doPostJson('/goods-cart/user/batch-remove', ids, {}, true).then(response => {
 								let [error, res] = response
 								if (res.data.code === ResponseStatus.OK) {
-									this.cartList = []
+									this.shopSkuList = []
 									uni.hideLoading();
 								}
 							}).catch(error => {
@@ -323,7 +388,7 @@
 			},
 			//计算总价
 			calcTotal(){
-				let list = this.cartList;
+				let list = this.shopSkuList;
 				if(list.length === 0){
 					this.empty = true;
 					return;
@@ -331,27 +396,31 @@
 				let total = 0;
 				let checked = true;
 				list.forEach(item=>{
-					if(item.checked === true){
-						total += item.salePrice * item.quantity;
-					}else if(checked === true){
-						checked = false;
-					}
+					item.skuList.forEach(sku => {
+						if(sku.checked === true){
+							total += sku.salePrice * sku.quantity;
+						}else if(checked === true){
+							checked = false;
+						}
+					})
+					
 				})
 				this.allChecked = checked;
 				this.total = Number(total.toFixed(2));
 			},
 			//创建订单
 			createOrder(){
-				let list = this.cartList;
-				let cartData = [];
-				list.forEach(item=>{
-					if(item.checked){
-						cartData.push({
-							cartId: item.id,
-							goodsSkuId: item.goodsSkuId,
-							quantity: item.quantity
-						})
-					}
+				let cartData = []
+				this.shopSkuList.forEach(shopSkus => {
+					shopSkus.skuList.forEach(item => {
+						if(item.checked){
+							cartData.push({
+								cartId: item.id,
+								goodsSkuId: item.goodsSkuId,
+								quantity: item.quantity
+							})
+						}
+					})
 				})
 				if (cartData.length === 0) {
 					showInfoToast('请选择商品')
@@ -538,5 +607,41 @@
 	.action-section .checkbox.checked,
 	.cart-item .checkbox.checked{
 		color: $uni-color-primary;
+	}
+	
+	.shop-info {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		background: #fff;
+		margin-top: 16upx;
+		padding: 12upx 30upx;
+		
+		.shop-checkbox{
+			font-size: 44upx;
+			line-height: 1;
+			padding: 4upx;
+			color: $font-color-disabled;
+			background:#fff;
+			border-radius: 50px;
+		}
+		
+		.shop-checkbox.checked{
+			color: $uni-color-primary;
+		}
+		
+		image {
+			width: 100upx;
+			height: 100upx;
+			border-radius: 50upx;
+		}
+		
+		.right {
+			width: 100%;
+			color: $font-color-dark;
+			font-size: $font-base;
+			font-weight: bold;
+			padding-left: 26upx;
+		}
 	}
 </style>
