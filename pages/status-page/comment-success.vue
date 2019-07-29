@@ -16,6 +16,9 @@
 
 <script>
 	import zyworkIcon from '@/components/zywork-icon/zywork-icon.vue'
+	import {
+		REFRESH_ORDER
+	} from '@/common/util.js'
 	export default {
 		components: {
 			zyworkIcon
@@ -26,6 +29,7 @@
 		},
 
 		onLoad(options) {
+			uni.setStorageSync(REFRESH_ORDER, true);
 		},
 		methods: {
 			/**

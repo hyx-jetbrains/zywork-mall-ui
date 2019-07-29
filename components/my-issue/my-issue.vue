@@ -31,7 +31,7 @@
 			</view>
 			<textarea v-if="textareaShow" v-model="item.comments" :placeholder="textareaPlaceholder" />
 			<view class="zy-display-flex zy-issue-rate">
-				商品评分：<uni-rate :value="item.commentRate" v-model="item.commentRate" />
+				商品评分：<uni-rate :value="item.commentRate" :max="5" :index="index" @change="rateChange"/>
 			</view>
 		</view>
 		<view class="issue-btn-box">
@@ -122,9 +122,9 @@
 			/**
 			 * 星星点击监听
 			 */
-			// rateChange(e) {
-			// 	this.commentRate = e.value
-			// },
+			rateChange(e, index) {
+				this.$set(this.goodsList[e.index], 'commentRate', e.value);
+			},
 			
 			/**
 			 * @name 提交

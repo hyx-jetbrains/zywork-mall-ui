@@ -48,6 +48,10 @@
 			disabled: { //是否可点击
 				type: [Boolean, String],
 				default: false
+			},
+			index: { // 当前组件的下标
+				type: [String, Number],
+				default: 0
 			}
 		},
 		data() {
@@ -88,7 +92,8 @@
 				}
 				this.valueSync = index + 1
 				this.$emit('change', {
-					value: this.valueSync
+					value: this.valueSync,
+					index: this.index
 				})
 			}
 		}

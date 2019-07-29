@@ -86,7 +86,8 @@
 		showSuccessToast,
 		nullToStr,
 		FRONT_BASE_URL,
-		LOCAL_FILE_STORAGE
+		LOCAL_FILE_STORAGE,
+		REFRESH_ORDER
 	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
@@ -146,6 +147,14 @@
 				localFileStorage: LOCAL_FILE_STORAGE
 			};
 		},
+		onShow() {
+			let refreshOrder = uni.getStorageSync(REFRESH_ORDER);
+			console.log(refreshOrder)
+			if (refreshOrder) {
+				this.loadData('init');
+				uni.setStorageSync(REFRESH_ORDER, false);
+			}
+		},
 		onLoad(options) {
 			const type = options.state;
 			if (type) {
@@ -161,7 +170,6 @@
 		},
 		//加载更多
 		onReachBottom() {
-			this.pager.pageNo += 1;
 			this.loadData('reachBottom');
 		},
 		methods: {
@@ -174,7 +182,7 @@
 					//防止重复加载
 					return
 				}
-				if (navItem.loadingType === 'nomore') {
+				if (navItem.loadingType === 'nomore' && type !== 'init') {
 					return
 				}
 				if (type === 'reachBottom') {

@@ -85,24 +85,35 @@
 			-->
 		</view>
 		
+		<!-- 店铺 --> 
+		<view class="shop-section">
+			<image :src="goodsInfo.goodsShopLogo"></image>
+		    <view class="right">
+				{{goodsInfo.goodsShopTitle}}
+		    </view>
+		</view>
+		
 		<!-- 评价 -->
 		<view class="eva-section">
 			<view class="e-header" @click="toEvaluatePage">
 				<text class="tit">评价</text>
-				<text>(86)</text>
-				<text class="tip">好评率 100%</text>
-				<text class="iconfont iconxiangyou icon-more"></text>
+				<text>({{commentCount}})</text>
+				<text class="tip zy-see-all">查看全部</text>
+				<text class="iconfont iconxiangyou icon-more zy-see-all"></text>
 			</view> 
-			<view class="eva-box">
-				<image class="portrait" src="http://img3.imgtn.bdimg.com/it/u=1150341365,1327279810&fm=26&gp=0.jpg" mode="aspectFill"></image>
+			<view class="eva-box" v-if="commentList.length > 0" v-for="(item, index) in commentList" :key="index">
+				<image class="portrait" :src="item.userDetailHeadicon" mode="aspectFill"></image>
 				<view class="right">
-					<text class="name">Leo yo</text>
-					<text class="con">商品收到了，79元两件，质量不错，试了一下有点瘦，但是加个外罩很漂亮，我很喜欢</text>
+					<text class="name">{{item.userDetailNickname}}</text>
+					<text class="con">{{item.goodsCommentComments}}</text>
 					<view class="bot">
-						<text class="attr">购买类型：XL 红色</text>
-						<text class="time">2019-04-01 19:21</text>
+						<text class="attr">购买类型：{{item.goodsCommentSkuInfo}}</text>
+						<text class="time">{{item.goodsCommentCreateTime}}</text>
 					</view>
 				</view>
+			</view>
+			<view v-else class="eva-box">
+				<text class="zy-no-data">暂无评价</text>
 			</view>
 		</view>
 		
@@ -220,7 +231,7 @@
  	export default{
 		components: {
 			share,
-			uniNumberBox
+			uniNumberBox,
 		},
 		data() {
 			return {
@@ -256,7 +267,9 @@
 					goodsId: null,
 					goodsSkuId: null,
 					shopId: null
-				}
+				},
+				commentCount: 0,
+				commentList: []
 			}
 		},
 		async onLoad(options){
@@ -335,6 +348,7 @@
 						this.collection.goodsId = this.goodsInfo.goodsInfoId
 						this.collection.shopId = this.goodsInfo.goodsInfoShopId
 						this.isFavorite()
+						this.loadCommentData()
 					} else {
 						showInfoToast('商品不存在哦')
 						setTimeout(function() {
@@ -699,9 +713,34 @@
 			 */
 			toEvaluatePage() {
 				uni.navigateTo({
-					url: EVALUATE_PAGE
+					url: `/pages/evaluate/evaluate?goodsId=${this.goodsInfo.goodsInfoId}&shopId=${this.goodsInfo.goodsInfoShopId}`
 				})
-			}
+			},
+			/**
+			 * 加载评论信息
+			 */
+			loadCommentData() {
+				let url = '/user-goods-comment/any/pager-cond'
+				let pager = {
+					pageNo: 1,
+					pageSize: 1,
+					sortColumn: 'goodsCommentCreateTime',
+					sortOrder: 'desc',
+					goodsCommentShopId: this.goodsInfo.goodsInfoShopId,
+					goodsCommentGoodsId: this.goodsInfo.goodsInfoId
+				}
+				doPostJson(url, pager, {}, false).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						this.commentCount = res.data.data.total;
+						this.commentList = res.data.data.rows;
+					} else {
+						showInfoToast('获取评论信息失败')
+					}
+				}).catch(err => {
+					console.log(err);
+				})
+			},
 		},
 
 	}
@@ -876,6 +915,11 @@
 		.red{
 			color: $uni-color-primary;
 		}
+	}
+	
+	.zy-no-data {
+		color: $font-color-light;
+		font-size: 28upx;
 	}
 	
 	/* 评价 */
@@ -1208,4 +1252,28 @@
 		color: $font-color-light;
 	}
 	
+	.zy-see-all {
+		color: #fa436a;
+	}
+	.shop-section {
+	  display: flex;
+	  flex-direction: row;
+	  align-items: center;
+	  background: #fff;
+	  margin-top: 16upx;
+	  padding: 12upx 30upx;
+	  
+	  image {
+	   width: 100upx;
+	   height: 100upx;
+	   border-radius: 50upx;
+	  }
+	  
+	  .right {
+	   width: 100%;
+	   color: $font-color-dark;
+	   font-size: $font-base;
+	   padding-left: 26upx;
+	  }
+	}
 </style>

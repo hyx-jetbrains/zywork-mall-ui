@@ -3,8 +3,8 @@
 	<view class="evaluateBox">
 		<view class="evaluate-header">
 			<view class="title">
-				<text v-if="isShowIcon" class="iconfont" style="color:#999">&#xe640;</text>
-				<text v-if="isShowTotal" style="margin-left: 10upx;">评价 ({{ listData.length }})</text>
+				<text v-if="isShowIcon" class="iconfont" style="color:#fa436a">&#xe640;</text>
+				<text v-if="isShowTotal" style="margin-left: 10upx;">评价 ({{ totalData }})</text>
 			</view>
 			<view class="total">
 				<view class="stars">
@@ -75,6 +75,11 @@
 			listData: {
 				type: Array,
 				default: []
+			},
+			// 总评价数量
+			totalData: {
+				type: [String, Number],
+				default: 0
 			},
 			//是否显示总评价数量
 			isShowTotal: {

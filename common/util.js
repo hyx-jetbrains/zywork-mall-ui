@@ -15,6 +15,7 @@ export const DEFAULT_HEADICON = '/static/missing-face.png'
 export const SHARE_CODE_PAGE_IMG = '/static/share/share.jpg'
 export const REFRESH_CART = 'refreshCart'
 export const REFRESH_PRODUCT = 'refreshProduct'
+export const REFRESH_ORDER = 'refreshOrder'
 
 export const LOCAL_FILE_STORAGE = true
 /**
