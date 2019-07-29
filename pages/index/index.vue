@@ -26,7 +26,7 @@
 				<text class="num">{{swiperLength}}</text>
 			</view>
 		</view>
-		<!-- 分类 -->
+		<!-- 热门一级分类 -->
 		<view class="cate-section">
 			<view class="cate-item" v-for="(item, index) in hotCategoryList" :key="index" @click="navToProductList(item.id)">
 				<image :src="localFileStorage ? frontBaseUrl + item.picUrl : item.picUrl"></image>
@@ -329,17 +329,17 @@
 				})
 			},
 			loadHotCategoryGoods() {
+				this.hotCategoryGoodsList = []
 				this.hotCategoryList.forEach((item, index) => {
 					doPostJson('/goods-sku-attr-val/any/goods-sku-attr/' + item.id, {
 						pageNo: 1,
 						pageSize: 6,
 						goodsInfoIsActive: 0,
-						goodsAttributeAttrCode: "salePrice"
+						goodsAttributeAttrCode: 'salePrice'
 					}, {}).then(response => {
 						let [error, res] = response
 						if (res.data.code === ResponseStatus.OK) {
 							let hotCategoryGoods = {}
-							this.hotCategoryGoodsList = []
 							hotCategoryGoods.categoryId = item.id
 							hotCategoryGoods.categoryTitle = item.title
 							hotCategoryGoods.goodsList = res.data.data.rows

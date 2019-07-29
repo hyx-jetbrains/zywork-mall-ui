@@ -349,7 +349,6 @@
 				order.remark = this.remark
 				let orderItems = []
 				this.skuList.forEach((item, index) => {
-					console.log(item.shopId)
 					if (order.shopId === 0) {
 						order.shopId = item.shopId
 					}
