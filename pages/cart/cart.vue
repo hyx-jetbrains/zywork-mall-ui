@@ -31,11 +31,11 @@
 						<view class="cart-item" v-for="(sku, skuIndex) in item.skuList" :key="skuIndex">
 							<view class="image-wrapper">
 								<image :src="localFileStorage ? frontBaseUrl + sku.goodsSkuPicUrl : sku.goodsSkuPicUrl" 
-									:class="[item.loaded]"
+									:class="[sku.loaded]"
 									mode="aspectFill" 
 									lazy-load 
-									@load="onImageLoad('shopSkuList', shopIndex, skuIndex)" 
-									@error="onImageError('shopSkuList', shopIndex, skuIndex)"
+									@load="onImageLoad(shopIndex, skuIndex)" 
+									@error="onImageError(shopIndex, skuIndex)"
 								></image>
 								<view 
 									class="iconfont iconxuanzhong checkbox"
@@ -276,12 +276,13 @@
 				})
 			},
 			//监听image加载完成
-			onImageLoad(key, shopIndex, skuIndex) {
-				this.$set(this[key][shopIndex].skuList[skuIndex], 'loaded', 'loaded');
+			onImageLoad(shopIndex, skuIndex) {
+				this.$set(this.shopSkuList[shopIndex].skuList[skuIndex], 'loaded', 'loaded')
 			},
 			//监听image加载失败
-			onImageError(key, shopIndex, skuIndex) {
-				this[key][shopIndex].skuList[skuIndex].image = '/static/errorImage.jpg';
+			onImageError(shopIndex, skuIndex) {
+				console.log('bb')
+				this.shopSkuList[shopIndex].skuList[skuIndex].image = '/static/errorImage.jpg'
 			},
 			/**
 			 * 前往登录页面
