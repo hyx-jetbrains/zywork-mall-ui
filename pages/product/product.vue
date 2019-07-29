@@ -286,7 +286,6 @@
 			}
 			// #endif
 			let goodsInfoId = options.goodsInfoId
-			console.log(goodsInfoId)
 			if (options.goodsSkuId) {
 				this.fromSku = true
 				this.selectSku.skuId = options.goodsSkuId
@@ -491,7 +490,6 @@
 				let list = this.specChildList
 				if (list[index].disable) {
 					// 如果选择的规格是不可用的，则直接返回
-					console.log(list[index].disable)
 					return
 				}
 				this.selectSkuQuantity = 1
