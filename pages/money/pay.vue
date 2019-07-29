@@ -54,7 +54,7 @@
 		data() {
 			return {
 				payType: 0, // 0 微信， 1 支付宝，2、银联支付， 3 余额
-				orderId: null,
+				orderIds: null,
 				totalPay: null,
 				payDisabled: false
 			};
@@ -63,7 +63,8 @@
 		
 		},
 		onLoad(options) {
-			this.orderId = options.orderId
+			// 由英文逗号分割的多个订单的id
+			this.orderIds = options.orderIds
 			this.totalPay = options.totalPay
 		},
 
@@ -82,13 +83,13 @@
 				// #ifdef MP-WEIXIN
 				payUrl = '/wx-pay/goods-order/xcx-pay-request/'
 				// #endif
-				doGet(payUrl + this.orderId, {}, true).then(response => {
+				doGet(payUrl + this.orderIds, {}, true).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
 						let payData = res.data.data
 						uni.requestPayment({
 							provider: 'wxpay',
-							orderInfo: this.orderId + '',
+							orderInfo: this.orderId,
 							appId: payData.appId,
 							timeStamp: payData.timeStamp,
 							nonceStr: payData.nonceStr,

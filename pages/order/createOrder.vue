@@ -160,7 +160,6 @@
 				discount: 0,
 				actualPay: 0,
 				maskState: 0, //优惠券面板显示状态
-				remark: '', //备注
 				couponList: [
 					{
 						title: '新用户专享优惠券',
@@ -251,14 +250,6 @@
 									list.push(this.getSkuInfo(item, 0))
 								})
 								this.calSkuQuantity(list)
-								// 获取每个sku的购买数量
-								// this.skuList.forEach((skuInfo, index) => {
-								// 	this.cartData.forEach((item, index) => {
-								// 		if (skuInfo.goodsSkuId === item.goodsSkuId) {
-								// 			skuInfo.quantity = item.quantity
-								// 		}
-								// 	})
-								// })
 								this.filterSkuListByShop(list)
 								this.calculateActualPay()
 							}
@@ -327,7 +318,6 @@
 					shopSkus.shopTitle = shopSkus.skuList[0].shopTitle
 					this.shopSkuList.push(shopSkus)
 				})
-				console.log(this.shopSkuList)
 			},
 			// 计算实付金额
 			calculateActualPay() {
@@ -349,7 +339,7 @@
 				uni.showLoading({
 					title:'提交订单...'
 				})
-				doPostJson('/goods-order/user/save', this.getOrderInfo(), {}, true).then(response => {
+				doPostJson('/goods-order/user/save', this.getOrderInfoList(), {}, true).then(response => {
 					uni.hideLoading()
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
@@ -369,18 +359,20 @@
 							})
 							uni.setStorageSync(REFRESH_CART, true)
 						}
-						let orderId = res.data.data['0']
+						let orderIds = res.data.data['0']
 						uni.redirectTo({
-							url: `/pages/money/pay?orderId=${orderId}&totalPay=${this.actualPay}`
+							url: `/pages/money/pay?orderIds=${orderIds}&totalPay=${this.actualPay}`
 						})
 					} else if (res.data.code === ResponseStatus.DATA_ERROR) {
 						// sku库存不足
-						this.skuList.forEach((sku, index) => {
-							// 判断哪些sku库存不足
-							if (res.data.data[sku.goodsSkuId] === 0) {
-								// 此sku库存不足
-								sku.overStoreCount = true
-							}
+						this.shopSkuList.forEach((shopSkus, index) => {
+							shopSkus.forEach(sku => {
+								// 判断哪些sku库存不足
+								if (res.data.data[sku.goodsSkuId] === 0) {
+									// 此sku库存不足
+									sku.overStoreCount = true
+								}
+							})
 						})
 						showInfoToast('部分商品库存不足，请修改购买数量后再下单')
 					}
@@ -388,32 +380,38 @@
 					console.log(error)
 				})
 			},
-			getOrderInfo() {
-				let order = {}
-				order.shopId = 0
-				order.totalAmount = this.totalPay
-				order.payAmount = this.actualPay
-				order.discountAmount = this.discount
-				order.remark = this.remark
-				let orderItems = []
-				this.skuList.forEach((item, index) => {
-					if (order.shopId === 0) {
-						order.shopId = item.shopId
-					}
-					let orderItem = {
-						shopId: item.shopId,
-						goodsId: item.goosInfoId,
-						goodsSkuId: item.goodsSkuId,
-						skuPicId: item.goodsPicId,
-						skuTitle: item.title,
-						skuInfo: item.skuSpecStr,
-						quantity: item.quantity,
-						payAmount: item.salePrice * item.quantity
-					}
-					orderItems.push(orderItem)
+			getOrderInfoList() {
+				let orderList = []
+				this.shopSkuList.forEach(shopSkus => {
+					let order = {}
+					order.shopId = 0
+					let orderItems = []
+					let totalAmount = 0
+					shopSkus.skuList.forEach(sku => {
+						totalAmount += (sku.salePrice * sku.quantity)
+						if (order.shopId === 0) {
+							order.shopId = sku.shopId
+						}
+						let orderItem = {
+							shopId: sku.shopId,
+							goodsId: sku.goosInfoId,
+							goodsSkuId: sku.goodsSkuId,
+							skuPicId: sku.goodsPicId,
+							skuTitle: sku.title,
+							skuInfo: sku.skuSpecStr,
+							quantity: sku.quantity,
+							payAmount: sku.salePrice * sku.quantity
+						}
+						orderItems.push(orderItem)
+					})
+					order.totalAmount = totalAmount.toFixed(2)
+					order.discountAmount = 0
+					order.payAmount = (order.totalAmount - 0).toFixed(2)
+					order.remark = shopSkus.remark
+					order.goodsOrderItemInVOList = orderItems 
+					orderList.push(order)
 				})
-				order.goodsOrderItemInVOList = orderItems
-				return order
+				return orderList
 			},
 			//显示优惠券面板
 			toggleMask(type){
