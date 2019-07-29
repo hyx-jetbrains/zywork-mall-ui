@@ -40,7 +40,8 @@
 					commentLevel: 0,
 					commentRate: 5,
 					comments: '',
-					goodsPicPicUrl: item.goodsPicPicUrl
+					goodsPicPicUrl: item.goodsPicPicUrl,
+					imageList: []
 				});
 			})
 			this.$refs.myIssue.goodsList = this.goodsList;

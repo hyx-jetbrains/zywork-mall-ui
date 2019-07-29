@@ -30,12 +30,21 @@
 				</view>
 			</view>
 			<textarea v-if="textareaShow" v-model="item.comments" :placeholder="textareaPlaceholder" />
+			<view class="zy-box">
+				<view v-for="(image,index_1) in item.imageList" :key="index_1" style="position: relative;">
+					<image class="zy-upload-img" :src="image" :data-src="image" @tap="previewImage(index, index_1)"></image>
+					<zyworkIcon class="zy-delete-icon" type="iconshanchu" color="#000" size="24" @tap="deleteImage(index, index_1)"></zyworkIcon>
+				</view>
+				<view class="zy-upload-btn" v-if="imageList.length !== 5" @tap="chooseImage(index)">
+					<zyworkIcon type="iconshangchuantupian" color="#909399" size="24"></zyworkIcon>
+					添加图片
+				</view>
+			</view>
 			<view class="zy-display-flex zy-issue-rate">
 				商品评分：<uni-rate :value="item.commentRate" :max="5" :index="index" @change="rateChange"/>
 			</view>
 		</view>
 		<view class="issue-btn-box">
-		 	<!-- <button v-if="submitShow" class="submit-btn" type="primary" @click="doSubmit">{{submitText}}</button> -->
 			<button v-if="submitShow" class="zy-add-btn" @click="doSubmit">{{submitText}}</button>
 			<slot name="submit"></slot>
 		 </view>
@@ -47,8 +56,17 @@
 	import zyworkIcon from '@/components/zywork-icon/zywork-icon.vue'
 	import {
 		FRONT_BASE_URL,
-		LOCAL_FILE_STORAGE
+		LOCAL_FILE_STORAGE,
+		BASE_URL,
+		USER_TOKEN_KEY,
+		showInfoToast,
+		showSuccessToast
 	} from '@/common/util.js'
+	import * as ResponseStatus from '@/common/response-status.js'
+	import {
+		sourceType,
+		sizeType
+	} from '@/common/picker-data.js'
 	export default {
 		components: {
 			uniRate,
@@ -109,9 +127,94 @@
 				frontBaseUrl: FRONT_BASE_URL,
 				localFileStorage: LOCAL_FILE_STORAGE,
 				goodsList: [],
+				sourceTypeIndex: 2,
+				sizeTypeIndex: 2,
+				count: [1, 2, 3, 4, 5],
+				sourceType: sourceType,
+				sizeType: sizeType
 			};
 		},
 		methods: {
+			/** 选择图片上传 */
+			chooseImage(index) {
+				let imageLength = this.goodsList[index].imageList.length;
+				if (imageLength === 5) {
+					let isContinue = this.isFullImg(index);
+					if (!isContinue) {
+						return;
+					}
+				}
+				var myThis = this;
+				uni.chooseImage({
+					sourceType: this.sourceType[this.sourceTypeIndex],
+					sizeType: this.sizeType[this.sizeTypeIndex],
+					count: imageLength + this.count[this.countIndex] > 5 ? 5 - imageLength : this.count[this.countIndex],
+					success: (chooseImageRes) => {
+						const tempFilePaths = chooseImageRes.tempFilePaths;
+						uni.showLoading({
+							title: '正在上传'
+						})
+						const userToken = uni.getStorageSync(USER_TOKEN_KEY)
+						uni.uploadFile({
+							url: BASE_URL + '/goods-comment-pic/user/upload-img',
+							filePath: tempFilePaths[0],
+							name: 'file',
+							header: {
+								'Authorization': 'Bearer ' + userToken
+							},
+							success: function (res) {
+								const data = JSON.parse(res.data);
+								if (data.code = ResponseStatus.OK) {
+									showSuccessToast(data.message);
+									let path = FRONT_BASE_URL + '/' + data.data;
+									myThis.goodsList[index].imageList = myThis.goodsList[index].imageList.concat(path);
+								} else {
+									showInfoToast(data.message);
+								}
+							},
+							fail: () => {
+								networkError()
+							},
+							complete: () => {
+								uni.hideLoading()
+							}
+						});
+					}
+				})
+			},
+			/** 清空图片 */
+			isFullImg: function(index) {
+				return new Promise((res) => {
+					uni.showModal({
+						content: "已经有5张图片了,是否清空现有图片？",
+						success: (e) => {
+							if (e.confirm) {
+								this.goodsList[index].imageList = [];
+								res(true);
+							} else {
+								res(false)
+							}
+						},
+						fail: () => {
+							res(false)
+						}
+					})
+				})
+			},
+			/** 预览图片 */
+			previewImage: function(index, index_1) {
+				uni.previewImage({
+					current: index_1,
+					urls: this.goodsList[index].imageList
+				})
+			},
+			/**
+			 * 删除图片
+			 * @param {Object} index
+			 */
+			deleteImage(index, index_1) {
+				this.goodsList[index].imageList.splice(index_1,1);
+			},
 			/**
 			 * 设置评价类型
 			 * @param {Object} type 评价类型
@@ -274,5 +377,37 @@
 	}
 	.zy-head-tip {
 		color: #898989;
+	}
+	
+	.zy-box {
+		background-color: #FFF;
+		padding: 20upx 10upx 20upx 20upx;
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap; 
+		
+		
+		.zy-delete-icon {
+			position: absolute;
+			top: -20upx;
+			right: -2upx;
+			z-index: 999;
+		}
+		.zy-upload-img {
+			width: 170upx;
+			height: 170upx;
+			margin-right: 10upx;
+		}
+		.zy-upload-btn  {
+			width: 170upx;
+			height: 170upx;
+			line-height: 50upx;
+			border: 1px dashed #909399;
+			text-align: center;
+			padding-top: 40upx;
+			font-size: 24upx;
+			color: #909399;
+			margin-bottom: 12upx;
+		}
 	}
 </style>

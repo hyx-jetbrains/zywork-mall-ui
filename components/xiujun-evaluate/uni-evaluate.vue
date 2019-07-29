@@ -51,7 +51,7 @@
 							<view class="imgs" v-if="item.imgs">
 								<block v-for="(imgurl, index) in item.imgs" :key="index">
 									<view class="imgs-box">
-										<image :src="imgurl" mode="widthFix" style="width: 100%;" @click="previewImg(imgurl,item.imgs)"></image>
+										<image :src="imgurl" mode="widthFix" style="width: 170upx; height: 170upx;" @click="previewImg(imgurl,item.imgs)"></image>
 									</view>
 								</block>
 							</view>

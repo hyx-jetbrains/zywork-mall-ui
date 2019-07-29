@@ -89,8 +89,7 @@
 								rate: item.goodsCommentCommentRate,
 								create_time: item.goodsCommentCreateTime,
 								content: item.goodsCommentComments,
-								// 商品图片后面再想办法做
-								// imgs: []
+								imgs: item.imageList
 							})
 						})
 					} else {
