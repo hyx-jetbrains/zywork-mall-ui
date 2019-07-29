@@ -100,15 +100,17 @@
 				<text>({{commentCount}})</text>
 				<text class="tip zy-see-all">查看全部</text>
 				<text class="iconfont iconxiangyou icon-more zy-see-all"></text>
-			</view> 
-			<view class="eva-box" v-if="commentList.length > 0" v-for="(item, index) in commentList" :key="index">
-				<image class="portrait" :src="item.userDetailHeadicon" mode="aspectFill"></image>
-				<view class="right">
-					<text class="name">{{item.userDetailNickname}}</text>
-					<text class="con">{{item.goodsCommentComments}}</text>
-					<view class="bot">
-						<text class="attr">购买类型：{{item.goodsCommentSkuInfo}}</text>
-						<text class="time">{{item.goodsCommentCreateTime}}</text>
+			</view>
+			<view v-if="commentList.length > 0">
+				<view class="eva-box" v-for="(item, index) in commentList" :key="index">
+					<image class="portrait" :src="item.userDetailHeadicon" mode="aspectFill"></image>
+					<view class="right">
+						<text class="name">{{item.userDetailNickname}}</text>
+						<text class="con">{{item.goodsCommentComments}}</text>
+						<view class="bot">
+							<text class="attr">购买类型：{{item.goodsCommentSkuInfo}}</text>
+							<text class="time">{{item.goodsCommentCreateTime}}</text>
+						</view>
 					</view>
 				</view>
 			</view>

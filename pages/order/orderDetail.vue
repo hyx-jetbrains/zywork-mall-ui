@@ -3,7 +3,6 @@
 		<view class="zy-top">
 			<view class="zy-text-bold zy-status">{{orderInfo.stateTip}}</view>
 			<view style="margin: 20upx;">
-				<Button type="default" class="zy-btn" @click="toIndexPage">返回首页</Button>
 				<Button type="default" class="zy-btn" @click="repurchase">再次购买</Button>
 			</view>
 			<view class="zy-memo zy-display-flex">
@@ -18,6 +17,13 @@
 			</view>
 		</view>
 		<view style="margin-top: -40upx;">
+		<view class="goods-section" >
+			<!-- 店铺信息 -->
+			<view class="zy-bottom">
+				<image class="logo" :src="orderInfo.goodsShopLogo"></image>
+				<text class="name">{{orderInfo.goodsShopTitle}}</text>
+			</view>
+		</view>
 		<view v-for="(item, index) in orderInfo.userGoodsOrderItemVOList" :key="index">
 			<view class="goods-section" >
 				<!-- 商品列表 -->
@@ -31,11 +37,6 @@
 							<text class="number">x {{item.goodsOrderItemQuantity}}</text>
 						</view>
 					</view>
-				</view>
-				<!-- 店铺信息 -->
-				<view class="zy-bottom">
-					<image class="logo" src="http://duoduo.qibukj.cn/./Upload/Images/20190321/201903211727515.png"></image>
-					<text class="name">智悦商城</text>
 				</view>
 			</view>
 		</view>
@@ -138,14 +139,6 @@
 			 */
 			repurchase() {
 				showInfoToast('再次购买')
-			},
-			/**
-			 * 返回首页
-			 */
-			toIndexPage() {
-				uni.switchTab({
-					url: '/pages/index/index'
-				})
 			},
 			//订单状态文字和颜色
 			orderStateExp(item) {
@@ -278,7 +271,6 @@
 		border-radius: 20upx;
 
 		.zy-bottom {
-			border-top: 1px solid #E4E7ED;
 			display: flex;
 			align-items: center;
 			height: 84upx;
