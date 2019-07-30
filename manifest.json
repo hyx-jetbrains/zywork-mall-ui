@@ -60,6 +60,11 @@
         "setting" : {
             "urlCheck" : false,
             "es6" : false
+        },
+        "permission" : {
+            "scope.userLocation" : {
+                "desc" : "获取位置信息用于用户收货地址"
+            }
         }
     }
 }

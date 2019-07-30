@@ -81,10 +81,18 @@
 			
 			//地图选择地址
 			chooseLocation(){
-				uni.chooseLocation({
-					success: (data)=> {
-						this.addressData.addressAlias = data.name;
-						this.addressData.address = data.address;
+				uni.authorize({
+					scope: 'scope.userLocation',
+					success() {
+						uni.chooseLocation({
+							success: (data)=> {
+								this.addressData.addressAlias = data.name;
+								this.addressData.address = data.address;
+							}
+						})
+					},
+					fail() {
+						showInfoToast('必须授权才能获取位置信息')
 					}
 				})
 			},
