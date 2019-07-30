@@ -1264,9 +1264,9 @@
 	  padding: 12upx 30upx;
 	  
 	  image {
-	   width: 80upx;
-	   height: 80upx;
-	   border-radius: 80upx;
+	   width: 60upx;
+	   height: 60upx;
+	   border-radius: 60upx;
 	  }
 	  
 	  .right {

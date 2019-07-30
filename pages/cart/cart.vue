@@ -616,7 +616,7 @@
 		align-items: center;
 		background: #fff;
 		margin-top: 16upx;
-		padding: 12upx 30upx;
+		padding: 12upx 25upx;
 		
 		.shop-checkbox{
 			font-size: 44upx;
@@ -632,10 +632,10 @@
 		}
 		
 		image {
-			width: 80upx;
-			height: 80upx;
-			border-radius: 80upx;
-			margin-left: 20upx;
+			width: 60upx;
+			height: 60upx;
+			border-radius: 60upx;
+			margin-left: 16upx;
 		}
 		
 		.right {
