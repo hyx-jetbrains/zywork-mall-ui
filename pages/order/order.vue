@@ -279,7 +279,7 @@
 
 			},
 			//取消订单
-			cancelOrder(item, index) {
+			cancelOrder(order, index) {
 				uni.showModal({
 					title: '确定取消订单？',
 					success: (res) => {
@@ -287,12 +287,12 @@
 							uni.showLoading({
 								title: '请稍后...'
 							})
-							doPostJson('/goods-order/user/cancel', item, {}, true).then(response => {
+							doPostJson('/goods-order/user/cancel', order, {}, true).then(response => {
 								let [error, res] = response;
 								uni.hideLoading();
 								if (res.data.code === ResponseStatus.OK) {
 									if (this.tabCurrentIndex == 0) {
-										item = Object.assign(item, this.orderStateExp(item))
+										order = Object.assign(order, this.orderStateExp(order))
 									}
 									if (this.tabCurrentIndex == 1) {
 										this.navList[this.tabCurrentIndex].orderList.splice(index, 1)
@@ -308,26 +308,6 @@
 							})
 						}
 					}
-				})
-			},
-			confirmOrder() {
-				uni.showLoading({
-					title: '请稍后...'
-				})
-				const data = {
-					id: item.goodsOrderId
-				}
-				doPostJson('/goods-order/user/confirm', data, {}, true).then(response => {
-					let [error, res] = response
-					uni.hideLoading();
-					if (res.data.code === ResponseStatus.OK) {
-						this.navList[this.tabCurrentIndex].orderList.splice(index, 1)
-						showInfoToast('已确认收货')
-					} else {
-						showInfoToast(res.data.message)
-					}
-				}).catch(err => {
-					console.log(err)
 				})
 			},
 			//订单状态文字和颜色
@@ -444,20 +424,25 @@
 			},
 			/**
 			 * 确认收货
-			 * @param {Object} orderId 订单id
 			 */
 			confirmReceipt(order) {
+				uni.showLoading({
+					title: '请稍后...'
+				})
 				const params = {
 					id: order.goodsOrderId,
 					totalAmount: order.goodsOrderTotalAmount,
 					transactionNo: order.goodsOrderTransactionNo
 				}
 				doPostJson(this.urls.confirmUrl, params, {}, true).then(response => {
-					let [error, res] = response;
+					let [error, res] = response
+					uni.hideLoading()
 					if (res.data.code === ResponseStatus.OK) {
 						uni.redirectTo({
 							url: '/pages/status-page/transaction-success?orderInfo=' + JSON.stringify(order)
 						})
+					}  else {
+						showInfoToast(res.data.message)
 					}
 				}).catch(err => {
 					console.log(err)
