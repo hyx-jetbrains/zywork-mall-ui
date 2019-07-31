@@ -20,8 +20,7 @@
 				orderId: '',
 				goodsList: [],
 				urls: {
-					batchSaveUrl: '/goods-comment/user/batch-save',
-					updateOrderUrl: '/goods-order/user/comment'
+					batchSaveUrl: '/goods-comment/user/batch-save/',
 				}
 			};
 		},
@@ -52,27 +51,16 @@
 			 * @param {Object} formData
 			 */
 			submit(formData) {
-				doPostJson(this.urls.batchSaveUrl, formData, {}, true).then(response => {
+				doPostJson(this.urls.batchSaveUrl + this.orderId, formData, {}, true).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
-						
-						const params = {
-							id: this.orderId
-						}
-						doPostJson(this.urls.updateOrderUrl, params, {}, true).then(response1 => {
-							let [error1, res1] = response1
-							if (res1.data.code === ResponseStatus.OK) {
-								showInfoToast('评价成功');
-								// 更新订单状态成功
-								setTimeout(function() {
-									uni.redirectTo({
-										url: '/pages/status-page/comment-success'
-									});
-								}, 1000)
-							}
-						}).catch(err1 => {
-							console.log(err1);
-						})
+						showInfoToast('评价成功');
+						// 更新订单状态成功
+						setTimeout(function() {
+							uni.redirectTo({
+								url: '/pages/status-page/comment-success'
+							});
+						}, 1000)
 					} else {
 						showInfoToast(res.data.message);
 					}

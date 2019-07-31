@@ -4,12 +4,12 @@
 			<view class="zy-head-img">
 				<image src="../../static/about.png"></image>
 				<view class="zy-name-tit">智悦科技</view>
-				<view class="zy-name-tip">版本号：1.0</view>
+				<view class="zy-name-tip">版本号：1.0.0</view>
 			</view>
 		</view>
 		<view class="list-cell b-b m-t" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">客服电话</text>
-			<text class="cell-tip" style="color: #108EE9" @click="callPhone">0797-2538</text>
+			<text class="cell-tip" style="color: #108EE9" @click="callPhone">18279700225</text>
 		</view>
 
 	</view>
