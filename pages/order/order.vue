@@ -292,7 +292,6 @@
 								uni.hideLoading();
 								if (res.data.code === ResponseStatus.OK) {
 									if (this.tabCurrentIndex == 0) {
-										item.goodsOrderOrderStatus = 6
 										item = Object.assign(item, this.orderStateExp(item))
 									}
 									if (this.tabCurrentIndex == 1) {
@@ -447,15 +446,17 @@
 			 * 确认收货
 			 * @param {Object} orderId 订单id
 			 */
-			confirmReceipt(item) {
+			confirmReceipt(order) {
 				const params = {
-					id: item.goodsOrderId
+					id: order.goodsOrderId,
+					totalAmount: order.goodsOrderTotalAmount,
+					transactionNo: order.goodsOrderTransactionNo
 				}
 				doPostJson(this.urls.confirmUrl, params, {}, true).then(response => {
 					let [error, res] = response;
 					if (res.data.code === ResponseStatus.OK) {
 						uni.redirectTo({
-							url: '/pages/status-page/transaction-success?orderInfo=' + JSON.stringify(item)
+							url: '/pages/status-page/transaction-success?orderInfo=' + JSON.stringify(order)
 						})
 					}
 				}).catch(err => {
