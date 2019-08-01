@@ -29,7 +29,7 @@
 			<switch :checked="addressData.isDefault === 1" color="#fa436a" @change="switchChange" />
 		</view>
 		
-		<view class="row default-row" @click="deleteAddress">
+		<view class="row default-row" @click="deleteAddress" v-if="type === 'edit'">
 			<text class="tit" style="color: red;">删除收货地址</text>
 		</view>
 		<button class="add-btn" @click="confirm">提交</button>
@@ -45,6 +45,7 @@
 		},
 		data() {
 			return {
+				type: 'add',
 				addressData: {
 					realName: '',
 					phone: '',
@@ -66,6 +67,7 @@
 					this.addressData.phone = userPhone;
 				}
 			}
+			this.type = option.type
 			this.manageType = option.type;
 			uni.setNavigationBarTitle({
 				title
@@ -81,13 +83,14 @@
 			
 			//地图选择地址
 			chooseLocation(){
+				let myThis = this
 				uni.authorize({
 					scope: 'scope.userLocation',
 					success() {
 						uni.chooseLocation({
 							success: (data)=> {
-								this.addressData.addressAlias = data.name;
-								this.addressData.address = data.address;
+								myThis.addressData.addressAlias = data.name;
+								myThis.addressData.address = data.address;
 							}
 						})
 					},
