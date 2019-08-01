@@ -178,7 +178,7 @@
 				doGet('/sys-config/any/distribution-config', {}).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
-						let distributionConfig = res.data.data.distributionConfig;
+						let distributionConfig = res.data.data.distributionAgentSwitch;
 						this.distributionFlag = distributionConfig;
 						if (distributionConfig) {
 							// 设置开启，加载商品之类的东西

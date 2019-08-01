@@ -52,7 +52,7 @@
 				<!-- #endif -->
 			</view>
 			<view class="zy-bottom-tip" v-if="distributionFlag">
-				温馨提示：成为代理商才能享受佣金。
+				温馨提示：成为分销商才能享受佣金。
 			</view>
 		</view>
 
@@ -108,7 +108,7 @@
 				doGet('/sys-config/any/distribution-config', {}).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
-						let distributionConfig = res.data.data.distributionConfig;
+						let distributionConfig = res.data.data.distributionAgentSwitch;
 						this.distributionFlag = distributionConfig;
 					} else {
 						showInfoToast(res.data.message)
