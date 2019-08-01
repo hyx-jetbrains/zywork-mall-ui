@@ -407,6 +407,8 @@
 					order.totalAmount = totalAmount.toFixed(2)
 					order.discountAmount = 0
 					order.payAmount = (order.totalAmount - 0).toFixed(2)
+					order.platDiscountAmount = 0
+					order.shopDiscountAmount = 0
 					order.remark = shopSkus.remark
 					order.goodsOrderItemInVOList = orderItems 
 					orderList.push(order)
