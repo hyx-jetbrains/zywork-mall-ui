@@ -56,13 +56,13 @@
 				<image class="card-bg" src="/static/vip-card-bg.png" mode=""></image>
 				<view class="tit">
 					<text class="iconfont iconicon-test zy-vip-icon"></text>
-					代理商
+					分销商
 				</view>
 				<view class="b-btn" @click="toAgentPage">
-					成为代理
+					成为分销商
 				</view>
 				<text class="e-m">Distributor</text>
-				<text class="e-b">成为代理商，低价购物，购物得佣金</text>
+				<text class="e-b">成为分销商，低价购物，分享购物得佣金</text>
 			</view>
 		</view>
 
@@ -770,7 +770,7 @@
 			position: absolute;
 			right: 20upx;
 			top: 16upx;
-			width: 132upx;
+			width: 150upx;
 			height: 50upx;
 			text-align: center;
 			line-height: 50upx;
