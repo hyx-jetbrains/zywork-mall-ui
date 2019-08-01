@@ -37,19 +37,21 @@
 				<!-- #ifdef H5 -->
 				<ul>
 					<li>1、发送邀请二维码给微信好友。</li>
-					<li>2、好友识别二维码并微信授权后，在商城中购买商品您可享受分销佣金。</li>
+					<li v-if="distributionFlag">2、好友识别二维码并微信授权后，在商城中购买商品您可享受分销佣金。</li>
+					<li v-if="!distributionFlag">2、好友识别二维码并微信授权后，您可享受分销佣金。</li>
 					<li>3、您可以在【我的】菜单中查看【分销佣金】和【我的团队】。</li>
 				</ul>
 				<!-- #endif -->
 				<!-- #ifdef MP -->
 				<ul>
 					<li>1、点击【立即分享】按钮，转发小程序给微信好友。</li>
-					<li>2、好友点击微信小程序卡片后，在商城中购买商品您可享受分销佣金。</li>
+					<li v-if="distributionFlag">2、好友识别二维码并微信授权后，在商城中购买商品您可享受分销佣金。</li>
+					<li v-if="!distributionFlag">2、好友识别二维码并微信授权后，您可享受分销佣金。</li>
 					<li>3、您可以在【我的】菜单中查看【分销佣金】和【我的团队】。</li>
 				</ul>
 				<!-- #endif -->
 			</view>
-			<view class="zy-bottom-tip">
+			<view class="zy-bottom-tip" v-if="distributionFlag">
 				温馨提示：成为代理商才能享受佣金。
 			</view>
 		</view>
@@ -79,12 +81,14 @@
 					shareCodeUrl: '/share-generator/gzh-qrcode',
 					shareLinkUrl: '/share-generator/gzh-link'
 				},
+				distributionFlag: false
 			}
 		},
 		onLoad() {
 			// #ifdef H5
 			this.loadData()
 			// #endif
+			this.loadDistributionConfig();
 		},
 		// #ifdef MP-WEIXIN
 		onShareAppMessage(res) {
@@ -97,6 +101,22 @@
 		},
 		// #endif
 		methods: {
+			/**
+			 * 加载分销配置
+			 */
+			loadDistributionConfig(){
+				doGet('/sys-config/any/distribution-config', {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						let distributionConfig = res.data.data.distributionConfig;
+						this.distributionFlag = distributionConfig;
+					} else {
+						showInfoToast(res.data.message)
+					}
+				}).catch(err => {
+					console.log(err)
+				})
+			},
 			/**
 			 * 加载数据
 			 */

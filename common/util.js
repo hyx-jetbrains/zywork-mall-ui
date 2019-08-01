@@ -1,5 +1,5 @@
-export const BASE_URL = 'https://gnmymall.com/api'
-// export const BASE_URL = 'http://127.0.0.1:8088'
+// export const BASE_URL = 'https://gnmymall.com/api'
+export const BASE_URL = 'http://127.0.0.1:8088'
 export const FRONT_BASE_URL = 'https://gnmymall.com/'
 export const DOCUMENT_BASE_URL = 'https://gnmymall.com'
 export const SHARE_TITLE = '赣南名优网'
@@ -16,6 +16,7 @@ export const SHARE_CODE_PAGE_IMG = '/static/share/share.jpg'
 export const REFRESH_CART = 'refreshCart'
 export const REFRESH_PRODUCT = 'refreshProduct'
 export const REFRESH_ORDER = 'refreshOrder'
+export const MALL_DISTRIBUTOR_FLAG = 'mallDistributorFlag'
 
 export const LOCAL_FILE_STORAGE = true
 /**

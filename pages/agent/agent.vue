@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
 		<!-- 说明 -->
-		<view class="navbar zy-text-small" style="position:fixed;top:70upx;padding: 20upx;font-size: 36upx;">
+		<view class="navbar zy-text-small" style="position:fixed;top:70upx;padding: 20upx;font-size: 36upx;" >
 			<zywork-icon type="iconsubject9" size="18" style="margin-right: 20upx;"></zywork-icon>
 			分销商特权
 		</view>
@@ -23,7 +23,16 @@
 				</view>
 			</view>
 		</view>
-		<view class="navbar" :style="{position:headerPosition,top:headerTop}">
+		<view class="navbar" style="position:fixed;top:420upx;padding: 20upx;height: 160upx;" v-if="!distributionFlag">
+			<zywork-icon type="iconweibiaoti2fuzhi13" size="33" color="#8ee933" style="margin-right: 20upx;"></zywork-icon>
+			<view>
+				<view style="font-size: 36upx;">成为分销商</view>
+				<view style="font-size: 26upx;color:#CCCCCC;">
+					点击右上角的分享按钮，即可以成为分销商，享受分销特权
+				</view>
+			</view>
+		</view>
+		<view class="navbar" :style="{position:headerPosition,top:headerTop}" v-if="distributionFlag">
 			<view class="nav-item" :class="{current: filterIndex === 0}" @click="tabClick(0)">
 				综合排序
 			</view>
@@ -41,7 +50,7 @@
 		</view>
 		
 		<!-- 商品列表 -->
-		<zywork-product-list :list="goodsList" style="margin-top: 300upx;"></zywork-product-list>
+		<zywork-product-list :list="goodsList" style="margin-top: 300upx;" v-if="distributionFlag"></zywork-product-list>
 
 		<uni-load-more :status="loadingType"></uni-load-more>
 
@@ -84,6 +93,7 @@
 	import {
 		doPostForm,
 		doPostJson,
+		doGet,
 		showInfoToast
 	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
@@ -115,7 +125,8 @@
 					pageSize: 10
 				},
 				salePriceMin: null,
-				salePriceMax: null
+				salePriceMax: null,
+				distributionFlag: false
 			};
 		},
 
@@ -135,8 +146,8 @@
 			if (options.fid) {
 				this.firstLevelCateId = options.fid
 			}
-			this.loadCateList()
-			this.loadGoods()
+			
+			this.loadDistributionConfig()
 		},
 		onPageScroll(e) {
 			//兼容iOS端下拉时顶部漂移
@@ -148,16 +159,39 @@
 		},
 		//下拉刷新
 		onPullDownRefresh() {
-			if (this.canPullDownRefresh) {
+			if (this.canPullDownRefresh && this.distributionFlag) {
 				this.onPullDownRefresh = true
 				this.loadGoods('refresh')
 			}
 		},
 		//加载更多
 		onReachBottom() {
-			this.loadGoods();
+			if (this.distributionFlag) {
+				this.loadGoods();
+			}
 		},
 		methods: {
+			/**
+			 * 加载分销配置
+			 */
+			loadDistributionConfig(){
+				doGet('/sys-config/any/distribution-config', {}).then(response => {
+					let [error, res] = response
+					if (res.data.code === ResponseStatus.OK) {
+						let distributionConfig = res.data.data.distributionConfig;
+						this.distributionFlag = distributionConfig;
+						if (distributionConfig) {
+							// 设置开启，加载商品之类的东西
+							this.loadCateList()
+							this.loadGoods()
+						}
+					} else {
+						showInfoToast(res.data.message)
+					}
+				}).catch(err => {
+					console.log(err)
+				})
+			},
 			//加载分类，前提条件是有一级分类
 			async loadCateList() {
 				if (this.firstLevelCateId > 0) {
@@ -287,6 +321,7 @@
 				// 加载三级分类商品
 				this.loadCategoryGoods()
 			},
+			
 			changeQuery(params) {
 				if (this.filterIndex === 1) {
 					params.sortColumn = 'saleQuantity'

@@ -113,7 +113,10 @@
 	} from '@/common/page-url.js'
 	import {
 		navTo,
-		HAS_USER_INFO
+		HAS_USER_INFO,
+		MY_SHARE_CODE,
+		SHARE_TITLE,
+		SHARE_CODE_PAGE_IMG,
 	} from '@/common/util.js'
 	export default {
 		components: {
@@ -164,6 +167,16 @@
 				}
 			}
 		},
+		// #ifdef MP-WEIXIN
+		onShareAppMessage(res) {
+			var shareCode = uni.getStorageSync(MY_SHARE_CODE);
+			return  {
+				title: SHARE_TITLE,
+				path: '/pages/index/index?shareCode=' + shareCode,
+				imageUrl: SHARE_CODE_PAGE_IMG
+			}
+		},
+		// #endif
 		methods: {
 			//请求购物车数据
 			async loadCart(){

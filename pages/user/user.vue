@@ -10,7 +10,7 @@
 				<view class="info-box">
 					<view>
 						<text class="username">{{userInfo.nickname || '暂无昵称'}}</text>
-						<text class="iconfont iconicon-test zy-vip-icon"></text>
+						<text class="iconfont iconicon-test zy-vip-icon" :style="{color: vipColor}"></text>
 					</view>
 					<view v-if="userInfo.phone">
 						<text class="phone">{{userInfo.phone}}</text>
@@ -58,7 +58,7 @@
 					<text class="iconfont iconicon-test zy-vip-icon"></text>
 					分销商
 				</view>
-				<view class="b-btn" @click="toAgentPage">
+				<view class="b-btn" v-if="!distributionFlag" @click="toAgentPage">
 					成为分销商
 				</view>
 				<text class="e-m">Distributor</text>
@@ -173,13 +173,16 @@
 		USER_OPENID,
 		USER_TOKEN_KEY,
 		MY_SHARE_CODE,
+		SHARE_TITLE,
+		SHARE_CODE_PAGE_IMG,
 		USER_ID,
 		USER_ROLES,
 		USER_PHONE,
 		HAS_USER_INFO,
 		FRONT_BASE_URL,
 		LOCAL_FILE_STORAGE,
-		SHARE_CODE
+		SHARE_CODE,
+		MALL_DISTRIBUTOR_FLAG
 	} from '@/common/util.js'
 	import {
 		getProductHistory
@@ -222,7 +225,9 @@
 				userWallet: {
 					usableRmbBalance: 0,
 					usableIntegral: 0
-				}
+				},
+				distributionFlag: false,
+				vipColor: '#6D6D6D'
 			}
 		},
 		onLoad(options) {
@@ -267,6 +272,16 @@
 				});
 				// #endif
 				this.toNoticePage();
+			}
+		},
+		// #endif
+		// #ifdef MP-WEIXIN
+		onShareAppMessage(res) {
+			var shareCode = uni.getStorageSync(MY_SHARE_CODE);
+			return  {
+				title: SHARE_TITLE,
+				path: '/pages/index/index?shareCode=' + shareCode,
+				imageUrl: SHARE_CODE_PAGE_IMG
 			}
 		},
 		// #endif
@@ -413,7 +428,18 @@
 						var rolesArrey = []
 						res.data.data.rows.forEach(item => {
 							rolesArrey.push(item.roleTitle);
+							if (item.roleTitle.indexOf('sys_mall_distributor_v') != -1) {
+								// 表示是代理商，需要点亮图标，并设置标识
+								this.distributionFlag = true
+							}
+							
 						})
+						if (this.distributionFlag) {
+							this.vipColor = '#fa436a';
+						} else {
+							this.vipColor = '#6D6D6D';
+						}
+						uni.setStorageSync(MALL_DISTRIBUTOR_FLAG, this.distributionFlag);
 						uni.setStorageSync(USER_ROLES, rolesArrey);
 					} else {
 						showInfoToast(res.data.message);
