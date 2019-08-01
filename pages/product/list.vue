@@ -241,7 +241,6 @@
 					pageNo: this.pager.pageNo,
 					pageSize: this.pager.pageSize,
 					goodsInfoIsActive: 0,
-					goodsInfoIsHot: 1,
 					goodsAttributeAttrCode: "salePrice"
 				}
 				this.changeQuery(params)

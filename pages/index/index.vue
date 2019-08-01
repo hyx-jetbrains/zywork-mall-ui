@@ -305,7 +305,9 @@
 					pageSize: 5,
 					parentId: 0,
 					isHot: 1,
-					isActive: 0
+					isActive: 0,
+					sortColumn: 'categoryOrder',
+					sortOrder: 'asc'
 				}, {}).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
@@ -355,7 +357,6 @@
 					pageNo: 1,
 					pageSize: 10,
 					goodsInfoIsActive: 0,
-					goodsInfoIsHot: 1,
 					goodsAttributeAttrCode: "salePrice"
 				}, {}).then(response => {
 					let [error, res] = response
