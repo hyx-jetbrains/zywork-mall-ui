@@ -42,8 +42,9 @@
 			//详情
 			navToDetailPage(item) {
 				let goodsInfoId = item.goodsInfoId
+				let goodsSkuId = item.goodsSkuId
 				uni.navigateTo({
-					url: `/pages/product/product?goodsInfoId=${goodsInfoId}`
+					url: `/pages/product/product?goodsInfoId=${goodsInfoId}&goodsSkuId=${goodsSkuId}`
 				})
 			},
 		},

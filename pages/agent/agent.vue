@@ -1,37 +1,6 @@
 <template>
 	<view class="content">
-		<!-- 说明 -->
-		<view class="navbar zy-text-small" style="position:fixed;top:70upx;padding: 20upx;font-size: 36upx;" >
-			<zywork-icon type="iconsubject9" size="18" style="margin-right: 20upx;"></zywork-icon>
-			分销商特权
-		</view>
-		<view class="navbar" style="position:fixed;top:150upx;;padding: 20upx;height: 120upx;">
-			<zywork-icon type="iconqiandai1-copy" size="33" color="#e93f33" style="margin-right: 20upx;"></zywork-icon>
-			<view>
-				<view style="font-size: 36upx;">销售佣金</view>
-				<view style="font-size: 26upx;color:#CCCCCC;">
-					推荐朋友在商城中购买商品可获取佣金
-				</view>
-			</view>
-		</view>
-		<view class="navbar" style="position:fixed;top:270upx;padding: 20upx;height: 160upx;">
-			<zywork-icon type="iconshandian" size="33" color="#8ee933" style="margin-right: 20upx;"></zywork-icon>
-			<view>
-				<view style="font-size: 36upx;">即刻到账</view>
-				<view style="font-size: 26upx;color:#CCCCCC;">
-					获取佣金即刻到账，佣金以发送到微信钱包余额的方式自动发送
-				</view>
-			</view>
-		</view>
-		<view class="navbar" style="position:fixed;top:420upx;padding: 20upx;height: 160upx;" v-if="!distributionFlag">
-			<zywork-icon type="iconweibiaoti2fuzhi13" size="33" color="#8ee933" style="margin-right: 20upx;"></zywork-icon>
-			<view>
-				<view style="font-size: 36upx;">成为分销商</view>
-				<view style="font-size: 26upx;color:#CCCCCC;">
-					点击右上角的分享按钮，即可以成为分销商，享受分销特权
-				</view>
-			</view>
-		</view>
+		
 		<view class="navbar" :style="{position:headerPosition,top:headerTop}" v-if="distributionFlag">
 			<view class="nav-item" :class="{current: filterIndex === 0}" @click="tabClick(0)">
 				综合排序
@@ -50,7 +19,7 @@
 		</view>
 		
 		<!-- 商品列表 -->
-		<zywork-product-list :list="goodsList" style="margin-top: 300upx;" v-if="distributionFlag"></zywork-product-list>
+		<zywork-product-list :list="goodsList" style="" v-if="distributionFlag"></zywork-product-list>
 
 		<uni-load-more :status="loadingType"></uni-load-more>
 
@@ -182,7 +151,6 @@
 						this.distributionFlag = distributionConfig;
 						if (distributionConfig) {
 							// 设置开启，加载商品之类的东西
-							this.loadCateList()
 							this.loadGoods()
 						}
 					} else {
@@ -192,28 +160,11 @@
 					console.log(err)
 				})
 			},
-			//加载分类，前提条件是有一级分类
-			async loadCateList() {
-				if (this.firstLevelCateId > 0) {
-					doPostForm('/goods-category/any/by-first-level-category', {
-						categoryId: this.firstLevelCateId
-					}, {}).then(response => {
-						let [error, res] = response
-						if (res.data.code === ResponseStatus.OK) {
-							let list = res.data.data.rows
-							let cateList = list.filter(item => item.parentId == this.firstLevelCateId)
-							cateList.forEach(item => {
-								let tempList = list.filter(val => val.parentId == item.id)
-								item.child = tempList
-							})
-							this.cateList = cateList
-						}
-					}).catch(error => {
-						console.log(error)
-					})
-				}
-			},
-			loadCategoryGoods() {
+			/**
+			 * 加载代理商商品
+			 * @param {Object} type
+			 */
+			loadAgentGoods(type) {
 				let params = {
 					pageNo: this.pager.pageNo,
 					pageSize: this.pager.pageSize,
@@ -221,68 +172,15 @@
 					goodsAttributeAttrCode: "salePrice"
 				}
 				this.changeQuery(params)
-				doPostJson('/goods-sku-attr-val/any/category-goods-sku-attr/' + this.cateId, params, {}).then(response => {
+				doPostJson('/goods-sku-attr-val/any/agent-goods-sku-attr', params, {}).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
-						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
-							this.loadingType = 'nomore'
+						this.loadingType = this.pager.pageNo * this.pager.pageSize >= res.data.data.total ? 'nomore' : 'more'
+						if (type === 'refresh') {
+							this.goodsList = res.data.data.rows
+						} else {
+							this.goodsList = this.goodsList.concat(res.data.data.rows)
 						}
-						this.goodsList = res.data.data.rows
-						if (this.onPullDownRefresh) {
-							uni.stopPullDownRefresh()
-						}
-						if (this.showLoading) {
-							this.showLoading = false
-							uni.hideLoading()
-						}
-					}
-				}).catch(error => {
-					console.log(error)
-				})
-			},
-			loadHotCategoryGoods() {
-				let params = {
-					pageNo: this.pager.pageNo,
-					pageSize: this.pager.pageSize,
-					goodsInfoIsActive: 0,
-					goodsAttributeAttrCode: "salePrice"
-				}
-				this.changeQuery(params)
-				doPostJson('/goods-sku-attr-val/any/goods-sku-attr/' + this.firstLevelCateId, params, {}).then(response => {
-					let [error, res] = response
-					if (res.data.code === ResponseStatus.OK) {
-						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
-							this.loadingType = 'nomore'
-						}
-						this.goodsList = res.data.data.rows
-						if (this.onPullDownRefresh) {
-							uni.stopPullDownRefresh()
-						}
-						if (this.showLoading) {
-							this.showLoading = false
-							uni.hideLoading()
-						}
-					}
-				}).catch(error => {
-					console.log(error)
-				})
-			},
-			loadHotGoods() {
-				let params = {
-					pageNo: this.pager.pageNo,
-					pageSize: this.pager.pageSize,
-					goodsInfoIsActive: 0,
-					goodsInfoIsHot: 1,
-					goodsAttributeAttrCode: "salePrice"
-				}
-				this.changeQuery(params)
-				doPostJson('/goods-sku-attr-val/any/hot-goods-sku-attr', params, {}).then(response => {
-					let [error, res] = response
-					if (res.data.code === ResponseStatus.OK) {
-						if (this.pager.pageNo * this.pager.pageSize >= res.data.data.total) {
-							this.loadingType = 'nomore'
-						}
-						this.goodsList = res.data.data.rows
 						if (this.onPullDownRefresh) {
 							uni.stopPullDownRefresh()
 						}
@@ -308,18 +206,8 @@
 				if (type === 'refresh') {
 					this.pager.pageNo = 1
 				}
-				if (this.isHot) {
-					// 加载热门商品
-					this.loadHotGoods()
-					return
-				}
-				if (this.firstLevelCateId > 0 && this.cateId == 0) {
-					// 加载热门分类商品（一级分类商品）
-					this.loadHotCategoryGoods()
-					return
-				}
-				// 加载三级分类商品
-				this.loadCategoryGoods()
+				// 加载代理商商品
+				this.loadAgentGoods(type)
 			},
 			
 			changeQuery(params) {
@@ -391,6 +279,8 @@
 				}
 			},
 			checkPrice() {
+				this.salePriceMin = parseInt(this.salePriceMin);
+				this.salePriceMax = parseInt(this.salePriceMax);
 				if (this.salePriceMin && !this.salePriceMax && this.salePriceMin <= 0) {
 					showInfoToast('最低价必须大于0')
 					return false
