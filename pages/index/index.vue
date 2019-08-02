@@ -28,7 +28,7 @@
 		</view>
 		<!-- 热门一级分类 -->
 		<view class="cate-section">
-			<view class="cate-item" v-for="(item, index) in hotCategoryList" :key="index" @click="navToProductList(item.id)">
+			<view class="cate-item" v-for="(item, index) in hotCategoryList" :key="index" @click="navToProductList(item.id, item.title)">
 				<image :src="localFileStorage ? frontBaseUrl + item.picUrl : item.picUrl"></image>
 				<text>{{item.title}}</text>
 			</view>
@@ -126,7 +126,7 @@
 		<!-- 分类推荐楼层 -->
 		<view v-for="(item, index) in hotCategoryGoodsList" :key="index">
 			<view v-if="item.goodsList.length > 0">
-				<view class="f-header m-t" @click="navToProductList(item.categoryId)">
+				<view class="f-header m-t" @click="navToProductList(item.categoryId, item.categoryTitle)">
 					<zywork-icon type="iconweibiaoti2fuzhi13" color="#fa436a" size="30"></zywork-icon>
 					<view class="tit-box">
 						<text class="tit">{{item.categoryTitle}}精选</text>
@@ -146,7 +146,7 @@
 								<text class="title clamp">{{goods.goodsInfoTitle}}</text>
 								<text class="price">￥{{goods.goodsAttributeValueAttrValue}}</text>
 							</view>
-							<view class="more" @click="navToProductList(item.categoryId)">
+							<view class="more" @click="navToProductList(item.categoryId, item.categoryTitle)">
 								<text>查看全部</text>
 								<text>More+</text>
 							</view>
@@ -367,14 +367,14 @@
 					console.log(error)
 				})
 			},
-			navToProductList(fid) {
+			navToProductList(fid, pageTitle) {
 				uni.navigateTo({
-					url: `/pages/product/list?fid=${fid}`
+					url: `/pages/product/list?fid=${fid}&pageTitle=${pageTitle}`
 				})
 			},
 			navToHotProductList() {
 				uni.navigateTo({
-					url: `/pages/product/list?isHot=1`
+					url: `/pages/product/list?isHot=1&pageTitle=热门商品`
 				})
 			},
 			//详情页

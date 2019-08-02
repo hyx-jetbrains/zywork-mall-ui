@@ -92,6 +92,11 @@
 		},
 		
 		onLoad(options){
+			if (options.pageTitle) {
+				uni.setNavigationBarTitle({
+					title: options.pageTitle
+				})
+			}
 			// #ifdef H5
 			this.headerTop = document.getElementsByTagName('uni-page-head')[0].offsetHeight+'px';
 			if (this.headerTop === '0px') {
