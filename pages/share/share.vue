@@ -37,22 +37,20 @@
 				<!-- #ifdef H5 -->
 				<ul>
 					<li>1、发送邀请二维码给微信好友。</li>
-					<li v-if="distributionFlag">2、好友识别二维码并微信授权后，在商城中购买商品您可享受分销佣金。</li>
-					<li v-if="!distributionFlag">2、好友识别二维码并微信授权后，您可享受分销佣金。</li>
+					<li>2、好友识别二维码并微信授权登录后，好友在商城中购买商品，您即可享受分销佣金。</li>
 					<li>3、您可以在【我的】菜单中查看【分销佣金】和【我的团队】。</li>
 				</ul>
 				<!-- #endif -->
 				<!-- #ifdef MP -->
 				<ul>
 					<li>1、点击【立即分享】按钮，转发小程序给微信好友。</li>
-					<li v-if="distributionFlag">2、好友识别二维码并微信授权后，在商城中购买商品您可享受分销佣金。</li>
-					<li v-if="!distributionFlag">2、好友识别二维码并微信授权后，您可享受分销佣金。</li>
+					<li>2、好友进入小程序并微信授权登录后，好友在商城中购买商品，您即可享受分销佣金。</li>
 					<li>3、您可以在【我的】菜单中查看【分销佣金】和【我的团队】。</li>
 				</ul>
 				<!-- #endif -->
 			</view>
 			<view class="zy-bottom-tip" v-if="distributionFlag">
-				温馨提示：成为分销商才能享受佣金。
+				温馨提示：购买指定商品成为分销商后才能享受佣金。
 			</view>
 		</view>
 
@@ -84,11 +82,13 @@
 				distributionFlag: false
 			}
 		},
-		onLoad() {
+		onLoad(options) {
 			// #ifdef H5
 			this.loadData()
 			// #endif
-			this.loadDistributionConfig();
+			if (!options.distributionFlag) {
+				this.loadDistributionConfig()
+			}
 		},
 		// #ifdef MP-WEIXIN
 		onShareAppMessage(res) {
@@ -145,7 +145,6 @@
 				uni.setClipboardData({
 					data: 'http://sishuquan.com?id=3228969',
 					success: function() {
-						console.log('success');
 						uni.showModal({
 							title: '复制成功',
 							content: '内容已复制到粘贴板，可前往其他应用粘贴查看。',
