@@ -61,8 +61,8 @@
 				<view class="b-btn" @click="toAgentPage">
 					成为分销商
 				</view>
-				<text class="e-m">Distributor</text>
-				<text class="e-b">成为分销商，低价购物，分享购物得佣金</text>
+				<text class="e-m" v-if="distributionFlag">购买指定商品成为分销商</text>
+				<text class="e-b">分享好友购物得佣金，佣金即时到账</text>
 			</view>
 		</view>
 
@@ -70,7 +70,7 @@
 				transform: coverTransform,
 				transition: coverTransition
 			}]"
-		 @touchstart="coverTouchstart" @touchmove="coverTouchmove" @touchend="coverTouchend">
+			@touchstart="coverTouchstart" @touchmove="coverTouchmove" @touchend="coverTouchend">
 			<image class="arc" src="/static/arc.png"></image>
 
 			<view class="tj-sction">
@@ -222,7 +222,8 @@
 				userWallet: {
 					usableRmbBalance: 0,
 					usableIntegral: 0
-				}
+				},
+				distributionFlag: false
 			}
 		},
 		onLoad(options) {
@@ -236,6 +237,7 @@
 			}
 			// #endif
 			this.loadData('init');
+			this.loadDistribuionFlag()
 		},
 		onShow() {
 			this.loadHistoryData()
@@ -643,25 +645,27 @@
 			toOrderPage(type) {
 				this.navTo(ORDER_PAGE + '?state=' + type);
 			},
-			/**
-			 * 前往成为代理商商品列表页面
-			 */
-			toAgentPage() {
+			loadDistribuionFlag() {
 				doGet('/sys-config/any/distribution-config', {}).then(response => {
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
-						let distributionConfig = res.data.data.distributionAgentSwitch
-						if (distributionConfig) {
-							this.navTo('/pages/agent/agent')
-						} else {
-							this.navTo('/pages/share/share?distributionFlag=false')
-						}
+						this.distributionFlag = res.data.data.distributionAgentSwitch
 					} else {
 						showInfoToast(res.data.message)
 					}
 				}).catch(err => {
 					console.log(err)
 				})
+			},
+			/**
+			 * 前往成为代理商商品列表页面
+			 */
+			toAgentPage() {
+				if (this.distributionFlag) {
+					this.navTo('/pages/agent/agent')
+				} else {
+					this.navTo('/pages/share/share?distributionFlag=false')
+				}
 			},
 			/**
 			 * 前往佣金页面
@@ -778,6 +782,7 @@
 			right: 0;
 			width: 380upx;
 			height: 260upx;
+			opacity: 0.4;
 		}
 
 		.b-btn {
