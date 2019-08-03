@@ -7,9 +7,15 @@
 				<view class="image-wrapper">
 					<image :src="localFileStorage ? frontBaseUrl + item.goodsPicPicUrl : item.goodsPicPicUrl" mode="aspectFill"></image>
 				</view>
-				<text class="title clamp">{{item.goodsInfoTitle}}</text>
+				<view class="zy-hot-section">
+					<text class="zy-tag-hot" v-if="item.hotCount > 0">热</text>
+					<text class="title clamp">{{item.goodsInfoTitle}}</text>
+				</view>
 				<view class="price-box">
-					<text class="price">{{item.goodsAttributeValueAttrValue}}</text>
+					<view class="zy-hot-section">
+						<text class="price">{{item.goodsAttributeValueAttrValue}}</text>
+						<text class="zy-tag-activity" v-if="item.agentCount > 0 || item.grouponCount > 0 || item.promotionCount > 0 || item.seckillCount > 0">活动</text>
+					</view>
 					<text>已售 {{item.goodsInfoSaleCount}}</text>
 				</view>
 			</view>
@@ -110,5 +116,28 @@
 				font-size: 26upx;
 			}
 		}
+	}
+	
+	.zy-hot-section {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+		
+	.zy-tag-hot {
+		color: #fa436a; 
+		font-size: 22upx; 
+		margin-right: 10upx;
+	}
+	
+	.zy-tag-activity {
+		color: #fa436a;
+		font-size: 23upx;
+		width: 70upx;
+		line-height: 35upx;
+		text-align: center;
+		border: 1upx solid #fa436a;
+		border-radius: 20upx;
+		margin-left: 10upx;
 	}
 </style>

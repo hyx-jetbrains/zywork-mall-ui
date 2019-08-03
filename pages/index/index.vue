@@ -143,8 +143,14 @@
 								@click="navToDetailPage(goods.goodsInfoId)"
 							>
 								<image :src="localFileStorage ? frontBaseUrl + goods.goodsPicPicUrl : goods.goodsPicPicUrl" mode="aspectFill"></image>
-								<text class="title clamp">{{goods.goodsInfoTitle}}</text>
-								<text class="price">￥{{goods.goodsAttributeValueAttrValue}}</text>
+								<view class="zy-hot-section">
+									<text class="zy-tag-hot" v-if="goods.hotCount > 0">热</text>
+									<text class="title clamp">{{goods.goodsInfoTitle}}</text>
+								</view>
+								<view class="zy-hot-section">
+									<text class="price">￥{{goods.goodsAttributeValueAttrValue}}</text>
+									<text class="zy-tag-activity" v-if="goods.agentCount > 0 || goods.grouponCount > 0 || goods.promotionCount > 0 || goods.seckillCount > 0">活动</text>
+								</view>
 							</view>
 							<view class="more" @click="navToProductList(item.categoryId, item.categoryTitle)">
 								<text>查看全部</text>
