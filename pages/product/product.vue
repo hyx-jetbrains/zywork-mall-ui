@@ -11,7 +11,13 @@
 		</view>
 		
 		<view class="introduce-section">
-			<text class="title">{{selectSku.title || ''}}</text>
+			<view class="zy-hot-section">
+				<text class="zy-tag-hot" v-if="selectSku.isAgent">代理</text>
+				<text class="zy-tag-hot" v-if="selectSku.isGroupon">拼团</text>
+				<text class="zy-tag-hot" v-if="selectSku.isSeckill">秒杀</text>
+				<text class="zy-tag-hot" v-if="selectSku.isPromotion">促销</text>
+				<text class="title">{{selectSku.title || ''}}</text>
+			</view>
 			<view class="price-box">
 				<text class="price-tip">¥</text>
 				<text class="price">{{selectSku.salePrice || 0}}</text>
@@ -161,6 +167,13 @@
 				<view class="a-t">
 					<image :src="localFileStorage ? frontBaseUrl + selectSku.picUrl : selectSku.picUrl" mode="aspectFill"></image>
 					<view class="right">
+						<view class="zy-hot-section">
+							<text class="zy-tag-hot" v-if="selectSku.isAgent">代理</text>
+							<text class="zy-tag-hot" v-if="selectSku.isGroupon">拼团</text>
+							<text class="zy-tag-hot" v-if="selectSku.isSeckill">秒杀</text>
+							<text class="zy-tag-hot" v-if="selectSku.isPromotion">促销</text>
+							<text class="title">{{selectSku.title || ''}}</text>
+						</view>
 						<text class="price">¥{{selectSku.salePrice}}</text>
 						<text class="stock">库存：{{selectSku.storeCount}}</text>
 						<view class="selected">
@@ -224,7 +237,7 @@
 <script>
 	import share from '@/components/share'
 	import uniNumberBox from '@/components/uni-number-box.vue'
-	import {doPostJson, doGet, showInfoToast, REFRESH_CART, REFRESH_PRODUCT, HAS_USER_INFO, FRONT_BASE_URL, LOCAL_FILE_STORAGE} from '@/common/util.js'
+	import {doPostJson, doGet, doPostForm, showInfoToast, REFRESH_CART, REFRESH_PRODUCT, HAS_USER_INFO, FRONT_BASE_URL, LOCAL_FILE_STORAGE} from '@/common/util.js'
 	import {setProductHistory} from '@/common/storage.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
@@ -249,7 +262,11 @@
 					picUrl: '',
 					price: 0,
 					salePrice: 0,
-					storeCount: 0
+					storeCount: 0,
+					isAgent: false,
+					isGroupon: false,
+					isPromotion: false,
+					isSeckill: false
 				},
 				selectSkuQuantity: 1,
 				specClass: 'none',
@@ -271,7 +288,8 @@
 					shopId: null
 				},
 				commentCount: 0,
-				commentList: []
+				commentList: [],
+				skuActivites: []
 			}
 		},
 		async onLoad(options){
@@ -339,17 +357,24 @@
 						this.goodsInfo = res.data.data
 						this.goodsInfo.goodsInfoIntro = this.goodsInfo.goodsInfoIntro.replace(/\/upload/g, FRONT_BASE_URL + 'upload')
 						if (this.goodsInfo.goodsSkuVOList && this.goodsInfo.goodsSkuVOList.length > 0) {
-							// 设置被选中的sku信息
-							this.setSelectSku()
+							this.loadSkuActivities(this.goodsInfo.goodsInfoShopId, this.goodsInfo.goodsInfoId, 
+							this.getAllSkuIds(this.goodsInfo.goodsSkuVOList)).then(response => {
+								let [err, res] = response
+								if (res.data.code === ResponseStatus.OK) {
+									this.skuActivites = res.data.data
+									// 设置被选中的sku信息
+									this.setSelectSku()
+								}
+							}).catch(error => {
+								console.log(error)
+							})
+							
+							// 获取商品类目指定的组合属性（规格属性），按属性正序排列
+							let firstSkuInfo = this.goodsInfo.goodsSkuVOList[0]
+							this.getCategoryAttrGroup(firstSkuInfo.goodsSkuAttrVOList)
+							this.loadCommentData()
+							this.updateClickCount()
 						}
-						// 获取商品类目指定的组合属性（规格属性），按属性正序排列
-						let firstSkuInfo = this.goodsInfo.goodsSkuVOList[0]
-						this.getCategoryAttrGroup(firstSkuInfo.goodsSkuAttrVOList)
-						this.updateClickCount()
-						this.collection.goodsId = this.goodsInfo.goodsInfoId
-						this.collection.shopId = this.goodsInfo.goodsInfoShopId
-						this.isFavorite()
-						this.loadCommentData()
 					} else {
 						showInfoToast('商品不存在哦')
 						setTimeout(function() {
@@ -360,6 +385,13 @@
 				}).catch(error => {
 					console.log(error)
 				})
+			},
+			getAllSkuIds(skuVOList) {
+				let skuIds = ''
+				skuVOList.forEach(item => {
+					skuIds += item.goodsSkuId + ','
+				})
+				return skuIds
 			},
 			// 设置被选中的SKU信息
 			setSelectSku() {
@@ -379,6 +411,8 @@
 			},
 			// 从SKU中获取selectSku需要的信息并赋值给selectSku
 			setSkuInfo(skuInfo) {
+				this.collection.goodsId = this.goodsInfo.goodsInfoId
+				this.collection.shopId = this.goodsInfo.goodsInfoShopId
 				this.collection.goodsSkuId = this.selectSku.skuId = skuInfo.goodsSkuId
 				this.selectSku.picUrl = skuInfo.goodsPicPicUrl
 				skuInfo.goodsSkuAttrVOList.forEach((skuAttr, index) => {
@@ -392,6 +426,24 @@
 						this.selectSku.storeCount = skuAttr.goodsAttributeValueAttrValue
 					}
 				})
+				this.selectSku.isAgent = false
+				this.selectSku.isGroupon = false
+				this.selectSku.isSeckill = false
+				this.selectSku.isPromotion = false
+				for (let item of this.skuActivites) {
+					if (item.goodsSkuId === this.selectSku.skuId) {
+						if (item.agentCount > 0) {
+							this.selectSku.isAgent = true
+						} else if (item.grouponCount > 0) {
+							this.selectSku.isGroupon = true
+						} else if (item.seckillCount > 0) {
+							this.selectSku.isSeckill = true
+						} else if (item.promotionCount > 0) {
+							this.selectSku.isPromotion = true
+						}
+						break
+					}
+				}
 				// 每个sku都需要判断当前的sku是否有被收藏
 				this.isFavorite()
 			},
@@ -600,6 +652,10 @@
 						showInfoToast('请选择商品规格')
 						return
 					}
+					if (this.selectSku.isAgent) {
+						showInfoToast('请直接购买分销商商品')
+						return
+					}
 					doPostJson('/goods-cart/user/save', {
 						shopId: this.goodsInfo.goodsInfoShopId,
 						goodsId: this.goodsInfo.goodsInfoId,
@@ -630,8 +686,12 @@
 						showInfoToast('商品库存不足')
 						return
 					}
+					let url = `/pages/order/createOrder?skuIds=${this.selectSku.skuId}&quantity=${this.selectSkuQuantity}`
+					if (this.selectSku.isAgent) {
+						url = `/pages/order/createOrder?skuIds=${this.selectSku.skuId}&quantity=${this.selectSkuQuantity}&agentRole=sys_mall_distributor_v1`
+					}
 					uni.navigateTo({
-						url: `/pages/order/createOrder?skuIds=${this.selectSku.skuId}&quantity=${this.selectSkuQuantity}`
+						url: url
 					})
 				} else {
 					this.toLogin()
@@ -741,12 +801,20 @@
 					console.log(err);
 				})
 			},
+			loadSkuActivities(shopId, goodsId, goodsSkuIds) {
+				return doPostForm('/goods-info/any/list-sku-count', {
+					shopId: shopId,
+					goodsId: goodsId,
+					goodsSkuIds: goodsSkuIds
+				}, {})
+			}
 		},
 
 	}
 </script>
 
 <style lang='scss'>
+	@import '@/common/zywork-main.scss';
 	page{
 		background: $page-color-base;
 		padding-bottom: 160upx;
@@ -1015,11 +1083,11 @@
 		padding: 10upx 30upx;
 		.a-t{
 			display: flex;
+			align-items: center;
 			image{
 				width: 170upx;
 				height: 170upx;
 				flex-shrink: 0;
-				margin-top: -40upx;
 				border-radius: 8upx;;
 			}
 			.right{

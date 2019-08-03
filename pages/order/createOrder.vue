@@ -153,6 +153,7 @@
 			return {
 				skuIds: null,
 				quantity: null,
+				agentRole: 'none',
 				cartData: null,
 				selectedAddress: {},
 				shopSkuList: [],
@@ -181,6 +182,9 @@
 		onLoad(option){
 			this.skuIds = option.skuIds
 			this.quantity = option.quantity
+			if (option.agentRole) {
+				this.agentRole = option.agentRole
+			}
 			let cartData = option.cartData
 			if (cartData) {
 				this.cartData = JSON.parse(cartData)
@@ -339,7 +343,7 @@
 				uni.showLoading({
 					title:'提交订单...'
 				})
-				doPostJson('/goods-order/user/save', this.getOrderInfoList(), {}, true).then(response => {
+				doPostJson('/goods-order/user/save/' + this.agentRole, this.getOrderInfoList(), {}, true).then(response => {
 					uni.hideLoading()
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {

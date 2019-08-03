@@ -89,7 +89,7 @@
 						let payData = res.data.data
 						uni.requestPayment({
 							provider: 'wxpay',
-							orderInfo: this.orderId,
+							orderInfo: this.orderIds,
 							appId: payData.appId,
 							timeStamp: payData.timeStamp,
 							nonceStr: payData.nonceStr,
