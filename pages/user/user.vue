@@ -148,7 +148,7 @@
 				<list-cell icon="iconfenxiang" iconColor="#9789f7" title="分享邀请" tips="邀请好友得佣金" @eventClick="toSharePage"></list-cell>
 				<!-- <list-cell icon="icon-pinglun-copy" iconColor="#ee883b" title="晒单" tips="晒单抢红包"></list-cell> -->
 				<list-cell icon="iconshoucang1" iconColor="#54b4ef" title="我的收藏" @eventClick="toCollectionPage"></list-cell>
-				<!-- <list-cell icon="iconhaoping" iconColor="#52a3ef" title="我的评价" @eventClick="toEvaluatePage"></list-cell> -->
+				<list-cell icon="iconhaoping" iconColor="#52a3ef" title="我的评价" @eventClick="toEvaluatePage"></list-cell>
 				<list-cell icon="iconshezhi" iconColor="#e07472" title="设置" border="" @eventClick="toSetPage"></list-cell>
 			</view>
 		</view>
