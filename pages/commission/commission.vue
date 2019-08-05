@@ -22,7 +22,7 @@
 				<view v-for="(commissionItem, index) in commissionList" :key="index" v-if="commissionItem.amount > 0" class="zy-page-list-item">
 					<view class="zy-display-flex">
 						<view class="zy-text-big zy-text-bold zy-overflow-hidden">{{commissionItem.subType}}</view>
-						<view class="zy-text-info zy-text-small zy-display-flex-right" style="color: #F0AD4E">
+						<view class="zy-text-info zy-text-bold zy-display-flex-right" style="color: #fa436a; font-size: 36upx;">
 							{{commissionItem.amount > 0 ? '+' : ''}}{{commissionItem.amount}}
 						</view>
 					</view>
@@ -64,11 +64,12 @@
 					searchUrl: '/account-detail/user/pager-cond'
 				},
 				pager: {
-					subType: '商城分销佣金收入',
+					// subType: '商城分销佣金收入',
 					pageNo: 1,
 					pageSize: 10,
 					isActive: 0,
-					pageTotal: 0
+					pageTotal: 0,
+					remark: '商城订单佣金'
 				},
 				typeIndex: 0,
 				typeArray: revenueExpenditureStatusArray,
