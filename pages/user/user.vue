@@ -10,7 +10,7 @@
 				<view class="info-box">
 					<view>
 						<text class="username">{{userInfo.nickname || '暂无昵称'}}</text>
-						<text class="iconfont iconicon-test zy-vip-icon"></text>
+						<text class="iconfont iconicon-test zy-vip-icon" :style="{color: isDistribution ? '#fa436a' : '#6D6D6D'}"></text>
 					</view>
 					<view v-if="userInfo.phone">
 						<text class="phone">{{userInfo.phone}}</text>
@@ -58,7 +58,8 @@
 					<text class="iconfont iconicon-test zy-vip-icon"></text>
 					分销商
 				</view>
-				<view class="b-btn" @click="toAgentPage">
+				<!-- 不是分销商才需要显示这个按钮 -->
+				<view class="b-btn" @click="toAgentPage" v-if="!isDistribution">
 					成为分销商
 				</view>
 				<text class="e-m" v-if="distributionFlag">购买指定商品成为分销商</text>
@@ -179,7 +180,8 @@
 		HAS_USER_INFO,
 		FRONT_BASE_URL,
 		LOCAL_FILE_STORAGE,
-		SHARE_CODE
+		SHARE_CODE,
+		MALL_DISTRIBUTOR_FLAG
 	} from '@/common/util.js'
 	import {
 		getProductHistory
@@ -223,7 +225,8 @@
 					usableRmbBalance: 0,
 					usableIntegral: 0
 				},
-				distributionFlag: false
+				distributionFlag: false,
+				isDistribution: false
 			}
 		},
 		onLoad(options) {
@@ -413,8 +416,13 @@
 					let [error, res] = response;
 					if (res.data.code === ResponseStatus.OK) {
 						var rolesArrey = []
+						uni.setStorageSync(MALL_DISTRIBUTOR_FLAG, false)
 						res.data.data.rows.forEach(item => {
 							rolesArrey.push(item.roleTitle);
+							if (item.roleTitle.indexOf('sys_mall_distributor_v') != -1) {
+								uni.setStorageSync(MALL_DISTRIBUTOR_FLAG, true)
+								this.isDistribution = true
+							}
 						})
 						uni.setStorageSync(USER_ROLES, rolesArrey);
 					} else {
