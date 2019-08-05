@@ -179,7 +179,7 @@
 		-->
 
 		<!-- 热门商品 -->
-		<view class="f-header m-t" @click="navToHotProductList">
+		<view class="f-header m-t" @click="navToHotProductList" v-if="hotGoodsList.length > 0">
 			<zywork-icon type="iconremen" color="#fa436a" size="30"></zywork-icon>
 			<view class="tit-box">
 				<text class="tit">热门商品</text>
@@ -190,9 +190,6 @@
 		
 		<view v-if="hotGoodsList.length > 0">
 			<zywork-product-list :list="hotGoodsList"></zywork-product-list>
-		</view>
-		<view v-else style="text-align: center; margin-top: 10upx; margin-bottom: 10upx;">
-			暂无热门商品
 		</view>
 
 	</view>
@@ -318,7 +315,8 @@
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
 						this.hotCategoryList = res.data.data.rows
-						this.loadHotCategoryGoods()
+						this.hotCategoryGoodsList = []
+						this.loadHotCategoryGoods(0)
 					}
 				}).catch(error => {
 					console.log(error)
@@ -336,10 +334,10 @@
 					console.log(error)
 				})
 			},
-			loadHotCategoryGoods() {
-				this.hotCategoryGoodsList = []
-				this.hotCategoryList.forEach((item, index) => {
-					doPostJson('/goods-sku-attr-val/any/goods-sku-attr/' + item.id, {
+			loadHotCategoryGoods(index) {
+				if (this.hotCategoryList.length > 0) {
+					let category = this.hotCategoryList[index]
+					doPostJson('/goods-sku-attr-val/any/goods-sku-attr/' + category.id, {
 						pageNo: 1,
 						pageSize: 6,
 						goodsInfoIsActive: 0,
@@ -348,15 +346,18 @@
 						let [error, res] = response
 						if (res.data.code === ResponseStatus.OK) {
 							let hotCategoryGoods = {}
-							hotCategoryGoods.categoryId = item.id
-							hotCategoryGoods.categoryTitle = item.title
+							hotCategoryGoods.categoryId = category.id
+							hotCategoryGoods.categoryTitle = category.title
 							hotCategoryGoods.goodsList = res.data.data.rows
 							this.hotCategoryGoodsList.push(hotCategoryGoods)
+							if (++index < this.hotCategoryList.length) {
+								this.loadHotCategoryGoods(index)
+							}
 						}
 					}).catch(error => {
 						console.log(error)
 					})
-				})
+				}
 			},
 			loadHotGoods() {
 				doPostJson('/goods-sku-attr-val/any/hot-goods-sku-attr', {
