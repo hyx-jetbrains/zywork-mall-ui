@@ -79,7 +79,7 @@
 					<text class="num">{{userWallet.usableRmbBalance}}</text>
 					<text>余额</text>
 				</view>
-				<view class="tj-item" @click="toWalletIntegralPage">
+				<view class="tj-item" @click="toWalletBalancePage">
 					<text class="num">{{userWallet.usableIntegral}}</text>
 					<text>积分</text>
 				</view>
@@ -128,6 +128,7 @@
 							<text class="zy-text-small">个</text>
 						</view>
 					</view>
+					
 				</view>
 
 			</view>
@@ -147,6 +148,7 @@
 				<list-cell icon="iconfenxiang" iconColor="#9789f7" title="分享邀请" tips="邀请好友得佣金" @eventClick="toSharePage"></list-cell>
 				<!-- <list-cell icon="icon-pinglun-copy" iconColor="#ee883b" title="晒单" tips="晒单抢红包"></list-cell> -->
 				<list-cell icon="iconshoucang1" iconColor="#54b4ef" title="我的收藏" @eventClick="toCollectionPage"></list-cell>
+				<!-- <list-cell icon="iconhaoping" iconColor="#52a3ef" title="我的评价" @eventClick="toEvaluatePage"></list-cell> -->
 				<list-cell icon="iconshezhi" iconColor="#e07472" title="设置" border="" @eventClick="toSetPage"></list-cell>
 			</view>
 		</view>
@@ -697,20 +699,28 @@
 			 * 前往用户钱包余额页面
 			 */
 			toWalletBalancePage() {
-				this.navTo(WALLET_BALANCE_PAGE + '?userWallet=' + JSON.stringify(this.userWallet));
+				this.navTo('/pages/wallet/user-wallet?userWallet=' + JSON.stringify(this.userWallet));
 			},
 			/**
 			 * 前往用户钱包积分页面
 			 */
-			toWalletIntegralPage() {
-				this.navTo(WALLET_INTEGRAL_PAGE + '?userWallet=' + JSON.stringify(this.userWallet));
-			},
+			// toWalletIntegralPage() {
+			// 	this.navTo(WALLET_INTEGRAL_PAGE + '?userWallet=' + JSON.stringify(this.userWallet));
+			// },
 			/**
 			 * 前往我的收藏
 			 */
 			toCollectionPage() {
 				this.navTo(COLLECTION_PAGE)
+			},
+			/**
+			 * 前往我的评价
+			 */
+				
+			toEvaluatePage() {
+				this.navTo('/pages/evaluate/my-evaluate')
 			}
+			
 		}
 	}
 </script>

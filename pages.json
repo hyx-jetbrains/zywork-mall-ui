@@ -4,7 +4,7 @@
 			"style": {
 				"enablePullDownRefresh": true,
 				// #ifdef MP || H5 
-				"navigationBarTitleText": "名优网商城",
+				"navigationBarTitleText": "赣南名优网",
 				//"navigationStyle": "custom",
 				// #endif 
 				"app-plus": {
@@ -269,6 +269,19 @@
 			}
 		},
 		{
+		    "path" : "pages/evaluate/my-evaluate",
+		    "style" : {
+				"enablePullDownRefresh": true,
+				"navigationBarTitleText": "我的评价"
+			}
+		},
+		{
+		    "path" : "pages/wallet/user-wallet",
+		    "style" : {
+				"navigationBarTitleText": "我的钱包"
+			}
+		},
+		{
 			"path": "pages/login/login",
 			"style": {
 				"navigationBarTitleText": "",
@@ -312,6 +325,7 @@
 				}
 			}
 		}
+        
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
