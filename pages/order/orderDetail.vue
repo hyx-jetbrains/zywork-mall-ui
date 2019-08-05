@@ -57,8 +57,11 @@
 			</view>
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">备注:</text>
+			</view>
+			<view class="yt-list-cell b-b">
 				<text class="cell-tip">{{orderInfo.goodsOrderRemark}}</text>
 			</view>
+			
 		</view>
 		<!-- 金额信息 -->
 		<view class="yt-list">

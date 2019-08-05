@@ -113,14 +113,20 @@
 					<zywork-icon type="iconyongjin" color="#fa436a" size="24" style="margin-right: 20upx;"/>
 					<view class="order-item" @click="toCommissionPage" hover-class="common-hover" :hover-stay-time="50">
 						<text>分销佣金</text>
-						<text>{{distributionCount}}/元</text>
+						<view style="display: flex; align-items: center;">
+							<text class="zy-text-big zy-text-bold" style="color: #fa436a;">{{distributionCount}}</text>
+							<text class="zy-text-small">元</text>
+						</view>
 					</view>
 				</view>
 				<view class="order-section-item">
 					<zywork-icon type="icongroup" color="#fa436a" size="24" style="margin-right: 20upx;"/>
 					<view class="order-item" @click="toTeamPage" hover-class="common-hover" :hover-stay-time="50">
 						<text>我的团队</text>
-						<text>{{teamTotal}}/人</text>
+						<view style="display: flex; align-items: center;">
+							<text class="zy-text-big zy-text-bold" style="color: #fa436a;">{{teamTotal}}</text>
+							<text class="zy-text-small">个</text>
+						</view>
 					</view>
 				</view>
 
