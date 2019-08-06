@@ -27,6 +27,7 @@
 		onLoad(options) {
 			this.orderId = options.orderId
 			let goodsDataList = JSON.parse(options.goodsList)
+			console.log(goodsDataList)
 			goodsDataList.forEach(item => {
 				this.goodsList.push({
 					shopId: item.goodsShopId,
@@ -40,6 +41,8 @@
 					commentRate: 5,
 					comments: '',
 					goodsPicPicUrl: item.goodsPicPicUrl,
+					skuPicId: item.goodsPicId,
+					price: item.goodsOrderPayAmount,
 					imageList: []
 				});
 			})

@@ -44,7 +44,9 @@
 			 * 查看评价页面
 			 */
 			toSearchCommentPage() {
-				
+				uni.redirectTo({
+					url: '/pages/evaluate/my-evaluate'
+				})
 			}
 		}
 

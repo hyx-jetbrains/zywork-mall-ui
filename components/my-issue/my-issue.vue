@@ -131,7 +131,8 @@
 				sizeTypeIndex: 2,
 				count: [1, 2, 3, 4, 5],
 				sourceType: sourceType,
-				sizeType: sizeType
+				sizeType: sizeType,
+				submitFlag: true
 			};
 		},
 		methods: {
@@ -233,7 +234,10 @@
 			 * @name 提交
 			 */
 			doSubmit(){
-				this.$emit('submit', this.goodsList)
+				if (this.submitFlag) {
+					this.submitFlag = false
+					this.$emit('submit', this.goodsList)
+				}
 			}
 		},
 		created() {
