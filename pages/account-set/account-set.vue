@@ -9,10 +9,12 @@
 			<text class="cell-tip">{{user.phone}}</text>
 			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
+		<!-- #ifdef APP-PLUS -->
 		<view class="zy-list-cell b-b" @click="toForgetPage" hover-class="cell-hover" :hover-stay-time="50">
 			<text class="cell-tit">修改登录密码</text>
 			<zywork-icon type="iconxiangyou" color="#909399" size="12" class="cell-more" />
 		</view>
+		<!-- #endif -->
 	</view>
 </template>
 
