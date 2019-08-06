@@ -12,7 +12,7 @@
 						<text class="username">{{userInfo.nickname || '暂无昵称'}}</text>
 						<text class="iconfont iconicon-test zy-vip-icon" :style="{color: isDistribution ? '#fa436a' : '#6D6D6D'}"></text>
 					</view>
-					<view v-if="userInfo.phone">
+					<view v-if="hasPhone">
 						<text class="phone">{{userInfo.phone}}</text>
 					</view>
 					<view v-else>
@@ -220,6 +220,7 @@
 
 				},
 				userInfo: {},
+				hasPhone: false,
 				coverTransform: 'translateY(0px)',
 				coverTransition: '0s',
 				moving: false,
@@ -386,6 +387,7 @@
 								this.userInfo.gender = userInfo.userDetailGender;
 							}
 							if (userInfo.userPhone) {
+								this.hasPhone = true
 								this.userInfo.phone = userInfo.userPhone;
 							}
 							if (this.userInfo.nickname && this.userInfo.headicon) {
@@ -478,6 +480,9 @@
 			 * @param {Object} e
 			 */
 			bindGetPhoneNumber(e) {
+				uni.showLoading({
+					title: '获取中...'
+				})
 				if (e.detail.errMsg === 'getPhoneNumber:ok') {
 					const openId = uni.getStorageSync(USER_OPENID);
 					const data = {
@@ -486,9 +491,11 @@
 						iv: e.detail.iv
 					};
 					doPostForm(this.urls.xcxSavePhoneUrl, data, {}, false).then(response => {
-						let [error, res] = response;
+						uni.hideLoading()
+						let [error, res] = response
 						if (res.data.code === ResponseStatus.OK) {
 							this.userInfo.phone = res.data.data.phoneNumber
+							this.hasPhone = true
 						} else {
 							showInfoToast(res.data.message);
 						}
