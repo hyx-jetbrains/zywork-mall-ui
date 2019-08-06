@@ -844,7 +844,7 @@
 
 	.cover-container {
 		background: $page-color-base;
-		margin-top: -140upx;
+		margin-top: -80upx;
 		padding: 0 30upx;
 		position: relative;
 		background: #f5f5f5;

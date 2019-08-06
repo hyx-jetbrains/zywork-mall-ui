@@ -27,7 +27,8 @@
 		showSuccessToast,
 		showInfoToast,
 		doGet,
-		navTo
+		navTo,
+		USER_PHONE
 	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {  
@@ -72,8 +73,12 @@
 			 * 前往修改手机号的页面
 			 */
 			toUpdatePhonePage() {
-				showInfoToast('修改手机号')
-				// navTo(UPDATE_PHONE_PAGE, true);
+				let phone = uni.getStorageSync(USER_PHONE)
+				if (!phone) {
+					showInfoToast('请先获取手机号')
+					return
+				}
+				navTo(UPDATE_PHONE_PAGE, true);
 			},
 			/**
 			 * 前往修改密码页面

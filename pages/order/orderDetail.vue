@@ -141,7 +141,10 @@
 			 * 再次购买
 			 */
 			repurchase() {
-				showInfoToast('再次购买')
+				let item = this.orderInfo.userGoodsOrderItemVOList[0];
+				let goodsInfoId = item.goodsOrderItemGoodsId
+				let goodsSkuId = item.goodsOrderItemGoodsSkuId
+				this.navToGoodsSku(goodsInfoId, goodsSkuId);
 			},
 			//订单状态文字和颜色
 			orderStateExp(item) {

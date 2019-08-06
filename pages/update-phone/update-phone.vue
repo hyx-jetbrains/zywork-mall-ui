@@ -12,16 +12,16 @@
 			<view class="input-content">
 				<view class="input-item">
 					<text class="tit">原手机号</text>
-					<input type="number" :value="oldPhone" placeholder="原手机号码" maxlength="11" data-key="mobile" :disabled="true"/>
+					<input type="number" v-model="oldPhone" placeholder="原手机号码" maxlength="11" data-key="mobile" :disabled="true"/>
 				</view>
 				<view class="input-item">
 					<text class="tit">新手机号</text>
-					<input type="number" :value="newPhone" placeholder="请输入新手机号" placeholder-class="input-empty" maxlength="11"
+					<input type="number" v-model="newPhone" placeholder="请输入新手机号" placeholder-class="input-empty" maxlength="11"
 					 @input="inputChange" />
 				</view>
 				<view class="input-item zy-position-relative">
 					<text class="tit">验证码</text>
-					<input type="mobile" :value="code" placeholder="输入手机验证码" placeholder-class="input-empty" maxlength="20" password
+					<input type="mobile" v-model="code" placeholder="输入手机验证码" placeholder-class="input-empty" maxlength="20"
 					 data-key="code" @input="inputChange" />
 					<button class="zy-get-code-btn" @click="getCode" :disabled="getCodeDisabled">{{getCodeText}}</button>
 				</view>
@@ -39,22 +39,34 @@
 		LOGIN_PAGE
 	} from '@/common/page-url.js'
 	import {
-		redTo
+		redTo,
+		doPostForm,
+		USER_PHONE,
+		showInfoToast,
+		showSuccessToast
 	} from '@/common/util.js'
+	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
 		data() {
 			return {
-				oldPhone: '18279700225',
+				oldPhone: '',
 				newPhone: '',
 				code: '',
 				logining: false,
 				getCodeText: '获取验证码',
 				getCodeDisabled: false,
-				agreement: true
+				agreement: true,
+				urls: {
+					sendSms: '/user/user/sms-code',
+					updatePhone: '/user/user/update-phone'
+				}
 			}
 		},
 		onLoad() {
-
+			let phone = uni.getStorageSync(USER_PHONE)
+			if (phone) {
+				this.oldPhone = phone
+			}
 		},
 		methods: {
 			...mapMutations(['login']),
@@ -66,7 +78,11 @@
 			 * 获取验证码
 			 */
 			getCode() {
+				if (!this.checkData()) {
+					return
+				}
 				this.getCodeDisabled = true;
+				this.sendSmsCode();
 				var _this = this;
 				var time = 60;
 				var set = setInterval(function() {
@@ -77,6 +93,24 @@
 					_this.getCodeText = '获取验证码';
 					clearInterval(set);
 				}, 60000);
+			},
+			/**
+			 * 发送短信验证码
+			 */
+			sendSmsCode() {
+				let params = {
+					phone: this.oldPhone
+				}
+				doPostForm(this.urls.sendSms, params, {}, true).then(response => {
+					let [error, res] = response
+					if (ResponseStatus.OK === res.data.code) {
+						showSuccessToast(res.data.message)
+					} else {
+						showInfoToast(res.data.message)
+					}
+				}).catch(err => {
+					console.log(err)
+				})
 			},
 			/**
 			 * 切换单选按钮
@@ -101,35 +135,58 @@
 				redTo(LOGIN_PAGE, false);
 			},
 			/**
+			 * 验证数据
+			 */
+			checkData() {
+				if (!this.newPhone) {
+					showInfoToast('请输入新手机号')
+					return false
+				}
+				if (this.newPhone.length != 11) {
+					showInfoToast('手机号格式有误')
+					return false
+				}
+				if (this.newPhone == this.oldPhone) {
+					showInfoToast('新手机和老手机号一致')
+					return false
+				}
+				
+				return true
+			},
+			/**
 			 * 修改密码
 			 */
 			async updatePhone() {
-				this.logining = true;
-				const {
-					mobile,
-					password
-				} = this;
-				/* 数据验证模块
-				if(!this.$api.match({
-					mobile,
-					password
-				})){
-					this.logining = false;
-					return;
+				
+				if (!this.checkData()) {
+					return
 				}
-				*/
-				const sendData = {
-					mobile,
-					password
+				if (!this.code) {
+					showInfoToast('请输入验证码')
+					return false
+				}
+				const params = {
+					phone: this.newPhone,
+					code: this.code
 				};
-				const result = await this.$api.json('userInfo');
-				if (result.status === 1) {
-					this.login(result.data);
-					uni.navigateBack();
-				} else {
-					this.$api.msg(result.msg);
-					this.logining = false;
-				}
+				this.logining = true;
+				doPostForm(this.urls.updatePhone, params, {}, true).then(response => {
+					let [error, res] = response
+					if (ResponseStatus.OK === res.data.code) {
+						showSuccessToast('修改成功')
+						setTimeout(function() {
+							uni.navigateBack({
+								delta: 1
+							})
+						}, 600)
+					} else {
+						showInfoToast(res.data.message)
+						this.logining = false;
+					}
+				}).catch(err => {
+					console.log(err)
+				})
+				
 			}
 		},
 
