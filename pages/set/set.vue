@@ -114,13 +114,15 @@
 			clearCache() {
 				uni.showModal({
 					title: '确定清空缓存？',
-					success: (res) => {
-						uni.removeStorage({
-							key: PRODUCT_HISTORY,
-							success() {
-								utils.showInfoToast('已清除缓存')
-							}
-						})
+					success: (e) => {
+						if(e.confirm){
+							uni.removeStorage({
+								key: PRODUCT_HISTORY,
+								success() {
+									utils.showInfoToast('已清除缓存')
+								}
+							})
+						}
 					}
 				})
 			}
