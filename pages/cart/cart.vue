@@ -131,7 +131,8 @@
 				discount: 0,
 				allChecked: false, //全选状态  true|false
 				frontBaseUrl: FRONT_BASE_URL,
-				localFileStorage: LOCAL_FILE_STORAGE
+				localFileStorage: LOCAL_FILE_STORAGE,
+				loadCartOnLoad: false
 			};
 		},
 		onLoad() {
@@ -145,14 +146,16 @@
 				uni.setStorageSync(HAS_USER_INFO, true)
 			}
 			// #endif
-			if (uni.getStorageSync(HAS_USER_INFO)) {
-				this.loadCart()
-			}
 		},
 		onShow() {
 			if (uni.getStorageSync(HAS_USER_INFO)) {
 				this.hasUserInfo = true
-				if (uni.getStorageSync(REFRESH_CART)) {
+				if (!this.loadCartOnLoad) {
+					this.loadCartOnLoad = true
+					this.loadCart()
+					return
+				}
+				if (uni.getStorageSync(REFRESH_CART) && !this.onLoad) {
 					this.loadCart()
 					uni.setStorageSync(REFRESH_CART, false)
 				}
@@ -361,9 +364,13 @@
 							doGet('/goods-cart/user/remove/' + id, {}, true).then(response => {
 								let [error, res] = response
 								if (res.data.code === ResponseStatus.OK) {
-									this.shopSkuList[shopIndex].skuList.splice(skuIndex, 1);
-									this.calcTotal();
-									uni.hideLoading();
+									let shopSku = this.shopSkuList[shopIndex]
+									shopSku.skuList.splice(skuIndex, 1)
+									this.calcTotal()
+									if (shopSku.skuList.length === 0) {
+										this.shopSkuList.splice(shopIndex, 1)
+									}
+									uni.hideLoading()
 								}
 							}).catch(error => {
 								console.log(error)
@@ -378,15 +385,19 @@
 					content: '清空购物车？',
 					success: (e)=>{
 						if(e.confirm){
-							uni.showLoading({
-								title: '清空中...'
-							})
 							let ids = []
 							this.shopSkuList.forEach((shopSku, index) => {
 								shopSku.skuList.forEach(item => {
 									ids.push(item.id)
 								})
 							})
+							if (ids.length <= 0) {
+								return
+							}
+							uni.showLoading({
+								title: '清空中...'
+							})
+							
 							doPostJson('/goods-cart/user/batch-remove', ids, {}, true).then(response => {
 								let [error, res] = response
 								if (res.data.code === ResponseStatus.OK) {
