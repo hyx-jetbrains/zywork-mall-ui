@@ -300,8 +300,16 @@
 			judgeLogin(type) {
 				const userToken = uni.getStorageSync(USER_TOKEN_KEY);
 				if (userToken) {
-					// 用户token存在,直接获取用户信息
-					this.getUserDetail()
+					uni.checkSession({
+						success: () =>  {
+							// 用户token存在，且微信登录状态正常，则直接获取用户信息
+							this.getUserDetail()
+						},
+						fail: () => {
+							// 重新授权登录，获取新session_key
+							this.xcxLogin()
+						},
+					})
 				} else {
 					// #ifdef MP-WEIXIN
 					this.xcxLogin()
