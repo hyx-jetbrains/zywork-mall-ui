@@ -503,6 +503,8 @@
 					}).catch(err => {
 						console.log(err)
 					})
+				} else {
+					showInfoToast('微信服务端未能正常返回手机号')
 				}
 			},
 			/**

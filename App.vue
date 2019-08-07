@@ -18,7 +18,7 @@
 		    updateManager.onUpdateReady(function(res) {
 		        uni.showModal({
 		            title: '更新提示',
-		            content: '发现新版本，是否重启应用？',
+		            content: '发现新版本，点击确定重启应用',
 		            success(res) {
 		                if (res.confirm) {
 		                    // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
