@@ -78,9 +78,6 @@
 			 * 获取验证码
 			 */
 			getCode() {
-				if (!this.checkData()) {
-					return
-				}
 				this.getCodeDisabled = true;
 				this.sendSmsCode();
 				var _this = this;
