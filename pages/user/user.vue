@@ -84,7 +84,7 @@
 					<text>积分</text>
 				</view>
 				<view class="tj-item" @click="toCouponPage">
-					<text class="num">0</text>
+					<text class="num">{{couponCount}}</text>
 					<text>优惠券</text>
 				</view>
 			</view>
@@ -174,6 +174,7 @@
 	import {
 		BASE_URL,
 		doPostForm,
+		doPostJson,
 		showInfoToast,
 		doGet,
 		doGetForm,
@@ -216,9 +217,10 @@
 					getUserDetailUrl: '/user-userdetail/user/get',
 					getUserRolesUrl: '/user-role/user/list',
 					userWalletUrl: '/user-wallet/user/one',
-					distributionAmountUrl: '/account-detail/user/distribution-amount'
-
+					distributionAmountUrl: '/account-detail/user/distribution-amount',
+					couponSearchUrl: '/goods-user-coupon/user/all-cond'
 				},
+				couponCount: 0,
 				userInfo: {},
 				hasPhone: false,
 				coverTransform: 'translateY(0px)',
@@ -562,6 +564,22 @@
 					let [error, res] = response
 					if (res.data.code === ResponseStatus.OK) {
 						this.distributionCount = res.data.data
+					}
+				}).catch(err => {
+					console.log(err)
+				})
+			},
+			/**
+			 * 加载优惠券数量
+			 */
+			loadCouponCount() {
+				let params = {
+					couponStatus: 0
+				}
+				doPostJson(this.urls.couponSearchUrl, params, {}, true).then(response => {
+					let [error, res] = response
+					if (ResponseStatus.OK === res.data.code) {
+						this.couponCount = res.data.data.total
 					}
 				}).catch(err => {
 					console.log(err)

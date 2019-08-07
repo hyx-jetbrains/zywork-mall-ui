@@ -1,146 +1,292 @@
 <template>
 	<view>
 		<view class="tabr" :style="{top:headerTop}">
-			<view :class="{on:typeClass=='valid'}" @tap="switchType('valid')">可用({{couponValidList.length}})</view><view :class="{on:typeClass=='invalid'}"  @tap="switchType('invalid')">已失效</view>
+			<view :class="{on:typeClass=='valid'}" @tap="switchType('valid')">可用({{validCount}})</view><view :class="{on:typeClass=='invalid'}"  @tap="switchType('invalid')">已失效</view>
 			<view class="border" :class="typeClass"></view>
 		</view>
 		<view class="place" ></view>
 		<view class="list">
 			<!-- 优惠券列表 -->
-			<view class="sub-list valid" :class="subState">
-				<view class="tis" v-if="couponValidList.length==0">没有数据~</view>
+			<view v-if="tabIndex === 0" class="sub-list valid" :class="subState">
+				
 				<view class="row" v-for="(row,index) in couponValidList" :key="index" >
 					<!-- 删除按钮 -->
-					<view class="menu" @tap.stop="deleteCoupon(row.id,couponValidList)">
+					<view class="menu" @tap.stop="deleteCoupon(row.goodsUserCouponId, couponValidList)">
 						<view class="icon shanchu"></view>
 					</view>
 					<!-- content -->
 					<view class="carrier" :class="[typeClass=='valid'?theIndex==index?'open':oldIndex==index?'close':'':'']" @touchstart="touchStart(index,$event)" @touchmove="touchMove(index,$event)" @touchend="touchEnd(index,$event)">
 						<view class="left">
 							<view class="title">
-								{{row.title}}
+								{{row.goodsCouponTitle}}
+								<text class="zy-tag-activity">
+									{{row.goodsCouponCouponType === 0 ? '现金' : row.goodsCouponCouponType === 1 ? '折扣' : '积分'}}
+								</text>
 							</view>
 							<view class="term">
-								{{row.termStart}} ~ {{row.termEnd}}
+								{{row.goodsCouponCouponUsableRange === 0 ? '平台优惠券' : row.goodsCouponCouponUsableRange === 1 ? '类目优惠券' : row.goodsCouponCouponUsableRange === 2 ? '店铺优惠券' : row.goodsCouponCouponUsableRange === 3 ? '商品优惠券' : '单品优惠券'}}
+							</view>
+							<view class="term">
+								{{row.goodsCouponStartTime.split(' ')[0]}} ~ {{row.goodsCouponDueTime.split(' ')[0]}}
 							</view>
 							<view class="gap-top"></view>
 							<view class="gap-bottom"></view>
 						</view>
-						<view class="right">
-							<view class="ticket">
+						<view class="right" @click="useCoupon(row)">
+							<view class="ticket" v-if="row.goodsCouponCouponType === 0">
+								<!-- 现金券 -->
 								<view class="num">
-									{{row.ticket}}
+									{{row.goodsCouponDiscountAmount}}
 								</view>
 								<view class="unit">
 									元
 								</view>
 							</view>
+							<view class="ticket" v-if="row.goodsCouponCouponType === 1">
+								<!-- 折扣券 -->
+								<view class="num">
+									{{row.goodsCouponDiscountPercent}}
+								</view>
+								<view class="unit">
+									折
+								</view>
+							</view>
+							<view class="ticket" v-if="row.goodsCouponCouponType === 2">
+								<!-- 积分券 -->
+								<view class="num">
+									{{row.goodsCouponIntegralAmount}}
+								</view>
+								<view class="unit">
+									个
+								</view>
+							</view>
 							<view class="criteria">
-								{{row.criteria}}
+								满{{row.goodsCouponUseMinAmount}}元使用
 							</view>
 							<view class="use">
 								去使用
 							</view>
 						</view>
+						
 					</view>
 				</view>
+				<view class="tis">
+					<uni-load-more :status="loadingType"></uni-load-more>
+				</view>
 			</view>
-			<view class="sub-list invalid" :class="subState">
-				<view class="tis" v-if="couponinvalidList.length==0">没有数据~</view>
+			<view v-else-if="tabIndex === 1" class="sub-list invalid" :class="subState">
+				
 				<view class="row" v-for="(row,index) in couponinvalidList" :key="index" >
 					<!-- 删除按钮 -->
-					<view class="menu" @tap.stop="deleteCoupon(row.id,couponinvalidList)">
+					<view class="menu" @tap.stop="deleteCoupon(row.goodsUserCouponId, couponinvalidList)">
 						<view class="icon shanchu"></view>
 					</view>
 					<!-- content -->
 					<view class="carrier" :class="[typeClass=='invalid'?theIndex==index?'open':oldIndex==index?'close':'':'']" @touchstart="touchStart(index,$event)" @touchmove="touchMove(index,$event)" @touchend="touchEnd(index,$event)">
 						<view class="left">
 							<view class="title">
-								{{row.title}}
+								{{row.goodsCouponTitle}}
+								<text class="zy-tag-activity" style="color: #6D6D6D;border-color:#6D6D6D;">
+									{{row.goodsCouponCouponType === 0 ? '现金' : row.goodsCouponCouponType === 1 ? '折扣' : '积分'}}
+								</text>
 							</view>
 							<view class="term">
-								{{row.termStart}} ~ {{row.termEnd}}
+								{{row.goodsCouponCouponUsableRange === 0 ? '平台优惠券' : row.goodsCouponCouponUsableRange === 1 ? '类目优惠券' : row.goodsCouponCouponUsableRange === 2 ? '店铺优惠券' : row.goodsCouponCouponUsableRange === 3 ? '商品优惠券' : '单品优惠券'}}
 							</view>
-							<view class="icon shixiao">
-								
+							<view class="term">
+								{{row.goodsCouponStartTime.split(' ')[0]}} ~ {{row.goodsCouponDueTime.split(' ')[0]}}
 							</view>
+							<view v-if="row.status === 2" class="iconfont iconyiguoqi zy-icon"></view>
+							<view v-else-if="row.status === 1" class="iconfont iconyishiyong zy-icon"></view>
+							<view v-else class="iconfont iconyishixiao zy-icon"></view>
 							<view class="gap-top"></view>
 							<view class="gap-bottom"></view>
 						</view>
 						<view class="right invalid">
-							<view class="ticket">
+							<view class="ticket" v-if="row.goodsCouponCouponType === 0">
+								<!-- 现金券 -->
 								<view class="num">
-									{{row.ticket}}
+									{{row.goodsCouponDiscountAmount}}
 								</view>
 								<view class="unit">
 									元
 								</view>
 							</view>
-							<view class="criteria">
-								{{row.criteria}}
+							<view class="ticket" v-if="row.goodsCouponCouponType === 1">
+								<!-- 折扣券 -->
+								<view class="num">
+									{{row.goodsCouponDiscountPercent}}
+								</view>
+								<view class="unit">
+									折
+								</view>
 							</view>
-							<view class="use">
-								去查看
+							<view class="ticket" v-if="row.goodsCouponCouponType === 2">
+								<!-- 积分券 -->
+								<view class="num">
+									{{row.goodsCouponIntegralAmount}}
+								</view>
+								<view class="unit">
+									个
+								</view>
+							</view>
+							<view class="criteria">
+								满{{row.goodsCouponUseMinAmount}}元使用
 							</view>
 						</view>
 					</view>
 				</view>
+				<view class="tis">
+					<uni-load-more :status="loadingType"></uni-load-more>
+				</view>
 			</view>
+			
 		</view>
 		
 	</view>
 </template>
 
 <script>
-
+	import {
+		doGet,
+		doPostJson,
+		showInfoToast,
+		showSuccessToast,
+		nullToStr,
+		getCurrentDate
+	} from '@/common/util.js'
+	import * as ResponseStatus from '@/common/response-status.js'
+	import uniLoadMore from '@/components/uni-load-more/uni-load-more.vue';
 	export default {
+		components: {
+			uniLoadMore
+		},
 		data() {
 			return {
-				couponValidList:[
-					{id:1,title:"日常用品立减10元",termStart:"2019-04-01",termEnd:"2019-05-30",ticket:"10",criteria:"满50使用"},
-					{id:2,title:"家用电器立减100元",termStart:"2019-04-01",termEnd:"2019-05-30",ticket:"100",criteria:"满500使用"},
-					{id:3,title:"全场立减10元",termStart:"2019-04-01",termEnd:"2019-05-30",ticket:"10",criteria:"无门槛"},
-					{id:4,title:"全场立减50元",termStart:"2019-04-01",termEnd:"2019-05-30",ticket:"50",criteria:"满1000使用"}
-					
-				],
-				couponinvalidList:[
-					{id:1,title:"日常用品立减10元",termStart:"2019-04-01",termEnd:"2019-05-30",ticket:"10",criteria:"满50使用"},
-					{id:2,title:"家用电器立减100元",termStart:"2019-04-01",termEnd:"2019-05-30",ticket:"100",criteria:"满500使用"},
-					{id:3,title:"全场立减10元",termStart:"2019-04-01",termEnd:"2019-05-30",ticket:"10",criteria:"无门槛"},
-					{id:4,title:"全场立减50元",termStart:"2019-04-01",termEnd:"2019-05-30",ticket:"50",criteria:"满1000使用"}
-				],
+				loadingType: 'more',
+				urls: {
+					searchUrl: '/user-goods-coupon/user/pager-cond',
+					removeUrl: '/goods-user-coupon/user/remove/',
+					oneCategoryUrl: '/goods-category/any/level3-info/'
+				},
+				pager: {
+					pageNo: 1,
+					pageSize: 10,
+					goodsUserCouponIsActive: 0,
+					sortColumn: 'goodsUserCouponCreateTime',
+					sortOrder: 'desc',
+					goodsCouponDueTimeMin: null,
+					goodsCouponDueTimeMax: null,
+					goodsUserCouponCouponStatusMin: null,
+					goodsUserCouponCouponStatusMax: null
+				},
+				couponValidList:[],
+				couponinvalidList:[],
 				headerTop:0,
 				//控制滑动效果
 				typeClass:'valid',
 				subState:'',
 				theIndex:null,
 				oldIndex:null,
-				isStop:false
+				isStop:false,
+				tabIndex: 0,
+				validCount: 0,
+				invalidCount: 0,
 			}
 		},
 		onPageScroll(e){
 			
 		},
-		//下拉刷新，需要自己在page.json文件中配置开启页面下拉刷新 "enablePullDownRefresh": true
+		//下拉刷新
 		onPullDownRefresh() {
-		    setTimeout(function () {
-		        uni.stopPullDownRefresh();
-		    }, 1000);
+			this.pager.pageNo = 1
+		    this.loadData('pullDown')
 		},
 		onLoad() {
-			//兼容H5下排序栏位置
-			// #ifdef H5
-				//定时器方式循环获取高度为止，这么写的原因是onLoad中head未必已经渲染出来。
-				let Timer = setInterval(()=>{
-					let uniHead = document.getElementsByTagName('uni-page-head');
-					if(uniHead.length>0){
-						this.headerTop = uniHead[0].offsetHeight+'px';
-						clearInterval(Timer);//清除定时器
-					}
-				},1);
-			// #endif
+			this.loadData('init')
+		},
+		//加载更多
+		onReachBottom() {
+			this.loadData('reachBottom');
 		},
 		methods: {
+			/**
+			 * 加载数据
+			 * @param {Object} type
+			 */
+			loadData(type) {
+				if (this.loadingType === 'loading') {
+					//防止重复加载
+					return
+				}
+				if (this.loadingType === 'nomore' && type !== 'init') {
+					return
+				}
+				if (type === 'reachBottom') {
+					this.pager.pageNo += 1
+				} else {
+					this.pager.pageNo = 1
+				}
+				
+				this.loadingType = 'loading';
+				let currDate = getCurrentDate();
+				if (this.tabIndex == 0) {
+					// 可用
+					this.pager.goodsCouponDueTimeMin = currDate + ' 0:0:0';
+					this.pager.goodsCouponDueTimeMax = null;
+					// 查询待使用的
+					this.pager.goodsUserCouponCouponStatusMin = this.pager.goodsUserCouponCouponStatusMax = 0;
+				} else if (this.tabIndex == 1) {
+					// 失效
+					this.pager.goodsCouponDueTimeMax = currDate + ' 23:59:59';
+					this.pager.goodsCouponDueTimeMin = null;
+					// 查询已过期和已使用的
+					this.pager.goodsUserCouponCouponStatusMin = this.pager.goodsUserCouponCouponStatusMax = null;
+				}
+				doPostJson(this.urls.searchUrl, this.pager, {}, true).then(response => {
+					let [error, res] = response;
+					if (res.data.code === ResponseStatus.OK) {
+						// 判断是否还有数据， 有改为 more， 没有改为noMore 
+						this.loadingType = this.pager.pageNo * this.pager.pageSize >= res.data.data.total ? 'nomore' : 'more'
+						if (this.tabIndex == 0) {
+							this.validCount = res.data.data.total;
+						} else if (this.tabIndex == 1) {
+							this.invalidCount = res.data.data.total;
+						}
+						let tempRows = nullToStr(res.data.data.rows);
+						if (type === 'init') {
+							if (this.tabIndex == 0) {
+								// 可用
+								this.couponValidList = tempRows
+							} else if (this.tabIndex == 1) {
+								// 失效
+								this.couponinvalidList = tempRows
+							}
+						} else if (type === 'pullDown') {
+							if (this.tabIndex == 0) {
+								// 可用
+								this.couponValidList = tempRows
+							} else if (this.tabIndex == 1) {
+								// 失效
+								this.couponinvalidList = tempRows
+							}
+							uni.stopPullDownRefresh();
+						} else if (type === 'reachBottom') {
+							if (tempRows.length > 0) {
+								if (this.tabIndex == 0) {
+									this.couponValidList = this.couponValidList.concat(tempRows)
+								} else if (this.tabIndex == 1) {
+									this.couponinvalidList = this.couponinvalidList.concat(tempRows)
+								}
+							}
+						}
+					} else {
+						showInfoToast(res.data.message);
+					}
+				}).catch(err => {
+					console.log(err);
+				})
+			},
 			switchType(type){
 				if(this.typeClass==type){
 					return ;
@@ -156,6 +302,14 @@
 					this.theIndex = null;
 					this.subState = this.typeClass=='valid'?'':this.subState;
 				},200)
+				if (type === 'valid') {
+					// 可用
+					this.tabIndex = 0;
+				} else if (type === 'invalid') {
+					// 失效
+					this.tabIndex = 1;
+				}
+				this.loadData('init')
 			},
 			//控制左滑删除效果-begin
 			touchStart(index,event){
@@ -207,23 +361,94 @@
 				this.isStop = false;
 			},
 			
-			//删除商品
-			deleteCoupon(id,List){
-				let len = List.length;
-				for(let i=0;i<len;i++){
-					if(id==List[i].id){
-						List.splice(i, 1);
-						break;
+			//删除优惠券
+			deleteCoupon(id, List){
+				uni.showModal({
+					title: '确定删除优惠券？',
+					success: (e) => {
+						if(e.confirm){
+							uni.showLoading({
+								title: '删除中...'
+							})
+							doGet(this.urls.removeUrl + id, {}, true).then(response => {
+								uni.hideLoading();
+								let [error, res] = response
+								if (ResponseStatus.OK === res.data.code) {
+									let len = List.length;
+									for(let i=0;i<len;i++){
+										if(id==List[i].id){
+											List.splice(i, 1);
+											break;
+										}
+									}
+									this.oldIndex = null;
+									this.theIndex = null;
+									if (this.tabIndex === 0) {
+										this.validCount--
+									} else if (this.tabIndex === 1) {
+										this.invalidCount--
+									}
+									showSuccessToast(res.data.message)
+								} else {
+									showInfoToast(res.data.message)
+								}
+							}).catch(err => {
+								console.log(err)
+							})
+						}
 					}
-				}
-				this.oldIndex = null;
-				this.theIndex = null;
+				})
+				
 			},
 			
 			discard() {
 				//丢弃
+			},
+			/**
+			 * 使用优惠券
+			 * @param {Object} item
+			 */
+			useCoupon(item) {
+				let type = item.goodsCouponCouponUsableRange;
+				if (type === 0) {
+					// 平台优惠券
+					uni.switchTab({
+						url: '/pages/category/category'
+					})
+				} else if (type === 1) {
+					// 类目优惠券
+					doGet(this.urls.oneCategoryUrl + item.goodsCouponCategoryId, {}, false).then(response => {
+						let [error, res] = response
+						if (ResponseStatus.OK === res.data.code) {
+							let row = res.data.data
+							uni.navigateTo({
+								url: `/pages/product/list?fid=${row.topId}&sid=${row.parentId}&tid=${row.id}&pageTitle=${row.title}`
+							})
+						}
+					}).catch(err => {
+						console.log(err)
+					})
+					
+				} else if (type === 2) {
+					// 店铺优惠券 - 先跳转到分类页面，后期完善了店铺再跳转到店铺的商品列表
+					uni.switchTab({
+						url: '/pages/category/category'
+					})
+				} else if (type === 3) {
+					// 商品优惠券
+					let goodsInfoId = item.goodsCouponGoodsId
+					uni.navigateTo({
+						url: `/pages/product/product?goodsInfoId=${goodsInfoId}`
+					})
+				} else if (type === 4) {
+					// 单品优惠券
+					let goodsInfoId = item.goodsCouponGoodsId
+					let goodsSkuId = item.goodsCouponGoodsSkuId
+					uni.navigateTo({
+						url: `/pages/product/product?goodsInfoId=${goodsInfoId}&goodsSkuId=${goodsSkuId}`
+					})
+				}
 			}
-			
 			
 		}
 	}
@@ -485,5 +710,29 @@
 			* */
 		}
 	}
-	
+	.tis{
+		width: 100%;
+		height: 60upx;
+		justify-content: center;
+		align-items: center;
+		font-size: 32upx;
+	}
+	.zy-icon {
+		position: absolute;
+		top: 10upx;
+		right: 25upx;
+		color: #dedede;
+		font-size: 140upx;
+	} 
+	.zy-tag-activity {
+		color: #fa436a;
+		font-size: 23upx;
+		width: 70upx;
+		height: 45upx;
+		line-height: 40upx;
+		text-align: center;
+		border: 1upx solid #fa436a;
+		border-radius: 20upx;
+		margin-left: 10upx;
+	}
 </style>

@@ -43,7 +43,8 @@
 		doPostForm,
 		USER_PHONE,
 		showInfoToast,
-		showSuccessToast
+		showSuccessToast,
+		isPhone
 	} from '@/common/util.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	export default {
@@ -78,6 +79,9 @@
 			 * 获取验证码
 			 */
 			getCode() {
+				if (!this.checkData()) {
+					return
+				}
 				this.getCodeDisabled = true;
 				this.sendSmsCode();
 				var _this = this;
@@ -96,7 +100,7 @@
 			 */
 			sendSmsCode() {
 				let params = {
-					phone: this.oldPhone
+					phone: this.newPhone
 				}
 				doPostForm(this.urls.sendSms, params, {}, true).then(response => {
 					let [error, res] = response
@@ -145,6 +149,10 @@
 				}
 				if (this.newPhone == this.oldPhone) {
 					showInfoToast('新手机和老手机号一致')
+					return false
+				}
+				if (!isPhone(this.newPhone)) {
+					showInfoToast('手机号格式有误')
 					return false
 				}
 				

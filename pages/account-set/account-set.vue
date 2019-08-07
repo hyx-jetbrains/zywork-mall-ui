@@ -63,6 +63,7 @@
 					let [error, res] = response;
 					if (res.data.code === ResponseStatus.OK) {
 						this.user = res.data.data;
+						this.user.phone = uni.getStorageSync(USER_PHONE)
 					} else {
 						showInfoToast(res.data.message);
 					}
