@@ -19,6 +19,11 @@ export const REFRESH_ORDER = 'refreshOrder'
 export const MALL_DISTRIBUTOR_FLAG = 'mallDistributorFlag'
 
 export const LOCAL_FILE_STORAGE = true
+
+export const SHOW_ORIGINAL_PRICE = false
+
+export const SHOW_PRICE_DISCOUNT = false
+
 /**
  * 判断是否为空（null, '', undefined）
  */

@@ -21,8 +21,8 @@
 			<view class="price-box">
 				<text class="price-tip">¥</text>
 				<text class="price">{{selectSku.salePrice || 0}}</text>
-				<text class="m-price">¥{{selectSku.price || 0}}</text>
-				<text class="coupon-tip">{{((selectSku.salePrice ? selectSku.salePrice : 0) / (selectSku.price ? selectSku.price : 1) * 10).toFixed(1)}}折</text>
+				<text class="m-price" v-if="showOriginalPrice">¥{{selectSku.price || 0}}</text>
+				<text class="coupon-tip" v-if="showPriceDiscount">{{((selectSku.salePrice ? selectSku.salePrice : 0) / (selectSku.price ? selectSku.price : 1) * 10).toFixed(1)}}折</text>
 			</view>
 			<view class="bot-row">
 				<text>销量: {{goodsInfo.goodsInfoSaleCount || 0}}</text>
@@ -104,8 +104,8 @@
 			<view class="e-header" @click="toEvaluatePage">
 				<text class="tit">评价</text>
 				<text>({{commentCount}})</text>
-				<text class="tip zy-see-all">查看全部</text>
-				<text class="iconfont iconxiangyou icon-more zy-see-all"></text>
+				<text class="tip">查看全部</text>
+				<text class="iconfont iconxiangyou icon-more"></text>
 			</view>
 			<view v-if="commentList.length > 0">
 				<view class="eva-box" v-for="(item, index) in commentList" :key="index">
@@ -237,7 +237,9 @@
 <script>
 	import share from '@/components/share'
 	import uniNumberBox from '@/components/uni-number-box.vue'
-	import {doPostJson, doGet, doPostForm, showInfoToast, REFRESH_CART, REFRESH_PRODUCT, HAS_USER_INFO, FRONT_BASE_URL, LOCAL_FILE_STORAGE} from '@/common/util.js'
+	import {doPostJson, doGet, doPostForm, showInfoToast, REFRESH_CART, 
+	REFRESH_PRODUCT, HAS_USER_INFO, FRONT_BASE_URL, LOCAL_FILE_STORAGE,
+	SHOW_ORIGINAL_PRICE, SHOW_PRICE_DISCOUNT} from '@/common/util.js'
 	import {setProductHistory} from '@/common/storage.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
@@ -289,10 +291,14 @@
 				},
 				commentCount: 0,
 				commentList: [],
-				skuActivites: []
+				skuActivites: [],
+				showOriginalPrice: true,
+				showPriceDiscount: true
 			}
 		},
 		async onLoad(options){
+			this.showOriginalPrice = SHOW_ORIGINAL_PRICE
+			this.showPriceDiscount = SHOW_PRICE_DISCOUNT
 			// #ifdef H5
 			let openid = options.openid
 			let token = options.token
@@ -866,7 +872,11 @@
 			font-size: 26upx;
 			color:$uni-color-primary;
 		}
+		.price-tip {
+			color: $primary-color;
+		}
 		.price{
+			color: $primary-color;
 			font-size: $font-lg + 2upx;
 		}
 		.m-price{
@@ -1318,10 +1328,6 @@
 	.icon-more {
 		font-size: 26upx;
 		color: $font-color-light;
-	}
-	
-	.zy-see-all {
-		color: #fa436a;
 	}
 	.shop-section {
 	  display: flex;
