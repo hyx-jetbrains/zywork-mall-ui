@@ -414,6 +414,7 @@
 					order.platDiscountAmount = 0
 					order.shopDiscountAmount = 0
 					order.remark = shopSkus.remark
+					order.addressId = this.selectedAddress.id
 					order.goodsOrderItemInVOList = orderItems 
 					orderList.push(order)
 				})
