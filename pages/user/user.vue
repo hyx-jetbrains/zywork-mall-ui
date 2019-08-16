@@ -598,7 +598,7 @@
 			},
 			navToProduct(goodsId) {
 				uni.navigateTo({
-					url: `/pages/product/product?goodsInfoId=${goodsId}&fromPage=his`
+					url: `/pages/product/product?gi=${goodsId}&fromPage=his`
 				})
 			},
 			/**

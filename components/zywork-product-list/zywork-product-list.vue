@@ -50,7 +50,7 @@
 				let goodsInfoId = item.goodsInfoId
 				let goodsSkuId = item.goodsSkuId
 				uni.navigateTo({
-					url: `/pages/product/product?goodsInfoId=${goodsInfoId}&goodsSkuId=${goodsSkuId}`
+					url: `/pages/product/product?gi=${goodsInfoId}&si=${goodsSkuId}`
 				})
 			},
 		},

@@ -236,10 +236,7 @@
 		onLoad(options) {
 			this.loadData();
 			if (options.shareCode) {
-				uni.setStorage({
-					key: SHARE_CODE,
-					data: options.shareCode
-				});
+				uni.setStorageSync(SHARE_CODE, options.shareCode)
 			}
 		},
 		onPullDownRefresh() {
@@ -387,7 +384,7 @@
 			//详情页
 			navToDetailPage(goodsInfoId) {
 				uni.navigateTo({
-					url: `/pages/product/product?goodsInfoId=${goodsInfoId}`
+					url: `/pages/product/product?gi=${goodsInfoId}`
 				})
 			}
 		},

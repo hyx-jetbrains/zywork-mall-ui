@@ -438,14 +438,14 @@
 					// 商品优惠券
 					let goodsInfoId = item.goodsCouponGoodsId
 					uni.navigateTo({
-						url: `/pages/product/product?goodsInfoId=${goodsInfoId}`
+						url: `/pages/product/product?gi=${goodsInfoId}`
 					})
 				} else if (type === 4) {
 					// 单品优惠券
 					let goodsInfoId = item.goodsCouponGoodsId
 					let goodsSkuId = item.goodsCouponGoodsSkuId
 					uni.navigateTo({
-						url: `/pages/product/product?goodsInfoId=${goodsInfoId}&goodsSkuId=${goodsSkuId}`
+						url: `/pages/product/product?gi=${goodsInfoId}&si=${goodsSkuId}`
 					})
 				}
 			}

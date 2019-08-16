@@ -349,7 +349,7 @@
 			},
 			navToGoodsSku(goodsId, goodsSkuId) {
 				uni.navigateTo({
-					url: `/pages/product/product?goodsInfoId=${goodsId}&goodsSkuId=${goodsSkuId}`
+					url: `/pages/product/product?gi=${goodsId}&si=${goodsSkuId}`
 				})
 			},
 			//删除
