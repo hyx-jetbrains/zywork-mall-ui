@@ -31,6 +31,8 @@
 		data() {
 			return {
 				canvasFlag: this.theCanvasFlag,
+				isProductImgOk: false,
+				isXcxCodeOk: false
 			}
 		},
 		methods:{
@@ -214,6 +216,7 @@
 						ctx.drawImage(res.path, (_this.phoneW-((_this.phoneW-130)))/2,55,(_this.phoneW-130), 250*scaleH,5);//绘制图
 						ctx.restore(); //恢复之前保存的绘图上下文 恢复之前保存的绘图上下午即状态 可以继续绘制
 						ctx.draw(true)
+						_this.isProductImgOk = true
 				   } ,
 					fail(){
 						_this.canvasFlag=true;
@@ -270,6 +273,7 @@
 				       success(res) {
 						ctx.drawImage(res.path,(_this.phoneW-70)/2,430*scaleH, 70,70)
 						ctx.draw(true)
+						_this.isXcxCodeOk = true
 				      },
 						fail(){
 							_this.canvasFlag=true;
@@ -284,7 +288,7 @@
 				ctx.setFontSize(14)
 				ctx.setFillStyle('#2f1709')//文字颜色：默认黑色
 				ctx.font = 'normal bold 14px sans-serif';
-				ctx.fillText(_this.posterObj.xcxTitle, (_this.phoneW-90)/2, 530*scaleH,90);
+				ctx.fillText(_this.posterObj.xcxTitle, (_this.phoneW-70)/2, 530*scaleH,90);
 				// 小程序的名称end
 				// 长按/扫描识别查看商品
 				ctx.setFontSize(14)
@@ -314,6 +318,10 @@
 			// 保存到系统相册
 			saveCanvasImage(){
 				console.log('点击了保存')
+				if (!this.isProductImgOk || !this.isXcxCodeOk) {
+					showInfoToast('还在生成海报哦')
+					return
+				}
 				wx.showLoading({
 					title: '保存中...'
 				})
