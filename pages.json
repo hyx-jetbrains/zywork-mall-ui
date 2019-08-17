@@ -4,7 +4,7 @@
 			"style": {
 				"enablePullDownRefresh": true,
 				// #ifdef MP || H5 
-				"navigationBarTitleText": "赣南名优网",
+				"navigationBarTitleText": "名优网商城",
 				//"navigationStyle": "custom",
 				// #endif 
 				"app-plus": {

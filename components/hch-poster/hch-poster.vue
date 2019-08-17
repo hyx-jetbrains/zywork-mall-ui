@@ -1,23 +1,18 @@
 <template>
 	 <!-- 海报(想让海报显示隐藏要用hidden，v-if关闭后没办法在完整的出来海报) 保存海报按钮和关闭按钮 在html代码中写出来 绑定点击方法然后透明 再用canvas 覆盖 -->
-	<view class="canvas_box" :hidden="canvasFlag">
+	<view class="canvas_box" :hidden="theCanvasFlag">
 		<view class="canvas_box_mask"></view><!-- 遮罩 -->
-		<icon type="cancel" class="canvas_close_btn" size="60" @tap="canvasCancelEvn" color="transparent"/><!-- 关闭 -->
 		<view class="button-wrapper"><!-- 保存海报按钮 -->
 			<cover-view class="save_btn" @tap="saveCanvasImage"></cover-view>
+			<cover-view class="save_btn" @tap="canvasCancelEvn"></cover-view>
 		</view>
 	</view>
 </template>
 
 <script>
 	export default{
-		data(){
-			return{
-				
-			}
-		},
 		props:{
-			canvasFlag:{
+			theCanvasFlag:{
 				type:Boolean,
 				default:true,
 			},
@@ -25,12 +20,17 @@
 				type:Object,
 				default:{
 					url:'https://img0.zuipin.cn/mp_zuipin/poster/hch-pro.jpg',//商品主图
-					icon:'https://img0.zuipin.cn/mp_zuipin/poster/hch-hyj.png',//会员价图标
+					xcxTitle:'小程序标题',//小程序标题
 					title:"诗酒茶系列 武夷大红袍 2018年 花香型中火 一级 体验装 16g",//标题
 					discountPrice:"250.00",//折后价格
 					orignPrice:"300.00",//原价
 					code:'https://img0.zuipin.cn/mp_zuipin/poster/hch-code.png',//小程序码
 				}
+			}
+		},
+		data() {
+			return {
+				canvasFlag: this.theCanvasFlag,
 			}
 		},
 		methods:{
@@ -159,7 +159,7 @@
 								},
 								fail() {
 									this.canvasFlag=true;
-									uni.showToast({title:'海报生成失败1',duration:2000,icon:'none'});
+									uni.showToast({title:'海报生成失败',duration:2000,icon:'none'});
 								},
 							});
 						} else {
@@ -167,7 +167,7 @@
 						}
 					}).catch(()=>{
 						this.canvasFlag=true;
-						uni.showToast({title:'海报生成失败2',duration:2000,icon:'none'});
+						uni.showToast({title:'海报生成失败',duration:2000,icon:'none'});
 					})
 				})
 			},
@@ -193,9 +193,6 @@
 				let url=this.posterObj.url;//商品主图
 				let zpPriceIcon=this.posterObj.icon//图标
 				let code=this.posterObj.code
-				let closeBtn='https://imgzuipin.oss-cn-hangzhou.aliyuncs.com/mp_zuipin/poster/close_btn.png'
-			console.log(ctx)
-			console.log(this)
 
 				ctx.draw()//清空原来的画图内容
 				ctx.save();
@@ -213,29 +210,16 @@
 						//问题：在微信小程序使用canvas绘制圆角图片时，微信调试工具正常显示，android真机都不显示。
 						// 原因：因为ctx.clip()剪切区域使用的填充颜色是透明的，所以图片没出来。
 						// 解决方案：将剪切区域设置成实体颜色就好了。
-						_this.roundRect(ctx,(_this.phoneW-((_this.phoneW-130)))/2,55,(_this.phoneW-130), 250*scaleH,10,'#f7f7f7','#f7f7f7')//绘制图片圆角背景
-						ctx.drawImage(res.path, (_this.phoneW-((_this.phoneW-130)))/2,55,(_this.phoneW-130), 250*scaleH,10);//绘制图
+						_this.roundRect(ctx,(_this.phoneW-((_this.phoneW-130)))/2,55,(_this.phoneW-130), 250*scaleH,5,'#f7f7f7','#f7f7f7')//绘制图片圆角背景
+						ctx.drawImage(res.path, (_this.phoneW-((_this.phoneW-130)))/2,55,(_this.phoneW-130), 250*scaleH,5);//绘制图
 						ctx.restore(); //恢复之前保存的绘图上下文 恢复之前保存的绘图上下午即状态 可以继续绘制
 						ctx.draw(true)
 				   } ,
 					fail(){
 						_this.canvasFlag=true;
-						uni.showToast({title:'海报生成失败',duration:2000,icon:'none'});
+						uni.showToast({title:'商品图片绘制错误',duration:2000,icon:'none'});
 					}
 				})
-				// 关闭按钮
-				wx.getImageInfo({
-			        src: closeBtn,
-			        success(res) {
-						ctx.drawImage(res.path,50+(_this.phoneW-100)+5,40,24, 24)
-						ctx.draw(true)
-			      }  ,
-					fail(){
-						_this.canvasFlag=true;
-						uni.showToast({title:'海报生成失败',duration:2000,icon:'none'});
-					}
-				})
-				// 关闭按钮 end
 				// 海报商品title
 				setTimeout(()=>{
 					ctx.setGlobalAlpha(1)//不透明
@@ -253,39 +237,26 @@
 					}
 				},500)
 				// 海报商品title end
-				// 会员价 图标
-				wx.getImageInfo({
-			         src: zpPriceIcon,
-			         success(res) {
-					ctx.drawImage(res.path,65,380*scaleH,44, 15)
-					ctx.draw(true)
-			      } ,
-					fail(){
-						_this.canvasFlag=true;
-						uni.showToast({title:'海报生成失败',duration:2000,icon:'none'});
-					}
-				})
-				// 会员价 图标 end
 				//绘制价格
 				ctx.setFontSize(12)//设置字体大小，默认10
-				ctx.setFillStyle('#c00000')//文字颜色：默认黑色
+				ctx.setFillStyle('#fa436a')//文字颜色：默认黑色
 				ctx.font = 'normal 12px sans-serif';
-				ctx.fillText('￥', 110, 396*scaleH,60);
+				ctx.fillText('￥', 65, 396*scaleH,60);
 				ctx.setFontSize(16)//设置字体大小，默认10
 				let zpPrice = this.posterObj.discountPrice;//会员价格
 				let orignPrice = this.posterObj.orignPrice;//市场价
 				
 				let zpPriceW = ctx.measureText(zpPrice).width;//文本的宽度
-				ctx.fillText(zpPrice, 120, 396*scaleH,zpPriceW);
+				ctx.fillText(zpPrice, 75, 396*scaleH,zpPriceW);
 			
 				ctx.beginPath();//开始一个新的路径
 				ctx.setFontSize(10)//设置字体大小，默认10
 				ctx.setFillStyle('#fa436a')//文字颜色：默认黑色
 				if (orignPrice) {
 					let orignPriceW = ctx.measureText(orignPrice).width//去掉市场价
-					ctx.fillText(`￥${orignPrice}`, 120+zpPriceW+5, 395*scaleH,orignPriceW); //5价格间距
-					ctx.moveTo(120+zpPriceW+5,392*scaleH);//设置线条的起始路径坐标
-					ctx.lineTo(120+zpPriceW+5+orignPriceW,392*scaleH);//设置线条的终点路径坐标
+					ctx.fillText(`￥${orignPrice}`, 85+zpPriceW+5, 395*scaleH,orignPriceW); //5价格间距
+					ctx.moveTo(85+zpPriceW+5,392*scaleH);//设置线条的起始路径坐标
+					ctx.lineTo(85+zpPriceW+5+orignPriceW,392*scaleH);//设置线条的终点路径坐标
 					ctx.setStrokeStyle('#999')
 				}
 				
@@ -302,7 +273,7 @@
 				      },
 						fail(){
 							_this.canvasFlag=true;
-							uni.showToast({title:'海报生成失败',duration:2000,icon:'none'});
+							//uni.showToast({title:'小程序码绘制错误',duration:2000,icon:'none'});
 							
 						}
 					})
@@ -313,22 +284,29 @@
 				ctx.setFontSize(14)
 				ctx.setFillStyle('#2f1709')//文字颜色：默认黑色
 				ctx.font = 'normal bold 14px sans-serif';
-				ctx.fillText('您的好友推荐给您', (_this.phoneW-90)/2, 530*scaleH,90);
+				ctx.fillText(_this.posterObj.xcxTitle, (_this.phoneW-90)/2, 530*scaleH,90);
 				// 小程序的名称end
 				// 长按/扫描识别查看商品
 				ctx.setFontSize(14)
-				ctx.setFillStyle('#ff5f33')//文字颜色：默认黑色
+				ctx.setFillStyle('#fa436a')//文字颜色：默认黑色
 				ctx.font = 'normal 14px sans-serif';
-				ctx.fillText('长按/扫描识别查看商品', (_this.phoneW-140)/2, 550*scaleH,140);
+				ctx.fillText('长按并识别小程序码查看商品', (_this.phoneW-140)/2, 550*scaleH,140);
 				// 长按/扫描识别查看商品end
 				//绘制保存按钮
 				ctx.save(); 
-				this.roundRect(ctx,(this.phoneW-160)/2,(this.phoneH-55),160, 36,18,'#ff3600','#ff6a00','btn')
+				this.roundRect(ctx,(this.phoneW-210)/2,(this.phoneH-55),95, 33,18,'#fa436a','#fa436a','btn')
 				ctx.restore(); 
 				ctx.setFontSize(14)
 				ctx.setFillStyle('#fff')//文字颜色：默认黑色
 				ctx.font = 'normal bold 14px sans-serif';
-				ctx.fillText('保存图片', (_this.phoneW-58)/2, (this.phoneH-33),58);
+				ctx.fillText('保存图片', (_this.phoneW-168)/2, (this.phoneH-33),58);
+				ctx.save();
+				this.roundRect(ctx,(this.phoneW + 15)/2,(this.phoneH-55),95, 33,18,'#f7f7f7','#f7f7f7','btn')
+				ctx.restore(); 
+				ctx.setFontSize(14)
+				ctx.setFillStyle('#fa436a')//文字颜色：默认黑色
+				ctx.font = 'normal bold 14px sans-serif';
+				ctx.fillText('关闭', (_this.phoneW + 85)/2, (this.phoneH-33),58);
 				//绘制保存按钮 end
 				wx.hideLoading();
 			},
@@ -355,7 +333,7 @@
 					filePath: res.tempFilePath,
 					success(res2) {
 						wx.hideLoading();
-						uni.showToast({title: '图片保存成功，可以去分享啦~', duration: 2000})
+						uni.showToast({title: '图片保存成功，可以去分享啦~', duration: 2000, icon: 'none'})
 						_this.canvasCancelEvn();
 					},
 					fail() {
@@ -406,17 +384,19 @@
 	        z-index: 9;
 	    }
 	    .button-wrapper {
-	        width: 320rpx;
-	        height: 72rpx;
+	        width: 70%;
+	        height: 90rpx;
 	        position: absolute;
-	        bottom: 20rpx;
-	        left:  215rpx;
+	        bottom: 40rpx;
+			left: 12%;
 			z-index: 16;
+			display: flex;
+			justify-content: space-between;
 	    }
 	    
 	    .save_btn{
 	        font-size: 30rpx;
-	        line-height: 72rpx;
+	        line-height: 66rpx;
 	        color: #fff;
 	        width:100%;
 	        height:100%;

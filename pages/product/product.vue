@@ -12,7 +12,7 @@
 		</view>
 		
 		<view class="introduce-section">
-			<view class="zy-hot-section zy-display-flex">
+			<view class="zy-hot-section">
 				<view>
 					<text class="zy-tag-hot" v-if="selectSku.isAgent">代理</text>
 					<text class="zy-tag-hot" v-if="selectSku.isGroupon">拼团</text>
@@ -20,27 +20,9 @@
 					<text class="zy-tag-hot" v-if="selectSku.isPromotion">促销</text>
 					<text class="title">{{selectSku.title || ''}}</text>
 				</view>
-				<view class="zy-display-flex-right" style="margin-right: 0;" @click="sharePopupShow(true)">
+				<view style="min-width: 100upx;" @click="sharePopupShow(true)">
 					<text class="iconfont iconfenxiang"></text>
 					<text>分享</text>
-				</view>
-				<uni-popup :show="sharePopup" position="bottom" @hidePopup="sharePopupShow(false)">
-					<view class="zy-popup-bottom-title">选择分享类型</view>
-					<view class="zy-popup-bottom-content">
-						<button @tap="sharePopupShow(false)" open-type="share" style="background-color: #FFF; height: 160upx;">
-							<zywork-icon type="iconhaoyou" size="20" color="#fa436a"></zywork-icon>
-							<view class="zy-popup-bottom-content-text">分享给好友</view>
-						</button>
-						<button @tap="sharePopupShow(false)" @click="generatePosters" style="background-color: #FFF; height: 160upx;">
-							<zywork-icon type="iconico" size="20" color="#fa436a"></zywork-icon>
-							<view class="zy-popup-bottom-content-text">生成商品海报</view>
-						</button>
-					</view>
-					<view class="zy-popup-bottom-btn" @click="sharePopupShow(false)">取消选择</view>
-				</uni-popup>
-				<hchPoster ref="hchPoster" :canvasFlag.sync="canvasFlag" @cancel="canvasCancel" :posterObj.sync="posterData"/>
-				<view :hidden="canvasFlag"><!-- 海报 要放外面放组件里面 会找不到 canvas-->
-					<canvas class="canvas"  canvas-id="myCanvas" ></canvas><!-- 海报 -->
 				</view>
 			</view>
 			<view class="price-box">
@@ -53,6 +35,27 @@
 				<text>销量: {{goodsInfo.goodsInfoSaleCount || 0}}</text>
 				<text>库存: {{selectSku.storeCount || 0}}</text>
 				<text>浏览量: {{goodsInfo.goodsInfoClickCount ? (goodsInfo.goodsInfoClickCount + 1) : 0}}</text>
+			</view>
+		</view>
+		
+		<view>
+			<uni-popup :show="sharePopup" position="bottom" @hidePopup="sharePopupShow(false)">
+				<view class="zy-popup-bottom-title">选择分享类型</view>
+				<view class="zy-popup-bottom-content">
+					<button @tap="sharePopupShow(false)" open-type="share" style="background-color: #FFF; height: 160upx;">
+						<zywork-icon type="iconhaoyou" size="20" color="#fa436a"></zywork-icon>
+						<view class="zy-popup-bottom-content-text">分享给好友</view>
+					</button>
+					<button @tap="sharePopupShow(false)" @click="generatePosters" style="background-color: #FFF; height: 160upx;">
+						<zywork-icon type="iconico" size="20" color="#fa436a"></zywork-icon>
+						<view class="zy-popup-bottom-content-text">生成商品海报</view>
+					</button>
+				</view>
+				<view class="zy-popup-bottom-btn" @click="sharePopupShow(false)">取消选择</view>
+			</uni-popup>
+			<hchPoster style="width:100%; height: 100%;" ref="hchPoster" :theCanvasFlag.sync="canvasFlag" @cancel="canvasCancel" :posterObj.sync="posterData"/>
+			<view :hidden="canvasFlag"><!-- 海报 要放外面放组件里面 会找不到 canvas-->
+				<canvas class="canvas"  canvas-id="myCanvas" ></canvas><!-- 海报 -->
 			</view>
 		</view>
 		
@@ -267,7 +270,7 @@
 	import uniNumberBox from '@/components/uni-number-box.vue'
 	import {doPostJson, doGet, doPostForm, showInfoToast, REFRESH_CART, 
 	REFRESH_PRODUCT, HAS_USER_INFO, FRONT_BASE_URL, LOCAL_FILE_STORAGE,
-	SHOW_ORIGINAL_PRICE, SHOW_PRICE_DISCOUNT, MY_SHARE_CODE, SHARE_CODE, BASE_URL} from '@/common/util.js'
+	SHOW_ORIGINAL_PRICE, SHOW_PRICE_DISCOUNT, MY_SHARE_CODE, SHARE_CODE, SHARE_TITLE, BASE_URL} from '@/common/util.js'
 	import {setProductHistory} from '@/common/storage.js'
 	import * as ResponseStatus from '@/common/response-status.js'
 	import {
@@ -363,13 +366,9 @@
 				this.fromSku = true
 				this.selectSku.skuId = options.si
 			}
-			this.loadGoodsPic(goodsInfoId)
+			this.loadGoodsPic(goodsInfoId, options.fromPage)
 			this.loadGoodsInfoById(goodsInfoId)
 			this.shareList = await this.$api.json('shareList');
-			if (!options.fromPage) {
-				// 保存浏览历史
-				setProductHistory(goodsInfoId, this.goodsPics[0].picUrl)
-			}
 		},
 		onShow() {
 			this.hasUserInfo = uni.getStorageSync(HAS_USER_INFO)
@@ -387,7 +386,7 @@
 		// #ifdef MP-WEIXIN
 		onShareAppMessage(res) {
 			const shareCode = uni.getStorageSync(MY_SHARE_CODE);
-			const title = this.selectSku.title
+			const title = this.selectSku.title + '￥' + this.selectSku.salePrice
 			const imgUrl = this.localFileStorage ? this.frontBaseUrl + this.selectSku.picUrl : this.selectSku.picUrl
 			return  {
 				title: title,
@@ -398,7 +397,7 @@
 		// #endif
 		methods:{
 			// 加载商品的所有图片
-			loadGoodsPic(goodsInfoId) {
+			loadGoodsPic(goodsInfoId, fromPage) {
 				doPostJson('/goods-pic/any/all-cond', {
 					goodsId: goodsInfoId,
 					sortColumn: 'picOrder',
@@ -408,6 +407,10 @@
 					if (res.data.code === ResponseStatus.OK) {
 						this.goodsPics = res.data.data.rows
 					} 
+					if (!fromPage) {
+						// 保存浏览历史
+						setProductHistory(goodsInfoId, this.goodsPics[0].picUrl)
+					}
 				}).catch(error => {
 					console.log(error)
 				})
@@ -583,21 +586,23 @@
 				} else {
 					// 从sku中设置已经选择的规格
 					let skuSpecValue = this.skuSpecs[this.selectSku.skuId]
-					let skuSpecValArray = skuSpecValue.split('-')
-					skuSpecValArray.forEach((skuSpecVal, index) => {
-						// 分别获取SKU规格值的父id和规格具体值
-						let theVal = skuSpecVal.split('#')[1]
-						if (theVal) {
-							for(let cItem of this.specChildList){
-								if(cItem.name == theVal){
-									this.$set(cItem, 'selected', true)
-									this.specSelected.push(cItem)
-									this.specSelectedStr += cItem.pid + '#' + cItem.name + '-'
-									break
+					if (skuSpecValue) {
+						let skuSpecValArray = skuSpecValue.split('-')
+						skuSpecValArray.forEach((skuSpecVal, index) => {
+							// 分别获取SKU规格值的父id和规格具体值
+							let theVal = skuSpecVal.split('#')[1]
+							if (theVal) {
+								for(let cItem of this.specChildList){
+									if(cItem.name == theVal){
+										this.$set(cItem, 'selected', true)
+										this.specSelected.push(cItem)
+										this.specSelectedStr += cItem.pid + '#' + cItem.name + '-'
+										break
+									}
 								}
 							}
-						}
-					})
+						})
+					}
 				}
 			},
 			//选择规格
@@ -885,7 +890,7 @@
 			 * 生成海报
 			 */
 			generatePosters() {
-				const shareCode = uni.getStorageSync(MY_SHARE_CODE);
+				let shareCode = uni.getStorageSync(MY_SHARE_CODE);
 				if (!shareCode) {
 					shareCode = 'none'
 				}
@@ -896,7 +901,7 @@
 				const orignPrice = this.selectSku.price
 				let data = {
 					url:imgUrl,//商品主图
-					icon:'https://img0.zuipin.cn/mp_zuipin/poster/hch-hyj.png',//会员价图标
+					xcxTitle: SHARE_TITLE,
 					title:goodsTitle,//标题
 					discountPrice:price,//折后价格
 					orignPrice:null,//原价

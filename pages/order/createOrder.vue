@@ -331,7 +331,7 @@
 						this.totalPay += (sku.salePrice * sku.quantity)
 					})
 				})
-				this.totalPay.toFixed(2)
+				this.totalPay = this.totalPay.toFixed(2)
 				this.actualPay = (this.totalPay - this.discount).toFixed(2)
 			},
 			// 保存订单并跳转到支付页面
